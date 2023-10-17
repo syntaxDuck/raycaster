@@ -1,7 +1,0 @@
-[
-{
-  "directory": "/mnt/d/dev/C/raycaster/build",
-  "command": "clang    -o CMakeFiles/raycaster.dir/src/main.c.o -c /mnt/d/dev/C/raycaster/src/main.c",
-  "file": "/mnt/d/dev/C/raycaster/src/main.c"
-}
-]

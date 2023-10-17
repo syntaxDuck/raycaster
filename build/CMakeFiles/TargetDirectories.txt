@@ -1,3 +1,0 @@
-/mnt/d/dev/C/raycaster/build/CMakeFiles/raycaster.dir
-/mnt/d/dev/C/raycaster/build/CMakeFiles/edit_cache.dir
-/mnt/d/dev/C/raycaster/build/CMakeFiles/rebuild_cache.dir

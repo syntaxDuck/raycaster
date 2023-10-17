@@ -1,0 +1,1 @@
+clang -rdynamic CMakeFiles/raycaster.dir/src/main.c.o -o raycaster  -lSDL2 

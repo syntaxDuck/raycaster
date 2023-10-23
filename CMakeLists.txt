@@ -18,3 +18,4 @@ file(GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
 add_executable(raycaster ${SOURCES})
 
 target_link_libraries(raycaster SDL2)
+target_link_libraries(raycaster m)

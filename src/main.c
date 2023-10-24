@@ -17,7 +17,7 @@
 #define MAP_WIDTH 8
 #define MAP_HEIGHT 8
 #define SCREEN_WIDTH 800
-#define SCREEN_HIGHT 800
+#define SCREEN_HEIGHT 800
 
 // Player defines
 #define PLAYER_SIZE 5
@@ -198,7 +198,7 @@ void initSDL() {
 SDL_Window *initSDLWindow() {
   SDL_Window *window =
       SDL_CreateWindow("GAME", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                       SCREEN_WIDTH, SCREEN_HIGHT, 0);
+                       SCREEN_WIDTH, SCREEN_HEIGHT, 0);
   if (window == NULL) {
     printf("Error creating SDL window: %s\n", SDL_GetError());
     SDL_Quit();
@@ -227,24 +227,23 @@ int main(int argc, char *argv[]) {
   SDL_Window *window = initSDLWindow();
   SDL_Renderer *renderer = initSDLRenderer(window);
 
-  int windowWidth = SCREEN_WIDTH, windowHeight = SCREEN_HIGHT;
-
   Sceen sceen;
   sceen.map = MAP;
   sceen.width = MAP_WIDTH;
   sceen.height = MAP_HEIGHT;
 
-  Actor player;
-  player.pos.x = (double)SCREEN_WIDTH / 2;
-  player.pos.y = (double)SCREEN_HIGHT / 2;
-  player.velocity.x = 0;
-  player.velocity.y = 0;
-  player.accel.x = 0;
-  player.accel.y = 0;
+  Actor *player = malloc(sizeof(Actor));
+  player->pos.x = (double)SCREEN_WIDTH / 2;
+  player->pos.y = (double)SCREEN_HEIGHT / 2;
+  player->velocity.x = 0;
+  player->velocity.y = 0;
+  player->accel.x = 0;
+  player->accel.y = 0;
 
   bool quit = false;
   SDL_Event event;
 
+  // Main Loop //
   while (!quit) {
     while (SDL_PollEvent(&event) != 0) {
       if (event.type == SDL_QUIT) {
@@ -262,12 +261,13 @@ int main(int argc, char *argv[]) {
     SDL_RenderClear(renderer);
 
     processSceen(renderer, sceen);
-    processActor(renderer, &player);
+    processActor(renderer, player);
 
     SDL_RenderPresent(renderer);
   }
 
   // Cleanup and exit
+  free(player);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   SDL_Quit();

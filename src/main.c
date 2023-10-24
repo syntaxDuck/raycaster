@@ -234,13 +234,13 @@ int main(int argc, char *argv[]) {
   sceen.width = MAP_WIDTH;
   sceen.height = MAP_HEIGHT;
 
-  Actor *player;
-  player->pos.x = (double)SCREEN_WIDTH / 2;
-  player->pos.y = (double)SCREEN_HIGHT / 2;
-  player->velocity.x = 0;
-  player->velocity.y = 0;
-  player->accel.x = 0;
-  player->accel.y = 0;
+  Actor player;
+  player.pos.x = (double)SCREEN_WIDTH / 2;
+  player.pos.y = (double)SCREEN_HIGHT / 2;
+  player.velocity.x = 0;
+  player.velocity.y = 0;
+  player.accel.x = 0;
+  player.accel.y = 0;
 
   bool quit = false;
   SDL_Event event;
@@ -262,7 +262,7 @@ int main(int argc, char *argv[]) {
     SDL_RenderClear(renderer);
 
     processSceen(renderer, sceen);
-    processActor(renderer, player);
+    processActor(renderer, &player);
 
     SDL_RenderPresent(renderer);
   }

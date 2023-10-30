@@ -20,7 +20,7 @@
 #define SCREEN_HEIGHT 800
 
 // Player defines
-#define PLAYER_SIZE 5
+#define PLAYER_SIZE 15
 #define PLAYER_ACCEL 0.05
 #define PLAYER_MAX_SPEED 1
 
@@ -52,6 +52,8 @@ typedef struct {
   Vector pos;
   Vector velocity;
   Vector accel;
+  int FOV;
+  Vector *viewCone;
 } Actor;
 
 typedef struct {
@@ -122,12 +124,15 @@ SDL_Texture *drawFilledCircle(SDL_Renderer *renderer, Vector center_vect,
 void processActorMotion(Actor *actor) {
   const Uint8 *state = SDL_GetKeyboardState(NULL);
 
+  int velocityMag = sqrt(actor->velocity.x * actor->velocity.x +
+                         actor->velocity.y * actor->velocity.y);
+
   // Horizontal Velocity Function
   if (state[SDL_SCANCODE_LEFT] && !state[SDL_SCANCODE_RIGHT]) {
-    if (actor->velocity.x > -PLAYER_MAX_SPEED)
+    if (velocityMag < PLAYER_MAX_SPEED)
       actor->velocity.x -= PLAYER_ACCEL;
   } else if (state[SDL_SCANCODE_RIGHT] && !state[SDL_SCANCODE_LEFT]) {
-    if (actor->velocity.x < PLAYER_MAX_SPEED)
+    if (velocityMag < PLAYER_MAX_SPEED)
       actor->velocity.x += PLAYER_ACCEL;
   } else {
     // Gradual deceleration to stop
@@ -141,12 +146,12 @@ void processActorMotion(Actor *actor) {
         actor->velocity.x = 0;
     }
   }
-  // Verical Velocity Functio1
+  // Vertical Velocity Functio1
   if (state[SDL_SCANCODE_UP] && !state[SDL_SCANCODE_DOWN]) {
-    if (actor->velocity.y > -PLAYER_MAX_SPEED)
+    if (velocityMag < PLAYER_MAX_SPEED)
       actor->velocity.y -= PLAYER_ACCEL;
   } else if (state[SDL_SCANCODE_DOWN] && !state[SDL_SCANCODE_UP]) {
-    if (actor->velocity.y < PLAYER_MAX_SPEED)
+    if (velocityMag < PLAYER_MAX_SPEED)
       actor->velocity.y += PLAYER_ACCEL;
   } else {
     // Gradual deceleration to stop
@@ -165,11 +170,47 @@ void processActorMotion(Actor *actor) {
   actor->pos.y += actor->velocity.y;
 }
 
-void processActor(SDL_Renderer *renderer, Actor *actor) {
-  processActorMotion(actor);
-  generateFilledCircle(renderer, actor->pos, PLAYER_SIZE, 500);
+void rotateVector(int cx, int cy, int angle, Vector *vect) {
+  double rad = angle * M_PI / 180;
+  int newX = cx + (vect->x - cx) * cos(rad) - (vect->y - cy) * sin(rad);
+  int newY = cy + (vect->x - cx) * sin(rad) + (vect->y - cy) * cos(rad);
+  vect->x = newX;
+  vect->y = newY;
 }
 
+void createActorViewCone(Actor *actor) {
+  int x = actor->pos.x, y = actor->pos.y + 100;
+  Vector viewPoint;
+  Vector *cone = malloc(sizeof(Vector) * actor->FOV);
+
+  for (int i = 0; i < actor->FOV; i++) {
+    viewPoint.x = actor->pos.x;
+    viewPoint.y = actor->pos.y + 100;
+    rotateVector(actor->pos.x, actor->pos.y, (-actor->FOV / 2 + 1) + i,
+                 &viewPoint);
+    cone[i] = viewPoint;
+  }
+
+  actor->viewCone = cone;
+}
+
+void processActor(SDL_Renderer *renderer, Actor *actor) {
+  processActorMotion(actor);
+
+  createActorViewCone(actor);
+
+  SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+
+  for (int i = 0; i < actor->FOV; i++) {
+    SDL_RenderDrawLine(renderer, actor->pos.x, actor->pos.y,
+                       actor->viewCone[i].x, actor->viewCone[i].y);
+  }
+
+  generateFilledCircle(renderer, actor->pos, PLAYER_SIZE, 500);
+  SDL_RenderDrawLine(renderer, actor->pos.x, actor->pos.y,
+                     actor->pos.x + 100 * actor->velocity.x,
+                     actor->pos.y + 100 * actor->velocity.y);
+}
 void processSceen(SDL_Renderer *renderer, Sceen sceen) {
   const int BLOCK_PAD = 0;
   const int BLOCK_SIZE = SCREEN_WIDTH / MAP_WIDTH - BLOCK_PAD;
@@ -239,6 +280,7 @@ int main(int argc, char *argv[]) {
   player->velocity.y = 0;
   player->accel.x = 0;
   player->accel.y = 0;
+  player->FOV = 90;
 
   bool quit = false;
   SDL_Event event;

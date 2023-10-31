@@ -3,6 +3,7 @@
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_render.h>
+#include <SDL2/SDL_scancode.h>
 #include <SDL2/SDL_stdinc.h>
 #include <SDL2/SDL_surface.h>
 #include <SDL2/SDL_timer.h>
@@ -12,6 +13,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <sys/types.h>
+
+#include "Actor.h"
 
 // Env defines
 #define MAP_WIDTH 8
@@ -38,195 +41,10 @@ const Uint8 MAP[MAP_WIDTH][MAP_HEIGHT] = {
 // clang-format on
 
 typedef struct {
-  double x;
-  double y;
-  double z;
-} Vector;
-
-typedef struct {
-  Vector origin;
-  Vector offset;
-} Rel_Vector;
-
-typedef struct {
-  Vector pos;
-  Vector velocity;
-  Vector accel;
-  int FOV;
-  Vector *viewCone;
-} Actor;
-
-typedef struct {
   const Uint8 (*map)[MAP_HEIGHT];
   Uint8 width;
   Uint8 height;
 } Sceen;
-
-// Function to generate points along the circumference of a circle using Bézier
-// curves
-Vector *generateCirclePoints(Vector center, double radius, int numPoints) {
-
-  Vector *points = malloc(numPoints * sizeof(Vector));
-  double step = 2 * M_PI / numPoints;
-  for (int i = 0; i < numPoints; i++) {
-    double t = i * step;
-    points[i].x = center.x + radius * cos(t);
-    points[i].y = center.y + radius * sin(t);
-  }
-
-  return points;
-}
-
-void generateFilledCircle(SDL_Renderer *renderer, Vector center, double radius,
-                          int numPoints) {
-  Vector *points;
-  for (double r = radius; r > 0; r = r - 1) {
-    SDL_SetRenderDrawColor(renderer, 0, 255 - r * 10, 0, 255);
-    points = generateCirclePoints(center, r, numPoints);
-    for (int x = 0; x < numPoints; x++) {
-      SDL_RenderDrawPoint(renderer, points[x].x, points[x].y);
-    }
-    free(points);
-  }
-}
-
-SDL_Texture *drawFilledCircle(SDL_Renderer *renderer, Vector center_vect,
-                              int radius) {
-
-  int diameter = 2 * radius;
-
-  SDL_Surface *surface =
-      SDL_CreateRGBSurface(0, diameter, diameter, 32, 0, 0, 0, 0);
-
-  SDL_LockSurface(surface);
-
-  Uint32 *pixels = (Uint32 *)surface->pixels;
-  for (int x = center_vect.x - radius; x <= center_vect.x + radius; x++) {
-    for (int y = center_vect.y - radius; y <= center_vect.y + radius; y++) {
-      int dx = x - center_vect.x;
-      int dy = y - center_vect.y;
-      if (dx * dx + dy * dy <= radius * radius) {
-        int index = (dy + radius) * diameter + (dx + radius);
-        pixels[index] = SDL_MapRGB(surface->format, 255, 0, 0);
-      }
-    }
-  }
-
-  SDL_UnlockSurface(surface);
-
-  SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-
-  SDL_FreeSurface(surface);
-
-  return texture;
-}
-
-void processActorMotion(Actor *actor) {
-  const Uint8 *state = SDL_GetKeyboardState(NULL);
-
-  int velocityMag = sqrt(actor->velocity.x * actor->velocity.x +
-                         actor->velocity.y * actor->velocity.y);
-
-  // Horizontal Velocity Function
-  if (state[SDL_SCANCODE_LEFT] && !state[SDL_SCANCODE_RIGHT]) {
-    if (velocityMag < PLAYER_MAX_SPEED)
-      actor->velocity.x -= PLAYER_ACCEL;
-  } else if (state[SDL_SCANCODE_RIGHT] && !state[SDL_SCANCODE_LEFT]) {
-    if (velocityMag < PLAYER_MAX_SPEED)
-      actor->velocity.x += PLAYER_ACCEL;
-  } else {
-    // Gradual deceleration to stop
-    if (actor->velocity.x > 0) {
-      actor->velocity.x -= PLAYER_ACCEL;
-      if (actor->velocity.x < 0)
-        actor->velocity.x = 0;
-    } else if (actor->velocity.x < 0) {
-      actor->velocity.x += PLAYER_ACCEL;
-      if (actor->velocity.x > 0)
-        actor->velocity.x = 0;
-    }
-  }
-  // Vertical Velocity Functio1
-  if (state[SDL_SCANCODE_UP] && !state[SDL_SCANCODE_DOWN]) {
-    if (velocityMag < PLAYER_MAX_SPEED)
-      actor->velocity.y -= PLAYER_ACCEL;
-  } else if (state[SDL_SCANCODE_DOWN] && !state[SDL_SCANCODE_UP]) {
-    if (velocityMag < PLAYER_MAX_SPEED)
-      actor->velocity.y += PLAYER_ACCEL;
-  } else {
-    // Gradual deceleration to stop
-    if (actor->velocity.y > 0) {
-      actor->velocity.y -= PLAYER_ACCEL;
-      if (actor->velocity.y < 0)
-        actor->velocity.y = 0;
-    } else if (actor->velocity.y < 0) {
-      actor->velocity.y += PLAYER_ACCEL;
-      if (actor->velocity.y > 0)
-        actor->velocity.y = 0;
-    }
-  }
-
-  actor->pos.x += actor->velocity.x;
-  actor->pos.y += actor->velocity.y;
-}
-
-void rotateVector(int cx, int cy, int angle, Vector *vect) {
-  double rad = angle * M_PI / 180;
-  int newX = cx + (vect->x - cx) * cos(rad) - (vect->y - cy) * sin(rad);
-  int newY = cy + (vect->x - cx) * sin(rad) + (vect->y - cy) * cos(rad);
-  vect->x = newX;
-  vect->y = newY;
-}
-
-void createActorViewCone(Actor *actor) {
-  int x = actor->pos.x, y = actor->pos.y + 100;
-  Vector viewPoint;
-  Vector *cone = malloc(sizeof(Vector) * actor->FOV);
-
-  for (int i = 0; i < actor->FOV; i++) {
-    viewPoint.x = actor->pos.x;
-    viewPoint.y = actor->pos.y + 100;
-    rotateVector(actor->pos.x, actor->pos.y, (-actor->FOV / 2 + 1) + i,
-                 &viewPoint);
-    cone[i] = viewPoint;
-  }
-
-  actor->viewCone = cone;
-}
-
-void processActor(SDL_Renderer *renderer, Actor *actor) {
-  processActorMotion(actor);
-
-  createActorViewCone(actor);
-
-  SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-
-  for (int i = 0; i < actor->FOV; i++) {
-    SDL_RenderDrawLine(renderer, actor->pos.x, actor->pos.y,
-                       actor->viewCone[i].x, actor->viewCone[i].y);
-  }
-
-  generateFilledCircle(renderer, actor->pos, PLAYER_SIZE, 500);
-  SDL_RenderDrawLine(renderer, actor->pos.x, actor->pos.y,
-                     actor->pos.x + 100 * actor->velocity.x,
-                     actor->pos.y + 100 * actor->velocity.y);
-}
-void processSceen(SDL_Renderer *renderer, Sceen sceen) {
-  const int BLOCK_PAD = 0;
-  const int BLOCK_SIZE = SCREEN_WIDTH / MAP_WIDTH - BLOCK_PAD;
-
-  SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-  for (int row = 0; row < sceen.height; row++) {
-    for (int col = 0; col < sceen.width; col++) {
-      if (sceen.map[row][col]) {
-        SDL_Rect rectangle = {col * (BLOCK_SIZE + BLOCK_PAD),
-                              row * (BLOCK_SIZE + BLOCK_PAD), BLOCK_SIZE,
-                              BLOCK_SIZE};
-        SDL_RenderFillRect(renderer, &rectangle);
-      }
-    }
-  }
-}
 
 void initSDL() {
   if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -262,6 +80,23 @@ SDL_Renderer *initSDLRenderer(SDL_Window *window) {
   return renderer;
 }
 
+void processSceen(SDL_Renderer *renderer, Sceen sceen) {
+  const int BLOCK_PAD = 0;
+  const int BLOCK_SIZE = SCREEN_WIDTH / MAP_WIDTH - BLOCK_PAD;
+
+  SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+  for (int row = 0; row < sceen.height; row++) {
+    for (int col = 0; col < sceen.width; col++) {
+      if (sceen.map[row][col]) {
+        SDL_Rect rectangle = {col * (BLOCK_SIZE + BLOCK_PAD),
+                              row * (BLOCK_SIZE + BLOCK_PAD), BLOCK_SIZE,
+                              BLOCK_SIZE};
+        SDL_RenderFillRect(renderer, &rectangle);
+      }
+    }
+  }
+}
+
 int main(int argc, char *argv[]) {
 
   initSDL();
@@ -274,12 +109,15 @@ int main(int argc, char *argv[]) {
   sceen.height = MAP_HEIGHT;
 
   Actor *player = malloc(sizeof(Actor));
-  player->pos.x = (double)SCREEN_WIDTH / 2;
-  player->pos.y = (double)SCREEN_HEIGHT / 2;
-  player->velocity.x = 0;
-  player->velocity.y = 0;
-  player->accel.x = 0;
-  player->accel.y = 0;
+  player->size = PLAYER_SIZE;
+  player->max_vel = PLAYER_MAX_SPEED;
+  player->accel = PLAYER_ACCEL;
+  player->vect_pos.x = (double)SCREEN_WIDTH / 2;
+  player->vect_pos.y = (double)SCREEN_HEIGHT / 2;
+  player->vect_vel.x = 0;
+  player->vect_vel.y = 0;
+  player->vect_accel.x = 0;
+  player->vect_accel.y = 0;
   player->FOV = 90;
 
   bool quit = false;

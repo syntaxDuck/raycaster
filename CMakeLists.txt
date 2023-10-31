@@ -14,6 +14,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Define source files
 file(GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
 
+include_directories(${CMAKE_SOURCE_DIR}/include)
+
 # Add project executable
 add_executable(raycaster ${SOURCES})
 

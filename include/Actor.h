@@ -8,13 +8,16 @@ typedef struct {
   Vector vect_pos;
   Vector vect_vel;
   Vector vect_accel;
-
-  int FOV;
-  Vector *viewCone;
-
   double max_vel;
   double accel;
 } Actor;
+
+typedef struct {
+  Actor actor;
+  int FOV;
+  int mag_dir;
+  int plan;
+} Player;
 
 void processActorMotion(Actor *actor);
 

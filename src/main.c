@@ -46,40 +46,6 @@ typedef struct {
   Uint8 height;
 } Sceen;
 
-void initSDL() {
-  if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-    printf("Error initializing SDL: %s\n", SDL_GetError());
-    SDL_Quit();
-    exit(EXIT_FAILURE);
-  }
-}
-
-SDL_Window *initSDLWindow() {
-  SDL_Window *window =
-      SDL_CreateWindow("GAME", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                       SCREEN_WIDTH, SCREEN_HEIGHT, 0);
-  if (window == NULL) {
-    printf("Error creating SDL window: %s\n", SDL_GetError());
-    SDL_Quit();
-    exit(EXIT_FAILURE);
-  }
-
-  return window;
-}
-
-SDL_Renderer *initSDLRenderer(SDL_Window *window) {
-  SDL_Renderer *renderer =
-      SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-  if (renderer == NULL) {
-    printf("Error creating SLD renderer: %s\n", SDL_GetError());
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-    exit(EXIT_FAILURE);
-  }
-
-  return renderer;
-}
-
 void processSceen(SDL_Renderer *renderer, Sceen sceen) {
   const int BLOCK_PAD = 0;
   const int BLOCK_SIZE = SCREEN_WIDTH / MAP_WIDTH - BLOCK_PAD;
@@ -100,7 +66,7 @@ void processSceen(SDL_Renderer *renderer, Sceen sceen) {
 int main(int argc, char *argv[]) {
 
   initSDL();
-  SDL_Window *window = initSDLWindow();
+  SDL_Window *window = initSDLWindow(SCREEN_WIDTH, SCREEN_HEIGHT);
   SDL_Renderer *renderer = initSDLRenderer(window);
 
   Sceen sceen;

@@ -69,3 +69,37 @@ SDL_Texture *drawFilledCircle(SDL_Renderer *renderer, Vector center_vect,
 
   return texture;
 }
+
+void initSDL() {
+  if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
+    printf("Error initializing SDL: %s\n", SDL_GetError());
+    SDL_Quit();
+    exit(EXIT_FAILURE);
+  }
+}
+
+SDL_Window *initSDLWindow(int screen_width, int screen_height) {
+  SDL_Window *window =
+      SDL_CreateWindow("GAME", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                       screen_height, screen_height, 0);
+  if (window == NULL) {
+    printf("Error creating SDL window: %s\n", SDL_GetError());
+    SDL_Quit();
+    exit(EXIT_FAILURE);
+  }
+
+  return window;
+}
+
+SDL_Renderer *initSDLRenderer(SDL_Window *window) {
+  SDL_Renderer *renderer =
+      SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+  if (renderer == NULL) {
+    printf("Error creating SLD renderer: %s\n", SDL_GetError());
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    exit(EXIT_FAILURE);
+  }
+
+  return renderer;
+}

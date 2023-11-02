@@ -80,8 +80,6 @@ void createActorViewCone(Actor *actor) {
 }
 
 void drawActor(SDL_Renderer *renderer, Actor *actor) {
-  processActorMotion(actor);
-
   // createActorViewCone(actor);
 
   SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);

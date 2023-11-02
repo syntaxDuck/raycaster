@@ -15,6 +15,7 @@
 #include <sys/types.h>
 
 #include "Actor.h"
+#include "Utility.h"
 
 // Env defines
 #define MAP_WIDTH 8
@@ -29,31 +30,26 @@
 #define PLAYER_MAX_SPEED 1
 #define PLAYER_FOV 90
 
-typedef struct {
-  const Uint8 (*map)[MAP_HEIGHT];
-  Uint8 width;
-  Uint8 height;
-} Sceen;
-
 // Globals
+
+// clang-format off
+Uint8 MAP[MAP_WIDTH][MAP_HEIGHT] = {
+    {1, 1, 1, 1, 1, 1, 1, 1}, 
+    {1, 0, 1, 0, 0, 0, 0, 1},
+    {1, 0, 1, 0, 0, 0, 0, 1}, 
+    {1, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 1}, 
+    {1, 0, 0, 0, 0, 0, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 1}, 
+    {1, 1, 1, 1, 1, 1, 1, 1}
+};
+// clang-format on
+
 SDL_Window *win;
 SDL_Renderer *rend;
 
 Sceen *sceen;
 Player *player;
-
-// clang-format off
-const Uint8 MAP[MAP_WIDTH][MAP_HEIGHT] = {
-    {1, 1, 1, 1, 1, 1, 1, 1}, 
-    {1, 0, 0, 1, 0, 0, 0, 1},
-    {1, 0, 0, 1, 0, 0, 0, 1}, 
-    {1, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 1}, 
-    {1, 0, 0, 0, 0, 1, 0, 1},
-    {1, 0, 0, 0, 0, 1, 0, 1}, 
-    {1, 1, 1, 1, 1, 1, 1, 1}
-};
-// clang-format on
 
 void drawWin(Sceen *sceen) {
   int col_offset;
@@ -100,9 +96,22 @@ int main(int argc, char *argv[]) {
   initSDL(&win, &rend, WIN_WIDTH, WIN_HEIGHT);
 
   sceen = malloc(sizeof(Sceen));
-  sceen->map = MAP;
+
   sceen->width = MAP_WIDTH;
   sceen->height = MAP_HEIGHT;
+
+  // loadSceen(sceen, MAP);
+
+  sceen->map = malloc(sceen->height * sizeof(Uint8 *));
+  for (int i = 0; i < sceen->height; i++) {
+    sceen->map[i] = malloc(sceen->width * sizeof(Uint8));
+  }
+
+  for (int row = 0; row < sceen->width; row++) {
+    for (int col = 0; col < sceen->width; col++) {
+      sceen->map[row][col] = MAP[row][col];
+    }
+  }
 
   player = malloc(sizeof(Player));
   player->actor.size = PLAYER_SIZE;
@@ -133,6 +142,7 @@ int main(int argc, char *argv[]) {
       }
     }
 
+    processActorMotion(&player->actor);
     draw2D();
 
     // SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);

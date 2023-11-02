@@ -57,3 +57,62 @@ void drawMap(SDL_Renderer *renderer, Sceen *sceen) {
     }
   }
 }
+
+void processPlayerMotion(Player *player) {
+
+  const Uint8 *state = SDL_GetKeyboardState(NULL);
+
+  int vect_velMag = sqrt(player->actor.vect_vel.x * player->actor.vect_vel.x +
+                         player->actor.vect_vel.y * player->actor.vect_vel.y);
+
+  // Horizontal vect_vel Function
+  if (state[SDL_SCANCODE_RIGHT] ^ state[SDL_SCANCODE_LEFT]) {
+    if (vect_velMag < player->actor.max_vel) {
+      if (state[SDL_SCANCODE_LEFT]) {
+        player->actor.vect_vel.x -= player->actor.accel;
+      } else {
+        player->actor.vect_vel.x += player->actor.accel;
+      }
+    }
+  } else if (state[SDL_SCANCODE_RIGHT] && state[SDL_SCANCODE_LEFT]) {
+    player->actor.vect_vel.x = 0;
+  } else {
+    // Gradual deceleration to stop
+    if (player->actor.vect_vel.x > 0) {
+      player->actor.vect_vel.x -= player->actor.accel;
+      if (player->actor.vect_vel.x < 0)
+        player->actor.vect_vel.x = 0;
+    } else if (player->actor.vect_vel.x < 0) {
+      player->actor.vect_vel.x += player->actor.accel;
+      if (player->actor.vect_vel.x > 0)
+        player->actor.vect_vel.x = 0;
+    }
+  }
+
+  // Vertical vect_vel Function
+  if (state[SDL_SCANCODE_UP] ^ state[SDL_SCANCODE_DOWN]) {
+    if (vect_velMag < player->actor.max_vel) {
+      if (state[SDL_SCANCODE_UP]) {
+        player->actor.vect_vel.y -= player->actor.accel;
+      } else {
+        player->actor.vect_vel.y += player->actor.accel;
+      }
+    }
+  } else if (state[SDL_SCANCODE_DOWN] && state[SDL_SCANCODE_UP]) {
+    player->actor.vect_vel.y = 0;
+  } else {
+    // Gradual deceleration to stop
+    if (player->actor.vect_vel.y > 0) {
+      player->actor.vect_vel.y -= player->actor.accel;
+      if (player->actor.vect_vel.y < 0)
+        player->actor.vect_vel.y = 0;
+    } else if (player->actor.vect_vel.y < 0) {
+      player->actor.vect_vel.y += player->actor.accel;
+      if (player->actor.vect_vel.y > 0)
+        player->actor.vect_vel.y = 0;
+    }
+  }
+
+  player->actor.vect_pos.x += player->actor.vect_vel.x;
+  player->actor.vect_pos.y += player->actor.vect_vel.y;
+}

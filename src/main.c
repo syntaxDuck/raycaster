@@ -1,13 +1,4 @@
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_error.h>
-#include <SDL2/SDL_events.h>
-#include <SDL2/SDL_keycode.h>
-#include <SDL2/SDL_render.h>
-#include <SDL2/SDL_scancode.h>
-#include <SDL2/SDL_stdinc.h>
-#include <SDL2/SDL_surface.h>
-#include <SDL2/SDL_timer.h>
-#include <SDL2/SDL_video.h>
 
 #include <math.h>
 #include <stdbool.h>
@@ -48,10 +39,12 @@ Uint8 MAP[MAP_WIDTH][MAP_HEIGHT] = {
 
 int main(int argc, char *argv[]) {
 
+  // Init window and renderer
   SDL_Window *win;
   SDL_Renderer *rend;
   initSDL(&win, &rend, WIN_WIDTH, WIN_HEIGHT);
 
+  // Init Sceen Object
   Sceen *sceen = malloc(sizeof(Sceen));
   sceen->unit_size = MAP_UNIT_SIZE;
   sceen->width = MAP_WIDTH;
@@ -68,6 +61,7 @@ int main(int argc, char *argv[]) {
     }
   }
 
+  // Create Player
   Player player;
   player.actor.size = PLAYER_SIZE;
   player.actor.FOV = PLAYER_FOV;
@@ -80,6 +74,7 @@ int main(int argc, char *argv[]) {
   player.actor.vect_accel.x = 0;
   player.actor.vect_accel.y = 0;
 
+  // Assign player to sceen
   sceen->player = player;
 
   bool quit = false;
@@ -99,7 +94,7 @@ int main(int argc, char *argv[]) {
       }
     }
 
-    processActorMotion(&sceen->player.actor);
+    processPlayerMotion(&sceen->player);
     draw2DSceen(rend, sceen);
   }
 

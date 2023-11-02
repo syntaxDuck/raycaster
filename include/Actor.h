@@ -14,14 +14,6 @@ typedef struct {
   double accel;
 } Actor;
 
-typedef struct {
-  Actor actor;
-  int mag_dir;
-  int plan;
-} Player;
-
-void processActorMotion(Actor *actor);
-
 void createActorViewCone(Actor *actor);
 
 void drawActor(SDL_Renderer *renderer, Actor actor);

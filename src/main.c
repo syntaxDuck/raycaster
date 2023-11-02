@@ -19,26 +19,15 @@
 // Env defines
 #define MAP_WIDTH 8
 #define MAP_HEIGHT 8
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 800
+#define MAP_UNIT_SIZE 100
+#define WIN_WIDTH 800
+#define WIN_HEIGHT 800
 
 // Player defines
 #define PLAYER_SIZE 15
 #define PLAYER_ACCEL 0.05
 #define PLAYER_MAX_SPEED 1
-
-// clang-format off
-const Uint8 MAP[MAP_WIDTH][MAP_HEIGHT] = {
-    {1, 1, 1, 1, 1, 1, 1, 1}, 
-    {1, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 1}, 
-    {1, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 1}, 
-    {1, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 1}, 
-    {1, 1, 1, 1, 1, 1, 1, 1}
-};
-// clang-format on
+#define PLAYER_FOV 90
 
 typedef struct {
   const Uint8 (*map)[MAP_HEIGHT];
@@ -46,45 +35,86 @@ typedef struct {
   Uint8 height;
 } Sceen;
 
-void processSceen(SDL_Renderer *renderer, Sceen sceen) {
-  const int BLOCK_PAD = 0;
-  const int BLOCK_SIZE = SCREEN_WIDTH / MAP_WIDTH - BLOCK_PAD;
+// Globals
+SDL_Window *win;
+SDL_Renderer *rend;
 
-  SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-  for (int row = 0; row < sceen.height; row++) {
-    for (int col = 0; col < sceen.width; col++) {
-      if (sceen.map[row][col]) {
-        SDL_Rect rectangle = {col * (BLOCK_SIZE + BLOCK_PAD),
-                              row * (BLOCK_SIZE + BLOCK_PAD), BLOCK_SIZE,
-                              BLOCK_SIZE};
-        SDL_RenderFillRect(renderer, &rectangle);
+Sceen *sceen;
+Player *player;
+
+// clang-format off
+const Uint8 MAP[MAP_WIDTH][MAP_HEIGHT] = {
+    {1, 1, 1, 1, 1, 1, 1, 1}, 
+    {1, 0, 0, 1, 0, 0, 0, 1},
+    {1, 0, 0, 1, 0, 0, 0, 1}, 
+    {1, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 1}, 
+    {1, 0, 0, 0, 0, 1, 0, 1},
+    {1, 0, 0, 0, 0, 1, 0, 1}, 
+    {1, 1, 1, 1, 1, 1, 1, 1}
+};
+// clang-format on
+
+void drawWin(Sceen *sceen) {
+  int col_offset;
+  int row_offset;
+
+  SDL_SetRenderDrawColor(rend, 255, 255, 255, 255);
+  SDL_RenderClear(rend);
+
+  for (int row = 0; row < sceen->height; row++) {
+    if (row == sceen->height - 1)
+      row_offset = 0;
+    else
+      row_offset = 1;
+
+    for (int col = 0; col < sceen->width; col++) {
+
+      if (col == sceen->width - 1)
+        col_offset = 0;
+      else
+        col_offset = 1;
+
+      if (sceen->map[row][col]) {
+        SDL_SetRenderDrawColor(rend, 255, 0, 0, 255);
+      } else {
+        SDL_SetRenderDrawColor(rend, 0, 0, 0, 255);
       }
+
+      SDL_Rect rectangle = {col * (MAP_UNIT_SIZE), row * (MAP_UNIT_SIZE),
+                            MAP_UNIT_SIZE - col_offset,
+                            MAP_UNIT_SIZE - row_offset};
+      SDL_RenderFillRect(rend, &rectangle);
     }
   }
 }
 
+void draw2D() {
+  drawWin(sceen);
+  drawActor(rend, &player->actor);
+
+  SDL_RenderPresent(rend);
+}
+
 int main(int argc, char *argv[]) {
+  initSDL(&win, &rend, WIN_WIDTH, WIN_HEIGHT);
 
-  initSDL();
-  SDL_Window *window = initSDLWindow(SCREEN_WIDTH, SCREEN_HEIGHT);
-  SDL_Renderer *renderer = initSDLRenderer(window);
+  sceen = malloc(sizeof(Sceen));
+  sceen->map = MAP;
+  sceen->width = MAP_WIDTH;
+  sceen->height = MAP_HEIGHT;
 
-  Sceen sceen;
-  sceen.map = MAP;
-  sceen.width = MAP_WIDTH;
-  sceen.height = MAP_HEIGHT;
-
-  Actor *player = malloc(sizeof(Actor));
-  player->size = PLAYER_SIZE;
-  player->max_vel = PLAYER_MAX_SPEED;
-  player->accel = PLAYER_ACCEL;
-  player->vect_pos.x = (double)SCREEN_WIDTH / 2;
-  player->vect_pos.y = (double)SCREEN_HEIGHT / 2;
-  player->vect_vel.x = 0;
-  player->vect_vel.y = 0;
-  player->vect_accel.x = 0;
-  player->vect_accel.y = 0;
-  player->FOV = 90;
+  player = malloc(sizeof(Player));
+  player->actor.size = PLAYER_SIZE;
+  player->actor.FOV = PLAYER_FOV;
+  player->actor.max_vel = PLAYER_MAX_SPEED;
+  player->actor.accel = PLAYER_ACCEL;
+  player->actor.vect_pos.x = (double)WIN_WIDTH / 2 - (double)PLAYER_SIZE / 2;
+  player->actor.vect_pos.y = (double)WIN_HEIGHT / 2 - (double)PLAYER_SIZE / 2;
+  player->actor.vect_vel.x = 0;
+  player->actor.vect_vel.y = 0;
+  player->actor.vect_accel.x = 0;
+  player->actor.vect_accel.y = 0;
 
   bool quit = false;
   SDL_Event event;
@@ -98,24 +128,24 @@ int main(int argc, char *argv[]) {
         if (event.window.type == SDL_WINDOWEVENT_RESIZED) {
           int newWidth = event.window.data1;
           int newHeight = event.window.data2;
-          SDL_SetWindowSize(window, newWidth, newHeight);
+          SDL_SetWindowSize(win, newWidth, newHeight);
         }
       }
     }
 
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
+    draw2D();
 
-    processSceen(renderer, sceen);
-    processActor(renderer, player);
-
-    SDL_RenderPresent(renderer);
+    // SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    // SDL_RenderClear(renderer);
+    //
+    // processSceen(renderer, sceen);
+    // processActor(renderer, &player->actor);
   }
 
   // Cleanup and exit
   free(player);
-  SDL_DestroyRenderer(renderer);
-  SDL_DestroyWindow(window);
+  SDL_DestroyRenderer(rend);
+  SDL_DestroyWindow(win);
   SDL_Quit();
   return 0;
 }

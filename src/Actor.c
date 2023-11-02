@@ -1,5 +1,6 @@
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_surface.h>
 
 #include "Actor.h"
 #include "Utility.h"
@@ -42,18 +43,6 @@ void processActorMotion(Actor *actor) {
       } else {
         actor->vect_vel.y += actor->accel;
       }
-    } else {
-      if (state[SDL_SCANCODE_UP]) {
-        actor->vect_vel.y -= actor->accel;
-      } else {
-        actor->vect_vel.y += actor->accel;
-      }
-
-      if (actor->vect_vel.x > 0) {
-        actor->vect_vel.x -= actor->accel;
-      } else {
-        actor->vect_vel.x += actor->accel;
-      }
     }
   } else if (state[SDL_SCANCODE_DOWN] && state[SDL_SCANCODE_UP]) {
     actor->vect_vel.y = 0;
@@ -87,23 +76,28 @@ void createActorViewCone(Actor *actor) {
     cone[i] = viewPoint;
   }
 
-  actor->viewCone = cone;
+  actor->view_cone = cone;
 }
 
-void processActor(SDL_Renderer *renderer, Actor *actor) {
+void drawActor(SDL_Renderer *renderer, Actor *actor) {
   processActorMotion(actor);
 
-  createActorViewCone(actor);
+  // createActorViewCone(actor);
 
-  SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+  SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
 
-  for (int i = 0; i < actor->FOV; i++) {
-    SDL_RenderDrawLine(renderer, actor->vect_pos.x, actor->vect_pos.y,
-                       actor->viewCone[i].x, actor->viewCone[i].y);
-  }
+  SDL_Rect rect = {(int)actor->vect_pos.x, (int)actor->vect_pos.y, actor->size,
+                   actor->size};
 
-  generateFilledCircle(renderer, actor->vect_pos, actor->size, 500);
-  SDL_RenderDrawLine(renderer, actor->vect_pos.x, actor->vect_pos.y,
-                     actor->vect_pos.x + 100 * actor->vect_vel.x,
-                     actor->vect_pos.y + 100 * actor->vect_vel.y);
+  SDL_RenderFillRect(renderer, &rect);
+
+  // for (int i = 0; i < actor->FOV; i++) {
+  //   SDL_RenderDrawLine(renderer, actor->vect_pos.x, actor->vect_pos.y,
+  //                      actor->view_cone[i].x, actor->view_cone[i].y);
+  // }
+  //
+  // generateFilledCircle(renderer, actor->vect_pos, actor->size, 500);
+  // SDL_RenderDrawLine(renderer, actor->vect_pos.x, actor->vect_pos.y,
+  //                    actor->vect_pos.x + 100 * actor->vect_vel.x,
+  //                    actor->vect_pos.y + 100 * actor->vect_vel.y);
 }

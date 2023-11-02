@@ -24,8 +24,7 @@ SDL_Texture *drawFilledCircle(SDL_Renderer *renderer, Vector center_vect,
 
 Vector *generateCirclePoints(Vector center, double radius, int numPoints);
 
-void initSDL();
-SDL_Window *initSDLWindow(int screen_width, int screen_height);
-SDL_Renderer *initSDLRenderer(SDL_Window *window);
+void initSDL(SDL_Window **window, SDL_Renderer **renderer, int win_width,
+             int win_height);
 
 #endif

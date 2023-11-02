@@ -5,6 +5,8 @@
 
 typedef struct {
   int size;
+  int FOV;
+  Vector *view_cone;
   Vector vect_pos;
   Vector vect_vel;
   Vector vect_accel;
@@ -14,7 +16,6 @@ typedef struct {
 
 typedef struct {
   Actor actor;
-  int FOV;
   int mag_dir;
   int plan;
 } Player;
@@ -23,6 +24,6 @@ void processActorMotion(Actor *actor);
 
 void createActorViewCone(Actor *actor);
 
-void processActor(SDL_Renderer *renderer, Actor *actor);
+void drawActor(SDL_Renderer *renderer, Actor *actor);
 
 #endif

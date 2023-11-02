@@ -79,13 +79,13 @@ void createActorViewCone(Actor *actor) {
   actor->view_cone = cone;
 }
 
-void drawActor(SDL_Renderer *renderer, Actor *actor) {
+void drawActor(SDL_Renderer *renderer, Actor actor) {
   // createActorViewCone(actor);
 
   SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
 
-  SDL_Rect rect = {(int)actor->vect_pos.x, (int)actor->vect_pos.y, actor->size,
-                   actor->size};
+  SDL_Rect rect = {(int)actor.vect_pos.x, (int)actor.vect_pos.y, actor.size,
+                   actor.size};
 
   SDL_RenderFillRect(renderer, &rect);
 

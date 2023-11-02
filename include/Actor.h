@@ -24,6 +24,6 @@ void processActorMotion(Actor *actor);
 
 void createActorViewCone(Actor *actor);
 
-void drawActor(SDL_Renderer *renderer, Actor *actor);
+void drawActor(SDL_Renderer *renderer, Actor actor);
 
 #endif

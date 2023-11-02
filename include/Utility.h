@@ -14,12 +14,6 @@ typedef struct {
   Vector offset;
 } Rel_Vector;
 
-typedef struct {
-  Uint8 **map;
-  Uint8 width;
-  Uint8 height;
-} Sceen;
-
 void rotateVector(int cx, int cy, int angle, Vector *vect);
 
 void generateFilledCircle(SDL_Renderer *renderer, Vector center, double radius,
@@ -32,7 +26,5 @@ Vector *generateCirclePoints(Vector center, double radius, int numPoints);
 
 void initSDL(SDL_Window **window, SDL_Renderer **renderer, int win_width,
              int win_height);
-
-void loadSceen(Sceen *sceen, Uint8 **map);
 
 #endif

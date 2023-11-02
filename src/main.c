@@ -15,6 +15,7 @@
 #include <sys/types.h>
 
 #include "Actor.h"
+#include "Sceen.h"
 #include "Utility.h"
 
 // Env defines

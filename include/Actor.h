@@ -6,8 +6,10 @@
 typedef struct {
   int size;
   int FOV;
-  Vector *view_cone;
-  Vector vect_pos;
+
+  Pos_Vector ray;
+  Pos_Vector vect_pos;
+
   Vector vect_vel;
   Vector vect_accel;
   double max_vel;
@@ -17,5 +19,7 @@ typedef struct {
 void createActorViewCone(Actor *actor);
 
 void drawActor(SDL_Renderer *renderer, Actor actor);
+
+Pos_Vector getActorCenter(Actor actor);
 
 #endif

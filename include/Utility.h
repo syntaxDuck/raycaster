@@ -14,6 +14,11 @@ typedef struct {
   Vector offset;
 } Rel_Vector;
 
+typedef struct {
+  int x;
+  int y;
+} Pos_Vector;
+
 void rotateVector(int cx, int cy, int angle, Vector *vect);
 
 void generateFilledCircle(SDL_Renderer *renderer, Vector center, double radius,

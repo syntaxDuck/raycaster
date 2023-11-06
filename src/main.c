@@ -12,12 +12,12 @@
 // Env defines
 #define MAP_WIDTH 8
 #define MAP_HEIGHT 8
-#define MAP_UNIT_SIZE 100
-#define WIN_WIDTH 800
-#define WIN_HEIGHT 800
+#define MAP_UNIT_SIZE 64
+#define WIN_WIDTH MAP_UNIT_SIZE *MAP_WIDTH
+#define WIN_HEIGHT MAP_UNIT_SIZE *MAP_HEIGHT
 
 // Player defines
-#define PLAYER_SIZE 15
+#define PLAYER_SIZE 5
 #define PLAYER_ACCEL 0.05
 #define PLAYER_MAX_SPEED 1
 #define PLAYER_FOV 90
@@ -60,19 +60,20 @@ int main(int argc, char *argv[]) {
       sceen->map[row][col] = MAP[row][col];
     }
   }
-
   // Create Player
   Player player;
   player.actor.size = PLAYER_SIZE;
   player.actor.FOV = PLAYER_FOV;
   player.actor.max_vel = PLAYER_MAX_SPEED;
   player.actor.accel = PLAYER_ACCEL;
-  player.actor.vect_pos.x = (double)WIN_WIDTH / 2 - (double)PLAYER_SIZE / 2;
-  player.actor.vect_pos.y = (double)WIN_HEIGHT / 2 - (double)PLAYER_SIZE / 2;
+  player.actor.vect_pos.x = WIN_WIDTH / 2;
+  player.actor.vect_pos.y = WIN_HEIGHT / 2;
   player.actor.vect_vel.x = 0;
   player.actor.vect_vel.y = 0;
   player.actor.vect_accel.x = 0;
   player.actor.vect_accel.y = 0;
+  player.actor.ray.x = player.actor.vect_pos.x;
+  player.actor.ray.y = player.actor.vect_pos.y + 100;
 
   // Assign player to sceen
   sceen->player = player;
@@ -94,8 +95,8 @@ int main(int argc, char *argv[]) {
       }
     }
 
-    processPlayerMotion(&sceen->player);
-    draw2DSceen(rend, sceen);
+    process2DSceen(sceen);
+    draw2DSceen(rend, *sceen);
   }
 
   // Cleanup and exit

@@ -66,14 +66,16 @@ int main(int argc, char *argv[]) {
   player.actor.FOV = PLAYER_FOV;
   player.actor.max_vel = PLAYER_MAX_SPEED;
   player.actor.accel = PLAYER_ACCEL;
-  player.actor.vect_pos.x = WIN_WIDTH / 2;
-  player.actor.vect_pos.y = WIN_HEIGHT / 2;
+  player.actor.vect_pos.x = WIN_WIDTH / 2 - 1;
+  player.actor.vect_pos.y = WIN_HEIGHT / 2 - 1;
   player.actor.vect_vel.x = 0;
   player.actor.vect_vel.y = 0;
   player.actor.vect_accel.x = 0;
   player.actor.vect_accel.y = 0;
-  player.actor.ray.x = player.actor.vect_pos.x;
-  player.actor.ray.y = player.actor.vect_pos.y + 100;
+  player.actor.angle = 0;
+  player.actor.view_distance = 128;
+  player.actor.ray.x = player.actor.vect_pos.x + player.actor.view_distance;
+  player.actor.ray.y = player.actor.vect_pos.y;
 
   // Assign player to sceen
   sceen->player = player;

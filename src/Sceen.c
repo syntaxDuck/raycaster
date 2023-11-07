@@ -1,8 +1,10 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
+#include <math.h>
 
 #include "Actor.h"
 #include "Sceen.h"
+#include "Utility.h"
 
 void loadSceen(Sceen *sceen, Uint8 **map) {
 
@@ -71,69 +73,62 @@ void drawRays(SDL_Renderer *renderer, Actor actor) {
 
 void process2DSceen(Sceen *sceen) {
   processPlayerMotion(&sceen->player);
-  processPlayerRays(&sceen->player);
+  processPlayerRays(sceen);
 }
 
 void processPlayerMotion(Player *player) {
 
   const Uint8 *state = SDL_GetKeyboardState(NULL);
 
-  int vect_velMag = sqrt(player->actor.vect_vel.x * player->actor.vect_vel.x +
-                         player->actor.vect_vel.y * player->actor.vect_vel.y);
-
-  // Horizontal vect_vel Function
+  // Rotation Function
   if (state[SDL_SCANCODE_RIGHT] ^ state[SDL_SCANCODE_LEFT]) {
-    if (vect_velMag < player->actor.max_vel) {
-      if (state[SDL_SCANCODE_LEFT]) {
-        player->actor.vect_vel.x -= player->actor.accel;
-      } else {
-        player->actor.vect_vel.x += player->actor.accel;
-      }
-    }
-  } else if (state[SDL_SCANCODE_RIGHT] && state[SDL_SCANCODE_LEFT]) {
-    player->actor.vect_vel.x = 0;
-  } else {
-    // Gradual deceleration to stop
-    if (player->actor.vect_vel.x > 0) {
-      player->actor.vect_vel.x -= player->actor.accel;
-      if (player->actor.vect_vel.x < 0)
-        player->actor.vect_vel.x = 0;
-    } else if (player->actor.vect_vel.x < 0) {
-      player->actor.vect_vel.x += player->actor.accel;
-      if (player->actor.vect_vel.x > 0)
-        player->actor.vect_vel.x = 0;
+    if (state[SDL_SCANCODE_LEFT]) {
+      player->actor.angle -= 0.5;
+      if (player->actor.angle == 0)
+        player->actor.angle = 360;
+    } else {
+      player->actor.angle += 0.5;
+      if (player->actor.angle == 360)
+        player->actor.angle = 0;
     }
   }
 
-  // Vertical vect_vel Function
+  // Velocity Vector Function
   if (state[SDL_SCANCODE_UP] ^ state[SDL_SCANCODE_DOWN]) {
-    if (vect_velMag < player->actor.max_vel) {
-      if (state[SDL_SCANCODE_UP]) {
-        player->actor.vect_vel.y -= player->actor.accel;
-      } else {
-        player->actor.vect_vel.y += player->actor.accel;
-      }
+
+    double velMag = sqrt(player->actor.vect_vel.x * player->actor.vect_vel.x +
+                         player->actor.vect_vel.y * player->actor.vect_vel.y);
+
+    if ((velMag + player->actor.accel) > player->actor.max_vel) {
+      velMag = player->actor.max_vel;
+    } else {
+      velMag += player->actor.accel;
     }
-  } else if (state[SDL_SCANCODE_DOWN] && state[SDL_SCANCODE_UP]) {
-    player->actor.vect_vel.y = 0;
+
+    double rad;
+    if (state[SDL_SCANCODE_UP]) {
+      rad = player->actor.angle * M_PI / 180.0;
+      player->actor.vect_vel.x = velMag * cos(rad);
+      player->actor.vect_vel.y = velMag * sin(rad);
+    } else {
+      rad = (player->actor.angle + 180) * M_PI / 180.0;
+      player->actor.vect_vel.x = velMag * cos(rad);
+      player->actor.vect_vel.y = velMag * sin(rad);
+    }
   } else {
-    // Gradual deceleration to stop
-    if (player->actor.vect_vel.y > 0) {
-      player->actor.vect_vel.y -= player->actor.accel;
-      if (player->actor.vect_vel.y < 0)
-        player->actor.vect_vel.y = 0;
-    } else if (player->actor.vect_vel.y < 0) {
-      player->actor.vect_vel.y += player->actor.accel;
-      if (player->actor.vect_vel.y > 0)
-        player->actor.vect_vel.y = 0;
-    }
+
+    player->actor.vect_vel.y = 0;
+    player->actor.vect_vel.x = 0;
   }
 
   player->actor.vect_pos.x += player->actor.vect_vel.x;
   player->actor.vect_pos.y += player->actor.vect_vel.y;
 }
 
-void processPlayerRays(Player *player) {
-  player->actor.ray.x = player->actor.vect_pos.x;
-  player->actor.ray.y = player->actor.vect_pos.y + 100;
+void processPlayerRays(Sceen *sceen) {
+  double rad = sceen->player.actor.angle * M_PI / 180.0;
+  sceen->player.actor.ray.x = sceen->player.actor.vect_pos.x +
+                              sceen->player.actor.view_distance * cos(rad);
+  sceen->player.actor.ray.y = sceen->player.actor.vect_pos.y +
+                              sceen->player.actor.view_distance * sin(rad);
 }

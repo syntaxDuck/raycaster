@@ -5,10 +5,10 @@
 
 #include "Utility.h"
 
-void rotateVector(int cx, int cy, int angle, Vector *vect) {
-  double rad = angle * M_PI / 180;
-  int newX = cx + (vect->x - cx) * cos(rad) - (vect->y - cy) * sin(rad);
-  int newY = cy + (vect->x - cx) * sin(rad) + (vect->y - cy) * cos(rad);
+void rotateVector(int cx, int cy, double angle, Vector *vect) {
+  double rad = angle * M_PI / 180.0;
+  double newX = cx + (vect->x - cx) * cos(rad) - (vect->y - cy) * sin(rad);
+  double newY = cy + (vect->x - cx) * sin(rad) + (vect->y - cy) * cos(rad);
   vect->x = newX;
   vect->y = newY;
 }

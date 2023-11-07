@@ -37,6 +37,6 @@ void drawRays(SDL_Renderer *renderer, Actor actor);
 void process2DSceen(Sceen *sceen);
 
 void processPlayerMotion(Player *player);
-void processPlayerRays(Player *player);
+void processPlayerRays(Sceen *sceen);
 
 #endif

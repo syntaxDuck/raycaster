@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
   player.actor.vect_accel.y = 0;
   player.actor.angle = 0;
   player.actor.view_distance = 128;
-  player.actor.ray.x = player.actor.vect_pos.x + player.actor.view_distance;
+  player.actor.ray.x = player.actor.vect_pos.x - player.actor.view_distance;
   player.actor.ray.y = player.actor.vect_pos.y;
 
   // Assign player to sceen

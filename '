@@ -84,12 +84,12 @@ void processPlayerMotion(Player *player) {
   if (state[SDL_SCANCODE_RIGHT] ^ state[SDL_SCANCODE_LEFT]) {
     if (state[SDL_SCANCODE_LEFT]) {
       player->actor.angle -= 0.01;
-      if (player->actor.angle < 0)
-        player->actor.angle += 2 * M_PI;
+      if (player->actor.angle == 0)
+        player->actor.angle = M_PI_2;
     } else {
       player->actor.angle += 0.01;
-      if (player->actor.angle > 2 * M_PI)
-        player->actor.angle -= 2 * M_PI;
+      if (player->actor.angle == M_PI_2)
+        player->actor.angle = 0;
     }
   }
 
@@ -118,31 +118,24 @@ void processPlayerMotion(Player *player) {
     player->actor.vect_vel.x = 0;
   }
 
-  player->actor.vect_pos.x -= player->actor.vect_vel.x;
-  player->actor.vect_pos.y -= player->actor.vect_vel.y;
+  player->actor.vect_pos.x += player->actor.vect_vel.x;
+  player->actor.vect_pos.y += player->actor.vect_vel.y;
 }
 
 void processPlayerRays(Sceen *sceen) {
   Actor player_actor = sceen->player.actor;
 
   double x, y;
-  double atan = 1 / tan(player_actor.angle);
+  double atan = -1 / tan(player_actor.angle);
   int offset = ((int)player_actor.vect_pos.y >> 6) << 6;
   if (player_actor.angle == 0 || player_actor.angle == M_PI) {
-    x = 128;
-    y = player_actor.ray.y;
+    x = player_actor.vect_pos.x + 128;
   } else {
-    if (player_actor.angle >= 0 && player_actor.angle <= M_PI) {
-      x = (player_actor.vect_pos.y - offset) * atan;
-      y = offset;
-    } else {
-      x = -(player_actor.vect_pos.y - offset + 64) * atan;
-      y = offset + 64;
-    }
+    x = offset * atan;
   }
 
-  sceen->player.actor.ray.x = player_actor.vect_pos.x - x;
-  sceen->player.actor.ray.y = y;
+  sceen->player.actor.ray.x = x;
+  sceen->player.actor.ray.y = offset;
 
   // sceen->player.actor.ray.x =
   //     sceen->player.actor.vect_pos.x +

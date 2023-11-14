@@ -63,12 +63,13 @@ void drawMap(SDL_Renderer *renderer, Sceen sceen) {
 
 void drawPlayer(SDL_Renderer *renderer, Player player) {
   drawActor(renderer, player.actor);
-  drawRays(renderer, player.actor);
+  drawActorViewDir(renderer, player.actor);
 }
 
-void drawRays(SDL_Renderer *renderer, Actor actor) {
-  SDL_RenderDrawLine(renderer, actor.vect_pos.x, actor.vect_pos.y, actor.ray.x,
-                     actor.ray.y);
+void drawActorViewDir(SDL_Renderer *renderer, Actor actor) {
+  Vector view = transposeVector(actor.pos, actor.vect_view);
+  SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, view.point.x,
+                     view.point.y);
 }
 
 void process2DSceen(Sceen *sceen) {
@@ -83,43 +84,34 @@ void processPlayerMotion(Player *player) {
   // Rotation Function
   if (state[SDL_SCANCODE_RIGHT] ^ state[SDL_SCANCODE_LEFT]) {
     if (state[SDL_SCANCODE_LEFT]) {
-      player->actor.angle -= 0.01;
-      if (player->actor.angle <= 0)
-        player->actor.angle += 2 * M_PI;
+      rotateVector(&player->actor.vect_view, -0.005);
     } else {
-      player->actor.angle += 0.01;
-      if (player->actor.angle >= 2 * M_PI)
-        player->actor.angle -= 2 * M_PI;
+      rotateVector(&player->actor.vect_view, 0.005);
     }
   }
 
   // Velocity Vector Function
   if (state[SDL_SCANCODE_UP] ^ state[SDL_SCANCODE_DOWN]) {
-
-    double velMag = sqrt(player->actor.vect_vel.x * player->actor.vect_vel.x +
-                         player->actor.vect_vel.y * player->actor.vect_vel.y);
-
-    if ((velMag + player->actor.accel) > player->actor.max_vel) {
-      velMag = player->actor.max_vel;
-    } else {
-      velMag += player->actor.accel;
-    }
-
     if (state[SDL_SCANCODE_UP]) {
-      player->actor.vect_vel.x = velMag * cos(player->actor.angle);
-      player->actor.vect_vel.y = velMag * sin(player->actor.angle);
+      player->actor.vect_vel.angle = player->actor.vect_view.angle;
     } else {
-      player->actor.vect_vel.x = velMag * cos(M_PI + player->actor.angle);
-      player->actor.vect_vel.y = velMag * sin(M_PI + player->actor.angle);
+      player->actor.vect_vel.angle = player->actor.vect_view.angle + M_PI;
     }
-  } else {
 
-    player->actor.vect_vel.y = 0;
-    player->actor.vect_vel.x = 0;
+    if ((player->actor.vect_vel.mag + player->actor.accel) >
+        player->actor.max_vel) {
+      rescaleVector(&player->actor.vect_vel, player->actor.max_vel);
+    } else {
+      scaleVector(&player->actor.vect_vel, player->actor.accel);
+    }
   }
 
-  player->actor.vect_pos.x -= player->actor.vect_vel.x;
-  player->actor.vect_pos.y -= player->actor.vect_vel.y;
+  else {
+    rescaleVector(&player->actor.vect_vel, 0);
+  }
+
+  player->actor.pos =
+      translatePoints(player->actor.pos, player->actor.vect_vel.point);
 }
 
 void processPlayerRays(Sceen *sceen) {
@@ -151,28 +143,29 @@ void processPlayerRays(Sceen *sceen) {
   //
   // row_mag = sqrt(x * x + y * y);
 
-  double player_tan = tan(player_actor.angle);
-  int col_offset = ((int)player_actor.vect_pos.x >> 6) << 6;
-  if (player_actor.angle == M_PI / 2 || player_actor.angle == M_PI / 2 + M_PI) {
-    x = player_actor.vect_pos.x;
-
-    if (player_actor.angle == M_PI / 2)
-      y = 128;
-    else
-      y = -128;
-
-  } else {
-    if (player_actor.angle < M_PI_2 || player_actor.angle > M_PI_2 + M_PI) {
-      x = col_offset;
-      y = (player_actor.vect_pos.x - col_offset) * player_tan;
-    } else {
-      x = col_offset + 64;
-      y = -(x - player_actor.vect_pos.x) * player_tan;
-    }
-  }
-
-  sceen->player.actor.ray.x = x;
-  sceen->player.actor.ray.y = player_actor.vect_pos.y - y;
+  // double player_tan = tan(player_actor.angle);
+  // int col_offset = ((int)player_actor.vect_pos.x >> 6) << 6;
+  // if (player_actor.angle == M_PI / 2 || player_actor.angle == M_PI / 2 +
+  // M_PI) {
+  //   x = player_actor.vect_pos.x;
+  //
+  //   if (player_actor.angle == M_PI / 2)
+  //     y = 128;
+  //   else
+  //     y = -128;
+  //
+  // } else {
+  //   if (player_actor.angle < M_PI_2 || player_actor.angle > M_PI_2 + M_PI) {
+  //     x = col_offset;
+  //     y = (player_actor.vect_pos.x - col_offset) * player_tan;
+  //   } else {
+  //     x = col_offset + 64;
+  //     y = -(x - player_actor.vect_pos.x) * player_tan;
+  //   }
+  // }
+  //
+  // sceen->player.actor.ray.x = x;
+  // sceen->player.actor.ray.y = player_actor.vect_pos.y - y;
 
   // sceen->player.actor.ray.x =
   //     sceen->player.actor.vect_pos.x +

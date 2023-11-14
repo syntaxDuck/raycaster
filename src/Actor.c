@@ -26,8 +26,8 @@ void drawActor(SDL_Renderer *renderer, Actor actor) {
 
   SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
 
-  SDL_Rect rect = {actor.vect_pos.x - actor.size / 2,
-                   actor.vect_pos.y - actor.size / 2, actor.size, actor.size};
+  SDL_Rect rect = {actor.pos.x - (actor.size >> 1),
+                   actor.pos.y - (actor.size >> 1), actor.size, actor.size};
 
   SDL_RenderFillRect(renderer, &rect);
 

@@ -7,14 +7,21 @@ typedef struct {
   double x;
   double y;
   double z;
-} Vector;
+} Point;
 
 typedef struct {
-  Vector origin;
-  Vector offset;
-} Rel_Vector;
+  Point point;
 
-void rotateVector(int cx, int cy, double angle, Vector *vect);
+  double mag;
+  double angle;
+} Vector;
+
+void rotateVector(Vector *vect, double angle);
+void moveVector(Vector *vector, double x, double y);
+void scaleVector(Vector *vector, double mag);
+void rescaleVector(Vector *vector, double new_mag);
+Point translatePoints(Point p1, Point p2);
+Vector transposeVector(Point origin, Vector vector);
 
 void generateFilledCircle(SDL_Renderer *renderer, Vector center, double radius,
                           int numPoints);

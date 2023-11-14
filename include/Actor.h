@@ -7,14 +7,14 @@ typedef struct {
   int size;
   int FOV;
 
-  int view_distance;
-  Vector ray;
-  Vector vect_pos;
-  Vector vect_vel;
-  Vector vect_accel;
   double max_vel;
   double accel;
-  double angle;
+
+  Point pos;
+
+  Vector vect_view;
+  Vector vect_vel;
+  Vector vect_accel;
 } Actor;
 
 void createActorViewCone(Actor *actor);

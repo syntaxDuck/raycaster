@@ -32,6 +32,7 @@ void draw2DSceen(SDL_Renderer *renderer, Sceen sceen);
 void drawMap(SDL_Renderer *renderer, Sceen sceen);
 void drawPlayer(SDL_Renderer *renderer, Player player);
 void drawActorViewDir(SDL_Renderer *renderer, Actor actor);
+void drawActorVelDir(SDL_Renderer *renderer, Actor actor);
 
 void drawRays(SDL_Renderer *renderer, Actor actor);
 

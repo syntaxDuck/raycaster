@@ -12,12 +12,12 @@ void rotateVector(Vector *vector, double angle) {
   vector->point.y = newY;
 
   vector->angle += angle;
-  if (vector->angle > M_2_PI) {
-    vector->angle -= M_2_PI;
+  if (vector->angle >= 2 * M_PI) {
+    vector->angle -= 2 * M_PI;
   }
 
   if (vector->angle < 0) {
-    vector->angle += M_2_PI;
+    vector->angle += 2 * M_PI;
   }
 }
 
@@ -30,14 +30,14 @@ void moveVector(Vector *vector, double x, double y) {
 
 void scaleVector(Vector *vector, double mag) {
   vector->mag += mag;
-  vector->point.x = vector->mag * cos(vector->angle);
-  vector->point.y = vector->mag * sin(vector->angle);
+  vector->point.x = -vector->mag * cos(vector->angle);
+  vector->point.y = -vector->mag * sin(vector->angle);
 }
 
 void rescaleVector(Vector *vector, double new_mag) {
   vector->mag = new_mag;
-  vector->point.x = new_mag * cos(vector->angle);
-  vector->point.y = new_mag * sin(vector->angle);
+  vector->point.x = -new_mag * cos(vector->angle);
+  vector->point.y = -new_mag * sin(vector->angle);
 }
 
 Point translatePoints(Point p1, Point p2) {

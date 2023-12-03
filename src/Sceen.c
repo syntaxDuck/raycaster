@@ -64,12 +64,21 @@ void drawMap(SDL_Renderer *renderer, Sceen sceen) {
 void drawPlayer(SDL_Renderer *renderer, Player player) {
   drawActor(renderer, player.actor);
   drawActorViewDir(renderer, player.actor);
+  drawActorVelDir(renderer, player.actor);
 }
 
 void drawActorViewDir(SDL_Renderer *renderer, Actor actor) {
   Vector view = transposeVector(actor.pos, actor.vect_view);
   SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, view.point.x,
                      view.point.y);
+}
+
+void drawActorVelDir(SDL_Renderer *renderer, Actor actor) {
+  Vector vel = actor.vect_vel;
+  scaleVector(&vel, 10);
+  vel = transposeVector(actor.pos, vel);
+  SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, vel.point.x,
+                     vel.point.y);
 }
 
 void process2DSceen(Sceen *sceen) {
@@ -84,10 +93,11 @@ void processPlayerMotion(Player *player) {
   // Rotation Function
   if (state[SDL_SCANCODE_RIGHT] ^ state[SDL_SCANCODE_LEFT]) {
     if (state[SDL_SCANCODE_LEFT]) {
-      rotateVector(&player->actor.vect_view, -0.005);
+      rotateVector(&player->actor.vect_view, -0.01);
     } else {
-      rotateVector(&player->actor.vect_view, 0.005);
+      rotateVector(&player->actor.vect_view, 0.01);
     }
+    player->actor.vect_vel.angle = player->actor.vect_view.angle;
   }
 
   // Velocity Vector Function

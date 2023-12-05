@@ -26,14 +26,14 @@
 
 // clang-format off
 Uint8 MAP[MAP_WIDTH][MAP_HEIGHT] = {
-    {1, 1, 1, 1, 1, 1, 1, 1}, 
-    {1, 0, 1, 0, 0, 0, 0, 1},
-    {1, 0, 1, 0, 0, 0, 0, 1}, 
-    {1, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 1}, 
-    {1, 0, 0, 0, 0, 0, 1, 1},
-    {1, 0, 0, 0, 0, 0, 0, 1}, 
-    {1, 1, 1, 1, 1, 1, 1, 1}
+    {1, 0, 1, 0, 1, 0, 1, 0}, 
+    {0, 1, 0, 1, 0, 1, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0}, 
+    {0, 1, 0, 0, 0, 0, 0, 0},
+    {1, 0, 0, 0, 0, 0, 0, 0}, 
+    {0, 1, 0, 0, 0, 0, 0, 0},
+    {1, 0, 1, 0, 1, 0, 1, 0}, 
+    {0, 1, 0, 1, 0, 1, 0, 1}
 };
 // clang-format on
 
@@ -62,8 +62,9 @@ void setupPlayer(Player *player) {
   player->actor.vect_view.mag = 10;
   player->actor.vect_view.angle = 0;
 
-  // player->actor.ray.x = player.actor.vect_pos.x - player.actor.view_distance;
-  // player->actor.ray.y = player.actor.vect_pos.y;
+  player->actor.view_ray = player->actor.vect_view;
+  player->actor.view_ray.point.x = -1000;
+  player->actor.view_ray.mag = 1000;
 }
 
 int main(int argc, char *argv[]) {

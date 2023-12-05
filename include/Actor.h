@@ -13,6 +13,7 @@ typedef struct {
   Point pos;
 
   Vector vect_view;
+  Vector view_ray;
   Vector vect_vel;
   Vector vect_accel;
 } Actor;

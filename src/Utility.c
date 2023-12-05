@@ -12,12 +12,12 @@ void rotateVector(Vector *vector, double angle) {
   vector->point.y = newY;
 
   vector->angle += angle;
-  if (vector->angle >= 2 * M_PI) {
-    vector->angle -= 2 * M_PI;
-  }
-
   if (vector->angle < 0) {
     vector->angle += 2 * M_PI;
+  }
+
+  if (vector->angle >= 2 * M_PI) {
+    vector->angle -= 2 * M_PI;
   }
 }
 

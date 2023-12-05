@@ -33,11 +33,10 @@ void drawMap(SDL_Renderer *renderer, Sceen sceen);
 void drawPlayer(SDL_Renderer *renderer, Player player);
 void drawActorViewDir(SDL_Renderer *renderer, Actor actor);
 void drawActorVelDir(SDL_Renderer *renderer, Actor actor);
-
-void drawRays(SDL_Renderer *renderer, Actor actor);
+void drawActorViewRay(SDL_Renderer *renderer, Actor actor);
 
 void process2DSceen(Sceen *sceen);
 void processPlayerMotion(Player *player);
-void processPlayerRays(Sceen *sceen);
+void processPlayerView(Sceen *sceen);
 
 #endif

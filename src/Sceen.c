@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
 #include <math.h>
+#include <stdbool.h>
 
 #include "Actor.h"
 #include "Sceen.h"
@@ -65,6 +66,7 @@ void drawPlayer(SDL_Renderer *renderer, Player player) {
   drawActor(renderer, player.actor);
   drawActorViewDir(renderer, player.actor);
   drawActorVelDir(renderer, player.actor);
+  drawActorViewRay(renderer, player.actor);
 }
 
 void drawActorViewDir(SDL_Renderer *renderer, Actor actor) {
@@ -81,9 +83,16 @@ void drawActorVelDir(SDL_Renderer *renderer, Actor actor) {
                      vel.point.y);
 }
 
+void drawActorViewRay(SDL_Renderer *renderer, Actor actor) {
+  // Vector ray = transposeVector(actor.pos, actor.view_ray);
+  Vector ray = actor.view_ray;
+  SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, ray.point.x,
+                     ray.point.y);
+}
+
 void process2DSceen(Sceen *sceen) {
   processPlayerMotion(&sceen->player);
-  processPlayerRays(sceen);
+  processPlayerView(sceen);
 }
 
 void processPlayerMotion(Player *player) {
@@ -124,63 +133,137 @@ void processPlayerMotion(Player *player) {
       translatePoints(player->actor.pos, player->actor.vect_vel.point);
 }
 
-void processPlayerRays(Sceen *sceen) {
+void processPlayerView(Sceen *sceen) {
   Actor player_actor = sceen->player.actor;
+  Vector player_view_vect = sceen->player.actor.vect_view;
 
   double x, y;
+  double row_x, row_y;
+  double col_x, col_y;
   double row_mag, col_mag;
+  int row_index, col_index;
 
-  // double player_cot = 1 / tan(player_actor.angle);
-  // int row_offset = ((int)player_actor.vect_pos.y >> 6) << 6;
-  // if (player_actor.angle == 0 || player_actor.angle == M_PI) {
-  //   if (player_actor.angle == 0)
-  //     x = 128;
-  //   else
-  //     x = -128;
-  //   y = player_actor.ray.y;
-  // } else {
-  //   if (player_actor.angle > 0 && player_actor.angle < M_PI) {
-  //     x = (player_actor.vect_pos.y - row_offset) * player_cot;
-  //     y = row_offset;
-  //   } else {
-  //     x = -(row_offset + 64 - player_actor.vect_pos.y) * player_cot;
-  //     y = row_offset + 64;
-  //   }
-  // }
-  //
-  // sceen->player.actor.ray.x = player_actor.vect_pos.x - x;
-  // sceen->player.actor.ray.y = y;
-  //
-  // row_mag = sqrt(x * x + y * y);
+  double player_cot = 1 / tan(player_view_vect.angle);
+  int row_offset = ((int)player_actor.pos.y >> 6) << 6;
+  while (true) {
+    if (player_view_vect.angle == 0 || player_view_vect.angle == M_PI) {
+      if (player_view_vect.angle == 0)
+        x = 1000;
+      else
+        x = -1000;
+      y = 0;
 
-  // double player_tan = tan(player_actor.angle);
-  // int col_offset = ((int)player_actor.vect_pos.x >> 6) << 6;
-  // if (player_actor.angle == M_PI / 2 || player_actor.angle == M_PI / 2 +
-  // M_PI) {
-  //   x = player_actor.vect_pos.x;
-  //
-  //   if (player_actor.angle == M_PI / 2)
-  //     y = 128;
-  //   else
-  //     y = -128;
-  //
-  // } else {
-  //   if (player_actor.angle < M_PI_2 || player_actor.angle > M_PI_2 + M_PI) {
-  //     x = col_offset;
-  //     y = (player_actor.vect_pos.x - col_offset) * player_tan;
-  //   } else {
-  //     x = col_offset + 64;
-  //     y = -(x - player_actor.vect_pos.x) * player_tan;
-  //   }
-  // }
-  //
-  // sceen->player.actor.ray.x = x;
-  // sceen->player.actor.ray.y = player_actor.vect_pos.y - y;
+      row_x = player_actor.pos.x - x;
+      row_y = player_actor.pos.y + y;
+      row_mag = sqrt(x * x + y * y);
+      break;
+    }
 
-  // sceen->player.actor.ray.x =
-  //     sceen->player.actor.vect_pos.x +
-  //     sceen->player.actor.view_distance * cos(sceen->player.actor.angle);
-  // sceen->player.actor.ray.y =
-  //     sceen->player.actor.vect_pos.y +
-  //     sceen->player.actor.view_distance * sin(sceen->player.actor.angle);
+    else {
+      if (player_view_vect.angle > 0 && player_view_vect.angle < M_PI) {
+        x = (player_actor.pos.y - row_offset) * player_cot;
+        y = row_offset - player_actor.pos.y;
+
+        row_offset -= 64;
+        row_index = -1;
+
+      } else {
+        row_offset += 64;
+        x = -(row_offset - player_actor.pos.y) * player_cot;
+        y = row_offset - player_actor.pos.y;
+        row_index = 0;
+      }
+
+      row_x = player_actor.pos.x - x;
+      row_y = player_actor.pos.y + y;
+      row_mag = sqrt(x * x + y * y);
+
+      row_index += row_y / 64;
+      col_index = row_x / 64;
+
+      if (row_index < 0)
+        row_index = 0;
+
+      if (row_index >= sceen->height)
+        row_index = sceen->height - 1;
+
+      if (row_x < 0)
+        break;
+
+      if (row_x > sceen->width * 64)
+        break;
+
+      if (sceen->map[row_index][col_index] == 1)
+        break;
+    }
+  }
+
+  double player_tan = tan(player_view_vect.angle);
+  int col_offset = ((int)player_actor.pos.x >> 6) << 6;
+  while (true) {
+    if (player_view_vect.angle == M_PI / 2 ||
+        player_view_vect.angle == M_PI / 2 + M_PI) {
+
+      if (player_view_vect.angle == M_PI / 2)
+        y = 1000;
+      else
+        y = -1000;
+
+      x = 0;
+
+      col_x = player_actor.pos.x + x;
+      col_y = player_actor.pos.y - y;
+      col_mag = sqrt(x * x + y * y);
+      break;
+    }
+
+    else {
+
+      if (player_view_vect.angle < M_PI / 2 ||
+          player_view_vect.angle > M_PI / 2 + M_PI) {
+        x = col_offset - player_actor.pos.x;
+        y = (player_actor.pos.x - col_offset) * player_tan;
+
+        col_offset -= 64;
+        col_index = -1;
+      } else {
+        col_offset += 64;
+        x = col_offset - player_actor.pos.x;
+        y = -(col_offset - player_actor.pos.x) * player_tan;
+        col_index = 0;
+      }
+
+      col_x = player_actor.pos.x + x;
+      col_y = player_actor.pos.y - y;
+      col_mag = sqrt(x * x + y * y);
+
+      row_index = col_y / 64;
+      col_index += col_x / 64;
+
+      if (col_index < 0)
+        col_index = 0;
+
+      if (col_index >= sceen->width)
+        col_index = sceen->width - 1;
+
+      if (col_y < 0)
+        break;
+
+      if (col_y > sceen->height * 64)
+        break;
+
+      if (sceen->map[row_index][col_index] == 1)
+        break;
+    }
+  }
+
+  if (row_mag < col_mag) {
+    sceen->player.actor.view_ray.point.x = row_x;
+    sceen->player.actor.view_ray.point.y = row_y;
+    sceen->player.actor.view_ray.mag = row_mag;
+  } else {
+    sceen->player.actor.view_ray.point.x = col_x;
+    sceen->player.actor.view_ray.point.y = col_y;
+    sceen->player.actor.view_ray.mag = col_mag;
+  }
 }

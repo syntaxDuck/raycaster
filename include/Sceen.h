@@ -5,19 +5,22 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
 
-typedef struct {
+typedef struct
+{
   Actor actor;
 
   int mag_dir;
   int plan;
 } Player;
 
-typedef struct Node {
+typedef struct Node
+{
   struct Node *next;
   Actor actor;
 } Actor_List_Node;
 
-typedef struct {
+typedef struct
+{
   Uint8 **map;
   Uint8 unit_size;
   Uint8 width;

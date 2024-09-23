@@ -37,7 +37,8 @@ Uint8 MAP[MAP_WIDTH][MAP_HEIGHT] = {
 };
 // clang-format on
 
-void setupPlayer(Player *player) {
+void setupPlayer(Player *player)
+{
   player->actor.size = PLAYER_SIZE;
   player->actor.FOV = PLAYER_FOV;
 
@@ -67,7 +68,8 @@ void setupPlayer(Player *player) {
   player->actor.view_ray.mag = 1000;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 
   // Init window and renderer
   SDL_Window *win;
@@ -81,12 +83,15 @@ int main(int argc, char *argv[]) {
   sceen->height = MAP_HEIGHT;
 
   sceen->map = malloc(sceen->height * sizeof(Uint8 *));
-  for (int i = 0; i < sceen->height; i++) {
+  for (int i = 0; i < sceen->height; i++)
+  {
     sceen->map[i] = malloc(sceen->width * sizeof(Uint8));
   }
 
-  for (int row = 0; row < sceen->width; row++) {
-    for (int col = 0; col < sceen->width; col++) {
+  for (int row = 0; row < sceen->width; row++)
+  {
+    for (int col = 0; col < sceen->width; col++)
+    {
       sceen->map[row][col] = MAP[row][col];
     }
   }
@@ -102,12 +107,18 @@ int main(int argc, char *argv[]) {
   SDL_Event event;
 
   // Main Loop //
-  while (!quit) {
-    while (SDL_PollEvent(&event) != 0) {
-      if (event.type == SDL_QUIT) {
+  while (!quit)
+  {
+    while (SDL_PollEvent(&event) != 0)
+    {
+      if (event.type == SDL_QUIT)
+      {
         quit = true;
-      } else if (event.type == SDL_WINDOWEVENT) {
-        if (event.window.type == SDL_WINDOWEVENT_RESIZED) {
+      }
+      else if (event.type == SDL_WINDOWEVENT)
+      {
+        if (event.window.type == SDL_WINDOWEVENT_RESIZED)
+        {
           int newWidth = event.window.data1;
           int newHeight = event.window.data2;
           SDL_SetWindowSize(win, newWidth, newHeight);

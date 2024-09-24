@@ -71,6 +71,19 @@ void calculateVectorMag(Vector *vect)
   vect->mag = sqrt(vect->point.x * vect->point.x + vect->point.y * vect->point.y);
 }
 
+void setPoint(Point *point, double x, double y)
+{
+  point->x = x;
+  point->y = y;
+}
+void setVector(Vector *vect, double x, double y, double mag, double angle)
+{
+  vect->point.x = x;
+  vect->point.y = y;
+  vect->mag = mag;
+  vect->angle = angle;
+}
+
 // Function to generate points along the circumference of a circle using Bézier
 // curves
 // Vector *generateCirclePoints(Vector center, double radius, int numPoints) {

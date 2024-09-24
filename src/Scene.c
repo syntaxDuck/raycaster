@@ -1,39 +1,39 @@
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_render.h>
-#include <math.h>
-#include <stdbool.h>
+#include "Scene.h"
 
-#include "Actor.h"
-#include "Sceen.h"
-#include "Utility.h"
+SDL_Renderer *renderer;
 
-void loadSceen(Sceen *sceen, Uint8 **map)
+void setSceneRenderer(SDL_Renderer *rend)
 {
+  renderer = rend;
+}
 
-  sceen->map = malloc(sceen->height * sizeof(Uint8 *));
-  for (int i = 0; i < sceen->height; i++)
+void loadScene(Scene *Scene, Uint8 map[MAP_HEIGHT][MAP_WIDTH])
+{
+  Scene->map = malloc(Scene->height * sizeof(Uint8 *));
+  for (int i = 0; i < Scene->height; i++)
   {
-    sceen->map[i] = malloc(sceen->width * sizeof(Uint8));
+    Scene->map[i] = malloc(Scene->width * sizeof(Uint8));
   }
 
-  for (int row = 0; row < sceen->width; row++)
+  // Copy map data into Scene->map
+  for (int row = 0; row < Scene->height; row++)
   {
-    for (int col = 0; col < sceen->width; col++)
+    for (int col = 0; col < Scene->width; col++)
     {
-      sceen->map[row][col] = map[row][col];
+      Scene->map[row][col] = map[row][col];
     }
   }
 }
 
-void draw2DSceen(SDL_Renderer *renderer, Sceen sceen)
+void draw2DScene(Scene Scene)
 {
-  drawMap(renderer, sceen);
-  drawPlayer(renderer, sceen.player);
+  drawMap(Scene);
+  drawPlayer(Scene.player);
 
   SDL_RenderPresent(renderer);
 }
 
-void drawMap(SDL_Renderer *renderer, Sceen sceen)
+void drawMap(Scene Scene)
 {
   int col_offset;
   int row_offset;
@@ -41,22 +41,22 @@ void drawMap(SDL_Renderer *renderer, Sceen sceen)
   SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
   SDL_RenderClear(renderer);
 
-  for (int row = 0; row < sceen.height; row++)
+  for (int row = 0; row < Scene.height; row++)
   {
-    if (row == sceen.height - 1)
+    if (row == Scene.height - 1)
       row_offset = 0;
     else
       row_offset = 1;
 
-    for (int col = 0; col < sceen.width; col++)
+    for (int col = 0; col < Scene.width; col++)
     {
 
-      if (col == sceen.width - 1)
+      if (col == Scene.width - 1)
         col_offset = 0;
       else
         col_offset = 1;
 
-      if (sceen.map[row][col])
+      if (Scene.map[row][col])
       {
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
       }
@@ -65,30 +65,40 @@ void drawMap(SDL_Renderer *renderer, Sceen sceen)
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
       }
 
-      SDL_Rect rectangle = {col * (sceen.unit_size), row * (sceen.unit_size),
-                            sceen.unit_size - col_offset,
-                            sceen.unit_size - row_offset};
+      SDL_Rect rectangle = {col * (Scene.unit_size), row * (Scene.unit_size),
+                            Scene.unit_size - col_offset,
+                            Scene.unit_size - row_offset};
       SDL_RenderFillRect(renderer, &rectangle);
     }
   }
 }
 
-void drawPlayer(SDL_Renderer *renderer, Player player)
+void drawPlayer(Player player)
 {
-  drawActor(renderer, player.actor);
-  drawActorViewDir(renderer, player.actor);
-  drawActorVelDir(renderer, player.actor);
-  drawActorViewRay(renderer, player.actor);
+  drawActor(player.actor);
+  drawActorViewDir(player.actor);
+  drawActorVelDir(player.actor);
+  drawActorViewRay(player.actor);
 }
 
-void drawActorViewDir(SDL_Renderer *renderer, Actor actor)
+void drawActorViewDir(Actor actor)
 {
   Vector view = transposeVector(actor.pos, actor.vect_view);
   SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, view.point.x,
                      view.point.y);
 }
 
-void drawActorVelDir(SDL_Renderer *renderer, Actor actor)
+void drawActor(Actor actor)
+{
+  SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+
+  SDL_Rect rect = {actor.pos.x - (actor.size >> 1),
+                   actor.pos.y - (actor.size >> 1), actor.size, actor.size};
+
+  SDL_RenderFillRect(renderer, &rect);
+}
+
+void drawActorVelDir(Actor actor)
 {
   Vector vel = actor.vect_vel;
   scaleVector(&vel, 10);
@@ -97,7 +107,7 @@ void drawActorVelDir(SDL_Renderer *renderer, Actor actor)
                      vel.point.y);
 }
 
-void drawActorViewRay(SDL_Renderer *renderer, Actor actor)
+void drawActorViewRay(Actor actor)
 {
   // Vector ray = transposeVector(actor.pos, actor.view_ray);
   Vector ray = actor.view_ray;
@@ -105,10 +115,11 @@ void drawActorViewRay(SDL_Renderer *renderer, Actor actor)
                      ray.point.y);
 }
 
-void process2DSceen(Sceen *sceen)
+void process2DScene(Scene *scene)
 {
-  processPlayerMotion(&sceen->player);
-  processPlayerView(sceen);
+  Actor *playerActor = &scene->player.actor;
+  processPlayerMotion(&scene->player);
+  processActorView(playerActor, scene);
 }
 
 void processPlayerMotion(Player *player)
@@ -162,10 +173,10 @@ void processPlayerMotion(Player *player)
       translatePoints(player->actor.pos, player->actor.vect_vel.point);
 }
 
-void processPlayerView(Sceen *sceen)
+void processPlayerView(Scene *Scene)
 {
-  Actor player_actor = sceen->player.actor;
-  Vector player_view_vect = sceen->player.actor.vect_view;
+  Actor player_actor = Scene->player.actor;
+  Vector player_view_vect = Scene->player.actor.vect_view;
 
   double x, y;
   double row_x, row_y;
@@ -219,16 +230,16 @@ void processPlayerView(Sceen *sceen)
       if (row_index < 0)
         row_index = 0;
 
-      if (row_index >= sceen->height)
-        row_index = sceen->height - 1;
+      if (row_index >= Scene->height)
+        row_index = Scene->height - 1;
 
       if (row_x < 0)
         break;
 
-      if (row_x > sceen->width * 64)
+      if (row_x > Scene->width * 64)
         break;
 
-      if (sceen->map[row_index][col_index] == 1)
+      if (Scene->map[row_index][col_index] == 1)
         break;
     }
   }
@@ -284,30 +295,30 @@ void processPlayerView(Sceen *sceen)
       if (col_index < 0)
         col_index = 0;
 
-      if (col_index >= sceen->width)
-        col_index = sceen->width - 1;
+      if (col_index >= Scene->width)
+        col_index = Scene->width - 1;
 
       if (col_y < 0)
         break;
 
-      if (col_y > sceen->height * 64)
+      if (col_y > Scene->height * 64)
         break;
 
-      if (sceen->map[row_index][col_index] == 1)
+      if (Scene->map[row_index][col_index] == 1)
         break;
     }
   }
 
   if (row_mag < col_mag)
   {
-    sceen->player.actor.view_ray.point.x = row_x;
-    sceen->player.actor.view_ray.point.y = row_y;
-    sceen->player.actor.view_ray.mag = row_mag;
+    Scene->player.actor.view_ray.point.x = row_x;
+    Scene->player.actor.view_ray.point.y = row_y;
+    Scene->player.actor.view_ray.mag = row_mag;
   }
   else
   {
-    sceen->player.actor.view_ray.point.x = col_x;
-    sceen->player.actor.view_ray.point.y = col_y;
-    sceen->player.actor.view_ray.mag = col_mag;
+    Scene->player.actor.view_ray.point.x = col_x;
+    Scene->player.actor.view_ray.point.y = col_y;
+    Scene->player.actor.view_ray.mag = col_mag;
   }
 }

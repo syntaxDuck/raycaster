@@ -7,23 +7,21 @@
 #include "Actor.h"
 #include "Utility.h"
 
-// void createActorViewCone(Actor *actor)
-// {
-//   int x = actor->pos.x, y = actor->pos.y + 100;
-//   Vector viewPoint;
-//   Vector *cone = malloc(sizeof(Vector) * actor->FOV);
+void createActorViewCone(Actor *actor)
+{
+  int x = actor->pos.x, y = actor->pos.y + 100;
+  Vector vect_view = actor->vect_view;
+  Vector *cone = malloc(sizeof(Vector) * actor->FOV);
 
-//   for (int i = 0; i < actor->FOV; i++)
-//   {
-//     viewPoint.point.x = actor->pos.x;
-//     viewPoint.point.y = actor->pos.y + 100;
-//     rotateVector(actor->pos.x, actor->pos.y,
-//                  (-actor->FOV / 2 + 1) + i, &viewPoint);
-//     cone[i] = viewPoint;
-//   }
+  for (int i = 0; i < actor->FOV; i++)
+  {
+    rotateVector(&vect_view,
+                 (-actor->FOV / 2 + 1) + i);
+    cone[i] = vect_view;
+  }
 
-//   actor->view_cone = cone;
-// }
+  actor->view_cone = cone;
+}
 
 void processActorMotion(Actor *actor)
 {
@@ -80,9 +78,6 @@ Vector getRayRowIntersect(Point origin, Vector ray, Scene scene)
 {
   Vector casted_ray;
   double x, y;
-  double row_x, row_y;
-  double col_x, col_y;
-  double row_mag;
   int row_index, col_index;
 
   double ray_cot = 1 / tan(ray.angle);
@@ -159,9 +154,6 @@ Vector getRayColIntersect(Point origin, Vector ray, Scene scene)
 {
   Vector casted_ray;
   double x, y;
-  double row_x, row_y;
-  double col_x, col_y;
-  double col_mag;
   int row_index, col_index;
 
   double ray_tan = tan(ray.angle);
@@ -232,7 +224,6 @@ Vector getRayColIntersect(Point origin, Vector ray, Scene scene)
 
       if (scene.map[row_index][col_index] == 1)
       {
-        printf("x: %f, y: %f, row:%d, col:%d\n", casted_ray.point.x, casted_ray.point.y, row_index, col_index);
         break;
       }
     }
@@ -242,33 +233,9 @@ Vector getRayColIntersect(Point origin, Vector ray, Scene scene)
 
 void processActorView(Actor *actor, Scene scene)
 {
+  Vector row_intersect = getRayRowIntersect(actor->pos, actor->vect_view, scene);
+  Vector col_intersect = getRayColIntersect(actor->pos, actor->vect_view, scene);
 
-  Vector view_vect = actor->vect_view;
-
-  double row_x, row_y;
-  double col_x, col_y;
-  double row_mag, col_mag;
-
-  Vector new = getRayRowIntersect(actor->pos, view_vect, scene);
-  Vector new1 = getRayColIntersect(actor->pos, view_vect, scene);
-  row_x = new.point.x;
-  row_y = new.point.y;
-  row_mag = new.mag;
-  col_x = new1.point.x;
-  col_y = new1.point.y;
-  col_mag = new1.mag;
-
-  if (row_mag < col_mag)
-  {
-    actor->view_ray.point.x = row_x;
-    actor->view_ray.point.y = row_y;
-    actor->view_ray.mag = row_mag;
-  }
-  else
-  {
-    actor->view_ray.point.x = col_x;
-    actor->view_ray.point.y = col_y;
-    actor->view_ray.mag = col_mag;
-  }
+  actor->view_ray = row_intersect.mag < col_intersect.mag ? row_intersect : col_intersect;
   printf("x: %f, y: %f\n", actor->view_ray.point.x, actor->view_ray.point.y);
 }

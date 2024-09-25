@@ -27,6 +27,7 @@ typedef struct
     Point pos;
 
     Vector vect_view;
+    Vector *view_cone;
     Vector view_ray;
     Vector vect_vel;
     Vector vect_accel;

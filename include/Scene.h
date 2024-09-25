@@ -19,7 +19,7 @@ void drawPlayer(Player player);
 void drawActor(Actor actor);
 void drawActorViewDir(Actor actor);
 void drawActorVelDir(Actor actor);
-void drawActorViewRay(Actor actor);
+void drawActorViewRays(Actor actor);
 
 void process2DScene(Scene *Scene);
 void processPlayerMotion(Player *player);

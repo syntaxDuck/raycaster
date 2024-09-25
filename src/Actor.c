@@ -9,15 +9,17 @@
 
 void createActorViewCone(Actor *actor)
 {
-  int x = actor->pos.x, y = actor->pos.y + 100;
   Vector vect_view = actor->vect_view;
   Vector *cone = malloc(sizeof(Vector) * actor->FOV);
 
+  float16_t deg_to_rad = M_PI / 180;
+
   for (int i = 0; i < actor->FOV; i++)
   {
-    rotateVector(&vect_view,
-                 (-actor->FOV / 2 + 1) + i);
-    cone[i] = vect_view;
+    Vector new_vect = vect_view;
+    rotateVector(&new_vect,
+                 (-actor->FOV / 2 + 1 + i) * deg_to_rad);
+    cone[i] = new_vect;
   }
 
   actor->view_cone = cone;
@@ -233,9 +235,13 @@ Vector getRayColIntersect(Point origin, Vector ray, Scene scene)
 
 void processActorView(Actor *actor, Scene scene)
 {
-  Vector row_intersect = getRayRowIntersect(actor->pos, actor->vect_view, scene);
-  Vector col_intersect = getRayColIntersect(actor->pos, actor->vect_view, scene);
+  createActorViewCone(actor);
+  for (int i = 0; i < actor->FOV; i++)
+  {
+    Vector row_intersect = getRayRowIntersect(actor->pos, actor->view_cone[i], scene);
+    Vector col_intersect = getRayColIntersect(actor->pos, actor->view_cone[i], scene);
+    actor->view_cone[i] = row_intersect.mag < col_intersect.mag ? row_intersect : col_intersect;
+  }
 
-  actor->view_ray = row_intersect.mag < col_intersect.mag ? row_intersect : col_intersect;
-  printf("x: %f, y: %f\n", actor->view_ray.point.x, actor->view_ray.point.y);
+  // printf("x: %f, y: %f\n", actor->view_ray.point.x, actor->view_ray.point.y);
 }

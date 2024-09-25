@@ -78,7 +78,7 @@ void drawPlayer(Player player)
   drawActor(player.actor);
   drawActorViewDir(player.actor);
   drawActorVelDir(player.actor);
-  drawActorViewRay(player.actor);
+  drawActorViewRays(player.actor);
 }
 
 void drawActor(Actor actor)
@@ -109,12 +109,15 @@ void drawActorVelDir(Actor actor)
                      vel.point.y);
 }
 
-void drawActorViewRay(Actor actor)
+void drawActorViewRays(Actor actor)
 {
   SDL_SetRenderDrawColor(renderer, 255, 0, 255, 1);
-  Vector ray = actor.view_ray;
-  SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, ray.point.x,
-                     ray.point.y);
+  for (int i = 0; i < actor.FOV; i++)
+  {
+    Vector ray = actor.view_cone[i];
+    SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, ray.point.x,
+                       ray.point.y);
+  }
 }
 
 void process2DScene(Scene *scene)

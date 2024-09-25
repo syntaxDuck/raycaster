@@ -9,8 +9,9 @@
 #define WIN_HEIGHT (MAP_UNIT_SIZE * MAP_HEIGHT)
 
 // Player defines
-#define PLAYER_SIZE 5
+#define PLAYER_SIZE 7
 #define PLAYER_ACCEL 0.05
+#define PLAYER_TURN_SPEED 0.005
 #define PLAYER_MAX_SPEED 1
 #define PLAYER_FOV 90
 

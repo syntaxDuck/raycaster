@@ -7,18 +7,17 @@
 #include "Actor.h"
 #include "Utility.h"
 
+#define DEG_TO_RAD M_PI / 180
+#define M_PI_3_2 M_PI + M_PI_2
+
 void createActorViewCone(Actor *actor)
 {
-  Vector vect_view = actor->vect_view;
   Vector *cone = malloc(sizeof(Vector) * actor->FOV);
-
-  float16_t deg_to_rad = M_PI / 180;
-
   for (int i = 0; i < actor->FOV; i++)
   {
-    Vector new_vect = vect_view;
+    Vector new_vect = actor->vect_view;
     rotateVector(&new_vect,
-                 (-actor->FOV / 2 + 1 + i) * deg_to_rad);
+                 (-actor->FOV / 2 + 1 + i) * DEG_TO_RAD);
     cone[i] = new_vect;
   }
 
@@ -35,11 +34,11 @@ void processActorMotion(Actor *actor)
   {
     if (state[SDL_SCANCODE_LEFT])
     {
-      rotateVector(&actor->vect_view, -0.005);
+      rotateVector(&actor->vect_view, -PLAYER_TURN_SPEED);
     }
     else
     {
-      rotateVector(&actor->vect_view, 0.005);
+      rotateVector(&actor->vect_view, PLAYER_TURN_SPEED);
     }
     actor->vect_vel.angle = actor->vect_view.angle;
   }
@@ -88,10 +87,7 @@ Vector getRayRowIntersect(Point origin, Vector ray, Scene scene)
   {
     if (ray.angle == 0 || ray.angle == M_PI)
     {
-      if (ray.angle == 0)
-        x = 1000;
-      else
-        x = -1000;
+      x = ray.angle == 0 ? 1000 : -1000;
       y = 0;
 
       casted_ray.point.x = origin.x - x;
@@ -162,15 +158,11 @@ Vector getRayColIntersect(Point origin, Vector ray, Scene scene)
   int col_offset = ((int)origin.x >> 6) << 6;
   while (true)
   {
-    if (ray.angle == M_PI / 2 ||
-        ray.angle == 3 * M_PI / 2)
+    if (ray.angle == M_PI_2 ||
+        ray.angle == M_PI_3_2)
     {
 
-      if (ray.angle == M_PI / 2)
-        y = 1000;
-      else
-        y = -1000;
-
+      y = ray.angle == M_PI_2 ? 1000 : -1000;
       x = 0;
 
       casted_ray.point.x = origin.x + x;
@@ -182,8 +174,8 @@ Vector getRayColIntersect(Point origin, Vector ray, Scene scene)
     else
     {
 
-      if (ray.angle < M_PI / 2 ||
-          ray.angle > 3 * M_PI / 2)
+      if (ray.angle < M_PI_2 ||
+          ray.angle > M_PI_3_2)
       {
         x = col_offset - origin.x;
         y = (origin.x - col_offset) * ray_tan;

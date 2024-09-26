@@ -94,7 +94,7 @@ void drawActor(Actor actor)
 void drawActorViewDir(Actor actor)
 {
   SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-  Vector view = transposeVector(actor.pos, actor.vect_view);
+  Vector view = transposeVector(actor.pos, actor.dir);
   SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, view.point.x,
                      view.point.y);
 }
@@ -102,7 +102,7 @@ void drawActorViewDir(Actor actor)
 void drawActorVelDir(Actor actor)
 {
   SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-  Vector vel = actor.vect_vel;
+  Vector vel = actor.velocity;
   scaleVector(&vel, 10);
   vel = transposeVector(actor.pos, vel);
   SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, vel.point.x,

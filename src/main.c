@@ -8,11 +8,11 @@
 Uint8 MAP[MAP_WIDTH][MAP_HEIGHT] = {
     {1, 0, 1, 0, 1, 0, 1, 0}, 
     {0, 1, 0, 1, 0, 1, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0}, 
-    {0, 1, 0, 0, 0, 0, 0, 0},
-    {1, 0, 0, 0, 0, 0, 0, 0}, 
-    {0, 1, 0, 0, 0, 0, 0, 0},
-    {1, 0, 1, 0, 1, 0, 1, 0}, 
+    {1, 0, 0, 0, 0, 0, 0, 1}, 
+    {0, 1, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 1}, 
+    {0, 1, 0, 0, 0, 0, 0, 1},
+    {1, 0, 1, 0, 1, 0, 1, 1}, 
     {0, 1, 0, 1, 0, 1, 0, 1}
 };
 // clang-format on
@@ -28,9 +28,8 @@ void setupPlayer(Player *player)
   player->actor.accel = PLAYER_ACCEL;
 
   setPoint(&player->actor.pos, (double)WIN_WIDTH / 2 - 1, (double)WIN_HEIGHT / 2 - 1);
-  setVector(&player->actor.vect_vel, 0, 0, 0, 0);
-  setVector(&player->actor.vect_accel, 0, 0, 0, 0);
-  setVector(&player->actor.vect_view, -10, 0, 10, 0);
+  setVector(&player->actor.velocity, 0, 0, 0, 0);
+  setVector(&player->actor.dir, 1, 0, 1, 0);
 }
 
 int main(int argc, char *argv[])

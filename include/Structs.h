@@ -27,19 +27,16 @@ typedef struct
 
     Point pos;
 
-    Vector vect_view;
+    Vector dir;
     Vector *view_cone;
-    Vector view_ray;
-    Vector vect_vel;
-    Vector vect_accel;
+    Vector velocity;
 } Actor;
 
 typedef struct
 {
     Actor actor;
 
-    int mag_dir;
-    int plan;
+    int camera_plan;
 } Player;
 
 typedef struct Node

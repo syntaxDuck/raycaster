@@ -10,13 +10,13 @@ void processActorMotion(Actor *actor)
   {
     if (state[SDL_SCANCODE_LEFT])
     {
-      rotateVector(&actor->vect_view, -PLAYER_TURN_SPEED);
+      rotateVector(&actor->dir, -PLAYER_TURN_SPEED);
     }
     else
     {
-      rotateVector(&actor->vect_view, PLAYER_TURN_SPEED);
+      rotateVector(&actor->dir, PLAYER_TURN_SPEED);
     }
-    actor->vect_vel.angle = actor->vect_view.angle;
+    actor->velocity.angle = actor->dir.angle;
   }
 
   // Velocity Vector Function
@@ -24,31 +24,31 @@ void processActorMotion(Actor *actor)
   {
     if (state[SDL_SCANCODE_UP])
     {
-      actor->vect_vel.angle = actor->vect_view.angle;
+      actor->velocity.angle = actor->dir.angle;
     }
     else
     {
-      actor->vect_vel.angle = actor->vect_view.angle + M_PI;
+      actor->velocity.angle = actor->dir.angle + M_PI;
     }
 
-    if ((actor->vect_vel.mag + actor->accel) >
+    if ((actor->velocity.mag + actor->accel) >
         actor->max_vel)
     {
-      rescaleVector(&actor->vect_vel, actor->max_vel);
+      rescaleVector(&actor->velocity, actor->max_vel);
     }
     else
     {
-      scaleVector(&actor->vect_vel, actor->accel);
+      scaleVector(&actor->velocity, actor->accel);
     }
   }
 
   else
   {
-    rescaleVector(&actor->vect_vel, 0);
+    rescaleVector(&actor->velocity, 0);
   }
 
   actor->pos =
-      translatePoints(actor->pos, actor->vect_vel.point);
+      translatePoints(actor->pos, actor->velocity.point);
 }
 
 Vector getRayRowIntersect(Point origin, Vector ray, Scene scene)
@@ -195,7 +195,7 @@ void castActorRays(Actor *actor, Scene scene)
   double starting_angle = -actor->field_of_view / 2 + increment_rad;
   for (int i = 0; i < actor->number_of_rays; i++)
   {
-    Vector new_vect = actor->vect_view;
+    Vector new_vect = actor->dir;
     rotateVector(&new_vect,
                  starting_angle + i * increment_rad);
 

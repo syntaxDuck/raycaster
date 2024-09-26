@@ -6,7 +6,7 @@
 #include <math.h>
 #include <stdbool.h>
 
-#include "config.h"
+#include "Defines.h"
 #include "Structs.h"
 #include "Utility.h"
 #include "Actor.h"
@@ -20,6 +20,7 @@ void drawActor(Actor actor);
 void drawActorViewDir(Actor actor);
 void drawActorVelDir(Actor actor);
 void drawActorViewRays(Actor actor);
+void drawVectorFromActor(Actor actor, Vector vect, int scale, long color);
 
 void process2DScene(Scene *Scene);
 void processPlayerMotion(Player *player);

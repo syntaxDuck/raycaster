@@ -1,7 +1,11 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
+#include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
+#include <math.h>
+#include <stdlib.h>
+
 #include "Structs.h"
 
 void rotateVector(Vector *vect, double angle);

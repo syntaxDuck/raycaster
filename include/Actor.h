@@ -1,11 +1,15 @@
 #ifndef ACTOR_H
 #define ACTOR_H
 
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_surface.h>
+#include <stdbool.h>
+
+#include "Defines.h"
 #include "Structs.h"
 #include "Utility.h"
 
-void createActorViewCone(Actor *actor);
-void processActorView(Actor *actor, Scene Scene);
+void castActorRays(Actor *actor, Scene Scene);
 void processActorMotion(Actor *actor);
 Vector getRayRowIntersect(Point origin, Vector ray, Scene scene);
 Vector getRayColIntersect(Point origin, Vector ray, Scene scene);

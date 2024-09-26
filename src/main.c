@@ -1,9 +1,9 @@
 #include <SDL2/SDL.h>
 
-#include "config.h"
+#include "Defines.h"
 #include "Structs.h"
-#include "Utility.h"
 #include "Scene.h"
+
 // clang-format off
 Uint8 MAP[MAP_WIDTH][MAP_HEIGHT] = {
     {1, 0, 1, 0, 1, 0, 1, 0}, 
@@ -20,14 +20,17 @@ Uint8 MAP[MAP_WIDTH][MAP_HEIGHT] = {
 void setupPlayer(Player *player)
 {
   player->actor.size = PLAYER_SIZE;
-  player->actor.FOV = PLAYER_FOV;
+  player->actor.field_of_view = PLAYER_FOV * DEG_TO_RAD;
+  player->actor.number_of_rays = PLAYER_RAYS;
+
+  player->actor.view_cone = malloc(sizeof(Vector) * PLAYER_RAYS);
   player->actor.max_vel = PLAYER_MAX_SPEED;
   player->actor.accel = PLAYER_ACCEL;
+
   setPoint(&player->actor.pos, (double)WIN_WIDTH / 2 - 1, (double)WIN_HEIGHT / 2 - 1);
   setVector(&player->actor.vect_vel, 0, 0, 0, 0);
   setVector(&player->actor.vect_accel, 0, 0, 0, 0);
   setVector(&player->actor.vect_view, -10, 0, 10, 0);
-  setVector(&player->actor.view_ray, -1000, 0, 1000, 0);
 }
 
 int main(int argc, char *argv[])
@@ -76,6 +79,7 @@ int main(int argc, char *argv[])
   }
 
   // Cleanup and exit
+  free(player->actor.view_cone);
   free(Scene);
   SDL_DestroyRenderer(rend);
   SDL_DestroyWindow(win);

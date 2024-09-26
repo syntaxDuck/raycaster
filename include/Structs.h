@@ -19,7 +19,8 @@ typedef struct
 typedef struct
 {
     int size;
-    int FOV;
+    int number_of_rays;
+    double field_of_view;
 
     double max_vel;
     double accel;

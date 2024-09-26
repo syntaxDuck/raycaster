@@ -2,9 +2,9 @@
 #define CONFIG_H
 
 // Env defines
-#define MAP_WIDTH 8
-#define MAP_HEIGHT 8
-#define MAP_UNIT_SIZE 64
+#define MAP_WIDTH 24
+#define MAP_HEIGHT 24
+#define MAP_UNIT_SIZE 20
 #define WIN_WIDTH (MAP_UNIT_SIZE * MAP_WIDTH)
 #define WIN_HEIGHT (MAP_UNIT_SIZE * MAP_HEIGHT)
 

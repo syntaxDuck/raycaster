@@ -58,7 +58,7 @@ Vector getRayRowIntersect(Point origin, Vector ray, Scene scene)
   int row_index, col_index;
 
   double ray_cot = 1 / tan(ray.angle);
-  int row_offset = ((int)origin.y >> 6) << 6;
+  int row_offset = origin.y - (int)origin.y % MAP_UNIT_SIZE;
   while (true)
   {
     if (ray.angle == 0 || ray.angle == M_PI)
@@ -79,12 +79,12 @@ Vector getRayRowIntersect(Point origin, Vector ray, Scene scene)
         x = (origin.y - row_offset) * ray_cot;
         y = row_offset - origin.y;
 
-        row_offset -= 64;
+        row_offset -= MAP_UNIT_SIZE;
         row_index = -1;
       }
       else
       {
-        row_offset += 64;
+        row_offset += MAP_UNIT_SIZE;
         x = -(row_offset - origin.y) * ray_cot;
         y = row_offset - origin.y;
         row_index = 0;
@@ -94,8 +94,8 @@ Vector getRayRowIntersect(Point origin, Vector ray, Scene scene)
       casted_ray.point.y = origin.y + y;
       casted_ray.mag = sqrt(x * x + y * y);
 
-      row_index += casted_ray.point.y / 64;
-      col_index = casted_ray.point.x / 64;
+      row_index += casted_ray.point.y / MAP_UNIT_SIZE;
+      col_index = casted_ray.point.x / MAP_UNIT_SIZE;
 
       if (row_index < 0)
         row_index = 0;
@@ -106,10 +106,10 @@ Vector getRayRowIntersect(Point origin, Vector ray, Scene scene)
       if (casted_ray.point.x < 0)
         break;
 
-      if (casted_ray.point.x > scene.width * 64)
+      if (casted_ray.point.x > scene.width * MAP_UNIT_SIZE)
         break;
 
-      if (scene.map[row_index][col_index] == 1)
+      if (scene.map[row_index][col_index] > 0)
       {
         break;
       }
@@ -125,7 +125,7 @@ Vector getRayColIntersect(Point origin, Vector ray, Scene scene)
   int row_index, col_index;
 
   double ray_tan = tan(ray.angle);
-  int col_offset = ((int)origin.x >> 6) << 6;
+  int col_offset = origin.x - (int)origin.x % MAP_UNIT_SIZE;
   while (true)
   {
     if (ray.angle == M_PI_2 ||
@@ -150,12 +150,12 @@ Vector getRayColIntersect(Point origin, Vector ray, Scene scene)
         x = col_offset - origin.x;
         y = (origin.x - col_offset) * ray_tan;
 
-        col_offset -= 64;
+        col_offset -= MAP_UNIT_SIZE;
         col_index = -1;
       }
       else
       {
-        col_offset += 64;
+        col_offset += MAP_UNIT_SIZE;
         x = col_offset - origin.x;
         y = -(col_offset - origin.x) * ray_tan;
         col_index = 0;
@@ -165,8 +165,8 @@ Vector getRayColIntersect(Point origin, Vector ray, Scene scene)
       casted_ray.point.y = origin.y - y;
       casted_ray.mag = sqrt(x * x + y * y);
 
-      row_index = casted_ray.point.y / 64;
-      col_index += casted_ray.point.x / 64;
+      row_index = casted_ray.point.y / MAP_UNIT_SIZE;
+      col_index += casted_ray.point.x / MAP_UNIT_SIZE;
 
       if (col_index < 0)
         col_index = 0;
@@ -177,10 +177,10 @@ Vector getRayColIntersect(Point origin, Vector ray, Scene scene)
       if (casted_ray.point.y < 0)
         break;
 
-      if (casted_ray.point.y > scene.height * 64)
+      if (casted_ray.point.y > scene.height * MAP_UNIT_SIZE)
         break;
 
-      if (scene.map[row_index][col_index] == 1)
+      if (scene.map[row_index][col_index] > 0)
       {
         break;
       }

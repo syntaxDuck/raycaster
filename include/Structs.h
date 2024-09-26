@@ -36,7 +36,7 @@ typedef struct
 {
     Actor actor;
 
-    int camera_plan;
+    int plane;
 } Player;
 
 typedef struct Node

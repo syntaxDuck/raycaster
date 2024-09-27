@@ -13,6 +13,7 @@
 
 void loadScene(Scene *Scene, Uint8 map[MAP_HEIGHT][MAP_WIDTH]);
 void setSceneRenderer(SDL_Renderer *rend);
+
 void draw2DScene(Scene Scene);
 void drawMap(Scene Scene);
 void drawPlayer(Player player);

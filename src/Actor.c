@@ -48,10 +48,10 @@ void processActorMotion(Actor *actor)
   }
 
   actor->pos =
-      translatePoints(actor->pos, actor->velocity.point);
+      transposeVector(actor->pos, actor->velocity);
 }
 
-Vector getRayRowIntersect(Point origin, Vector ray, Scene scene)
+Vector getRayRowIntersect(Vector origin, Vector ray, Scene scene)
 {
   Vector casted_ray;
   double x, y;
@@ -66,8 +66,8 @@ Vector getRayRowIntersect(Point origin, Vector ray, Scene scene)
       x = ray.angle == 0 ? 1000 : -1000;
       y = 0;
 
-      casted_ray.point.x = origin.x - x;
-      casted_ray.point.y = origin.y + y;
+      casted_ray.x = origin.x - x;
+      casted_ray.y = origin.y + y;
       casted_ray.mag = sqrt(x * x + y * y);
       break;
     }
@@ -90,12 +90,12 @@ Vector getRayRowIntersect(Point origin, Vector ray, Scene scene)
         row_index = 0;
       }
 
-      casted_ray.point.x = origin.x - x;
-      casted_ray.point.y = origin.y + y;
+      casted_ray.x = origin.x - x;
+      casted_ray.y = origin.y + y;
       casted_ray.mag = sqrt(x * x + y * y);
 
-      row_index += casted_ray.point.y / MAP_UNIT_SIZE;
-      col_index = casted_ray.point.x / MAP_UNIT_SIZE;
+      row_index += casted_ray.y / MAP_UNIT_SIZE;
+      col_index = casted_ray.x / MAP_UNIT_SIZE;
 
       if (row_index < 0)
         row_index = 0;
@@ -103,10 +103,10 @@ Vector getRayRowIntersect(Point origin, Vector ray, Scene scene)
       if (row_index >= scene.height)
         row_index = scene.height - 1;
 
-      if (casted_ray.point.x < 0)
+      if (casted_ray.x < 0)
         break;
 
-      if (casted_ray.point.x > scene.width * MAP_UNIT_SIZE)
+      if (casted_ray.x > scene.width * MAP_UNIT_SIZE)
         break;
 
       if (scene.map[row_index][col_index] > 0)
@@ -118,7 +118,7 @@ Vector getRayRowIntersect(Point origin, Vector ray, Scene scene)
   return casted_ray;
 }
 
-Vector getRayColIntersect(Point origin, Vector ray, Scene scene)
+Vector getRayColIntersect(Vector origin, Vector ray, Scene scene)
 {
   Vector casted_ray;
   double x, y;
@@ -135,8 +135,8 @@ Vector getRayColIntersect(Point origin, Vector ray, Scene scene)
       y = ray.angle == M_PI_2 ? 1000 : -1000;
       x = 0;
 
-      casted_ray.point.x = origin.x + x;
-      casted_ray.point.y = origin.y - y;
+      casted_ray.x = origin.x + x;
+      casted_ray.y = origin.y - y;
       casted_ray.mag = sqrt(x * x + y * y);
       break;
     }
@@ -161,12 +161,12 @@ Vector getRayColIntersect(Point origin, Vector ray, Scene scene)
         col_index = 0;
       }
 
-      casted_ray.point.x = origin.x + x;
-      casted_ray.point.y = origin.y - y;
+      casted_ray.x = origin.x + x;
+      casted_ray.y = origin.y - y;
       casted_ray.mag = sqrt(x * x + y * y);
 
-      row_index = casted_ray.point.y / MAP_UNIT_SIZE;
-      col_index += casted_ray.point.x / MAP_UNIT_SIZE;
+      row_index = casted_ray.y / MAP_UNIT_SIZE;
+      col_index += casted_ray.x / MAP_UNIT_SIZE;
 
       if (col_index < 0)
         col_index = 0;
@@ -174,10 +174,10 @@ Vector getRayColIntersect(Point origin, Vector ray, Scene scene)
       if (col_index >= scene.width)
         col_index = scene.width - 1;
 
-      if (casted_ray.point.y < 0)
+      if (casted_ray.y < 0)
         break;
 
-      if (casted_ray.point.y > scene.height * MAP_UNIT_SIZE)
+      if (casted_ray.y > scene.height * MAP_UNIT_SIZE)
         break;
 
       if (scene.map[row_index][col_index] > 0)

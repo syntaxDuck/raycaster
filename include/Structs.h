@@ -6,12 +6,6 @@ typedef struct
 {
     double x;
     double y;
-    double z;
-} Point;
-
-typedef struct
-{
-    Point point;
     double mag;
     double angle;
 } Vector;
@@ -25,8 +19,7 @@ typedef struct
     double max_vel;
     double accel;
 
-    Point pos;
-
+    Vector pos;
     Vector dir;
     Vector *view_cone;
     Vector velocity;
@@ -35,7 +28,6 @@ typedef struct
 typedef struct
 {
     Actor actor;
-
     Vector plane;
 } Player;
 

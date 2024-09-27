@@ -79,6 +79,14 @@ void drawPlayer(Player player)
   drawActorViewDir(player.actor);
   drawActorVelDir(player.actor);
   drawActorViewRays(player.actor);
+
+  SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+  rotateVector(&player.plane, player.actor.dir.angle);
+  SDL_RenderDrawLine(renderer, player.actor.pos.x + player.actor.dir.x - player.plane.x,
+                     player.actor.pos.y + player.actor.dir.y - player.plane.y,
+                     player.actor.pos.x + player.actor.dir.x + player.plane.x,
+                     player.actor.pos.y + player.actor.dir.y + player.plane.y);
+  // drawVectorFromActor(player.actor, transposeVector(player.actor.dir, player.plane), 1, 0xFFFFFFFF);
 }
 
 void drawActor(Actor actor)
@@ -95,8 +103,8 @@ void drawActorViewDir(Actor actor)
 {
   SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
   Vector view = transposeVector(actor.pos, actor.dir);
-  SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, view.point.x,
-                     view.point.y);
+  SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, view.x,
+                     view.y);
 }
 
 void drawActorVelDir(Actor actor)
@@ -105,18 +113,18 @@ void drawActorVelDir(Actor actor)
   Vector vel = actor.velocity;
   scaleVector(&vel, 10);
   vel = transposeVector(actor.pos, vel);
-  SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, vel.point.x,
-                     vel.point.y);
+  SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, vel.x,
+                     vel.y);
 }
 
 void drawActorViewRays(Actor actor)
 {
-  SDL_SetRenderDrawColor(renderer, 255, 0, 255, 1);
+  SDL_SetRenderDrawColor(renderer, 255, 0, 255, 75);
   for (int i = 0; i < actor.number_of_rays; i++)
   {
     Vector ray = actor.view_cone[i];
-    SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, ray.point.x,
-                       ray.point.y);
+    SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, ray.x,
+                       ray.y);
   }
 }
 
@@ -125,7 +133,7 @@ void drawVectorFromActor(Actor actor, Vector vect, int scale, long color)
   SDL_SetRenderDrawColor(renderer, color >> 24, color >> 16 & 0xFF, 255 >> 8 & 0xFF, color & 0xFF);
   scaleVector(&vect, scale);
   vect = transposeVector(actor.pos, vect);
-  SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, vect.point.x, vect.point.y);
+  SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, vect.x, vect.y);
 }
 
 void process2DScene(Scene *scene)

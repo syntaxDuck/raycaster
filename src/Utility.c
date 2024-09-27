@@ -2,10 +2,10 @@
 
 void rotateVector(Vector *vector, double angle)
 {
-  double newX = vector->point.x * cos(angle) - vector->point.y * sin(angle);
-  double newY = vector->point.x * sin(angle) + vector->point.y * cos(angle);
-  vector->point.x = newX;
-  vector->point.y = newY;
+  double newX = vector->x * cos(angle) - vector->y * sin(angle);
+  double newY = vector->x * sin(angle) + vector->y * cos(angle);
+  vector->x = newX;
+  vector->y = newY;
 
   vector->angle += angle;
   if (vector->angle < 0)
@@ -21,8 +21,8 @@ void rotateVector(Vector *vector, double angle)
 
 void moveVector(Vector *vector, double x, double y)
 {
-  vector->point.x = x;
-  vector->point.y = y;
+  vector->x = x;
+  vector->y = y;
   vector->mag = sqrtf(x * x + y * y);
   vector->angle = atan2(x / vector->mag, y / vector->mag);
 }
@@ -30,31 +30,22 @@ void moveVector(Vector *vector, double x, double y)
 void scaleVector(Vector *vector, double mag)
 {
   vector->mag += mag;
-  vector->point.x = -vector->mag * cos(vector->angle);
-  vector->point.y = -vector->mag * sin(vector->angle);
+  vector->x = -vector->mag * cos(vector->angle);
+  vector->y = -vector->mag * sin(vector->angle);
 }
 
 void rescaleVector(Vector *vector, double new_mag)
 {
   vector->mag = new_mag;
-  vector->point.x = -new_mag * cos(vector->angle);
-  vector->point.y = -new_mag * sin(vector->angle);
+  vector->x = -new_mag * cos(vector->angle);
+  vector->y = -new_mag * sin(vector->angle);
 }
 
-Point translatePoints(Point p1, Point p2)
-{
-  Point newPoint;
-  newPoint.x = p1.x + p2.x;
-  newPoint.y = p1.y + p2.y;
-
-  return newPoint;
-}
-
-Vector transposeVector(Point origin, Vector vector)
+Vector transposeVector(Vector origin, Vector vector)
 {
   Vector newVect;
-  newVect.point.x = origin.x + vector.point.x;
-  newVect.point.y = origin.y + vector.point.y;
+  newVect.x = origin.x + vector.x;
+  newVect.y = origin.y + vector.y;
   newVect.mag = vector.mag;
   newVect.angle = vector.angle;
 
@@ -63,18 +54,13 @@ Vector transposeVector(Point origin, Vector vector)
 
 void calculateVectorMag(Vector *vect)
 {
-  vect->mag = sqrt(vect->point.x * vect->point.x + vect->point.y * vect->point.y);
+  vect->mag = sqrt(vect->x * vect->x + vect->y * vect->y);
 }
 
-void setPoint(Point *point, double x, double y)
-{
-  point->x = x;
-  point->y = y;
-}
 void setVector(Vector *vect, double x, double y, double mag, double angle)
 {
-  vect->point.x = x;
-  vect->point.y = y;
+  vect->x = x;
+  vect->y = y;
   vect->mag = mag;
   vect->angle = angle;
 }

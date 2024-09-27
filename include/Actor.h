@@ -11,6 +11,6 @@
 
 void castActorRays(Actor *actor, Scene Scene);
 void processActorMotion(Actor *actor);
-Vector getRayRowIntersect(Point origin, Vector ray, Scene scene);
-Vector getRayColIntersect(Point origin, Vector ray, Scene scene);
+Vector getRayRowIntersect(Vector origin, Vector ray, Scene scene);
+Vector getRayColIntersect(Vector origin, Vector ray, Scene scene);
 #endif

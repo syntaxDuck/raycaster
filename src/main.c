@@ -57,7 +57,12 @@ void setupPlayer(Player *player)
 
   setPoint(&player->actor.pos, (double)WIN_WIDTH / 2 - 1, (double)WIN_HEIGHT / 2 - 1);
   setVector(&player->actor.velocity, 0, 0, 0, 0);
-  setVector(&player->actor.dir, 1, 0, 1, 0);
+  setVector(&player->actor.dir, 100, 0, 100, M_PI_2);
+
+  Point plane;
+  plane.x = player->actor.dir.point.x / tan(player->actor.field_of_view / 2);
+  plane.y = player->actor.dir.point.y * tan(player->actor.field_of_view / 2);
+  setVector(&player->plane, plane.x, plane.y, sqrt(plane.x * plane.x + plane.y * plane.y), player->actor.dir.angle + M_PI_2);
 }
 
 int main(int argc, char *argv[])

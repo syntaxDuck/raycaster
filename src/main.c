@@ -4,115 +4,153 @@
 #include "Structs.h"
 #include "Scene.h"
 
-// clang-format off
-// Uint8 MAP[MAP_WIDTH][MAP_HEIGHT] = {
-//     {1, 0, 1, 0, 1, 0, 1, 0}, 
-//     {0, 1, 0, 1, 0, 1, 0, 1},
-//     {1, 0, 0, 0, 0, 0, 0, 1}, 
-//     {0, 1, 0, 0, 0, 0, 0, 1},
-//     {1, 0, 0, 0, 0, 0, 0, 1}, 
-//     {0, 1, 0, 0, 0, 0, 0, 1},
-//     {1, 0, 1, 0, 1, 0, 1, 1}, 
-//     {0, 1, 0, 1, 0, 1, 0, 1}
-// };
-
-Uint8 MAP[MAP_WIDTH][MAP_HEIGHT]=
-{
-  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,2,2,2,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,3,0,0,0,3,0,0,0,1},
-  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,2,2,0,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,0,0,0,0,5,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,0,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
-};
-// clang-format on
-
 void setupPlayer(Player *player)
 {
   player->actor.size = PLAYER_SIZE;
   player->actor.field_of_view = PLAYER_FOV * DEG_TO_RAD;
-  player->actor.number_of_rays = PLAYER_RAYS;
 
-  player->actor.view_cone = malloc(sizeof(Vector) * PLAYER_RAYS);
+  player->actor.view_cone = malloc(sizeof(Vector) * WIN_WIDTH);
   player->actor.max_vel = PLAYER_MAX_SPEED;
   player->actor.accel = PLAYER_ACCEL;
 
-  setVector(&player->actor.pos, (double)WIN_WIDTH / 2 - 1, (double)WIN_HEIGHT / 2 - 1, 0, 0);
-  setVector(&player->actor.velocity, 0, 0, 0, 0);
-  setVector(&player->actor.dir, -10, 0, 1, 0);
-  setVector(&player->plane, 0, player->actor.dir.x * tan(player->actor.field_of_view / 2), 0, 0);
-  printf("%f\n", player->plane.y);
+  player->actor.pos = setVector(2 * (double)WIN_WIDTH / 3 - 1, 2 * (double)WIN_HEIGHT / 3 - 1, 0, 0);
+  player->actor.velocity = setVector(0, 0, 0, 0);
+  player->actor.velocity = setVector(-1, 0, 1, 0);
+
+  double y = player->actor.dir.x * tan(player->actor.field_of_view / 2);
+  player->plane = setVector(0, y, y, M_PI_2);
+}
+
+bool handle2dScene(Scene *scene_2d, SDL_Window *win_2d)
+{
+  SDL_Event event;
+  bool quit = false;
+  while (SDL_PollEvent(&event) != 0)
+  {
+    if (event.type == SDL_QUIT)
+    {
+      quit = true;
+    }
+    else if (event.type == SDL_WINDOWEVENT)
+    {
+      if (event.window.type == SDL_WINDOWEVENT_RESIZED)
+      {
+        int newWidth = event.window.data1;
+        int newHeight = event.window.data2;
+        SDL_SetWindowSize(win_2d, newWidth, newHeight);
+      }
+    }
+  }
+
+  draw2DScene(*scene_2d);
+  return quit;
+}
+
+bool handleFpScene(Scene *scene_fp, SDL_Window *win_fp)
+{
+  SDL_Event event;
+  bool quit = false;
+  while (SDL_PollEvent(&event) != 0)
+  {
+    if (event.type == SDL_QUIT)
+    {
+      quit = true;
+    }
+    else if (event.type == SDL_WINDOWEVENT)
+    {
+      if (event.window.type == SDL_WINDOWEVENT_RESIZED)
+      {
+        int newWidth = event.window.data1;
+        int newHeight = event.window.data2;
+        SDL_SetWindowSize(win_fp, newWidth, newHeight);
+      }
+    }
+  }
+
+  drawFpScene(scene_fp);
+  return quit;
 }
 
 int main(int argc, char *argv[])
 {
   // Init window and renderer
-  SDL_Window *win;
-  SDL_Renderer *rend;
-  initSDL(&win, &rend, WIN_WIDTH, WIN_HEIGHT);
-  SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_BLEND);
-  setSceneRenderer(rend);
+  SDL_Window *win_2d = NULL, *win_fp = NULL;
+  SDL_Renderer *rend_2d = NULL, *rend_fp = NULL;
 
   // Init Scene Object
-  Scene *Scene = malloc(sizeof(Scene));
-  Scene->unit_size = MAP_UNIT_SIZE;
-  Scene->width = MAP_WIDTH;
-  Scene->height = MAP_HEIGHT;
-  loadScene(Scene, MAP);
+  Scene *scene_2d = malloc(sizeof(Scene));
+  Scene *scene_fp = malloc(sizeof(Scene));
+
+  Map map;
+  map.unit_size = MAP_UNIT_SIZE;
+  map.grid = loadMapFromFile("../assets/maps/map.txt", &map.width, &map.height);
+
+  if (map.grid == NULL)
+  {
+    fprintf(stderr, "Failed to load map from file\n");
+    exit(EXIT_FAILURE);
+  }
 
   // Create Player
-  Player *player;
+  Player *player = malloc(sizeof(Player)); // Allocate memory for the player
+  if (!player)
+  {
+    fprintf(stderr, "Failed to allocate memory for player\n");
+    exit(EXIT_FAILURE);
+  }
+
   setupPlayer(player);
-  Scene->player = *player;
+
+  if (REND_FP)
+  {
+    scene_fp->map = map;
+    scene_fp->player = *player;
+    initSDL(&win_fp, &rend_fp, WIN_WIDTH, WIN_HEIGHT);
+    SDL_SetRenderDrawBlendMode(rend_fp, SDL_BLENDMODE_BLEND);
+    setFpSceneRenderer(rend_fp);
+  }
+
+  if (REND_2D)
+  {
+    scene_2d->map = map;
+    scene_2d->player = *player;
+    initSDL(&win_2d, &rend_2d, WIN_WIDTH, WIN_HEIGHT);
+    SDL_SetRenderDrawBlendMode(rend_2d, SDL_BLENDMODE_BLEND);
+    set2dSceneRenderer(rend_2d);
+  }
 
   bool quit = false;
-  SDL_Event event;
   while (!quit)
   {
-    while (SDL_PollEvent(&event) != 0)
+    if (REND_2D)
     {
-      if (event.type == SDL_QUIT)
-      {
-        quit = true;
-      }
-      else if (event.type == SDL_WINDOWEVENT)
-      {
-        if (event.window.type == SDL_WINDOWEVENT_RESIZED)
-        {
-          int newWidth = event.window.data1;
-          int newHeight = event.window.data2;
-          SDL_SetWindowSize(win, newWidth, newHeight);
-        }
-      }
+      quit = handle2dScene(scene_2d, win_2d);
     }
 
-    process2DScene(Scene);
-    draw2DScene(*Scene);
+    if (REND_FP)
+    {
+      quit = handleFpScene(scene_fp, win_fp);
+    }
+
+    processPlayerMotion(scene_2d);
   }
 
   // Cleanup and exit
   free(player->actor.view_cone);
-  free(Scene);
-  SDL_DestroyRenderer(rend);
-  SDL_DestroyWindow(win);
+  free(player);
+  freeMap(map.grid, map.height);
+  free(scene_2d);
+  free(scene_fp);
+
+  if (rend_2d)
+    SDL_DestroyRenderer(rend_2d);
+  if (win_2d)
+    SDL_DestroyWindow(win_2d);
+  if (rend_fp)
+    SDL_DestroyRenderer(rend_fp);
+  if (win_fp)
+    SDL_DestroyWindow(win_fp);
+
   SDL_Quit();
   return 0;
 }

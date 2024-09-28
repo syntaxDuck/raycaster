@@ -63,7 +63,7 @@ Vector getRayRowIntersect(Vector origin, Vector ray, Scene scene)
   {
     if (ray.angle == 0 || ray.angle == M_PI)
     {
-      x = ray.angle == 0 ? 1000 : -1000;
+      x = ray.angle == 0 ? 1e30 : -1e30;
       y = 0;
 
       casted_ray.x = origin.x - x;
@@ -100,16 +100,16 @@ Vector getRayRowIntersect(Vector origin, Vector ray, Scene scene)
       if (row_index < 0)
         row_index = 0;
 
-      if (row_index >= scene.height)
-        row_index = scene.height - 1;
+      if (row_index >= scene.map.height)
+        row_index = scene.map.height - 1;
 
       if (casted_ray.x < 0)
         break;
 
-      if (casted_ray.x > scene.width * MAP_UNIT_SIZE)
+      if (casted_ray.x > scene.map.width * MAP_UNIT_SIZE)
         break;
 
-      if (scene.map[row_index][col_index] > 0)
+      if (scene.map.grid[row_index][col_index] > 0)
       {
         break;
       }
@@ -132,7 +132,7 @@ Vector getRayColIntersect(Vector origin, Vector ray, Scene scene)
         ray.angle == M_PI_3_2)
     {
 
-      y = ray.angle == M_PI_2 ? 1000 : -1000;
+      y = ray.angle == M_PI_2 ? 1e30 : -1e30;
       x = 0;
 
       casted_ray.x = origin.x + x;
@@ -171,16 +171,16 @@ Vector getRayColIntersect(Vector origin, Vector ray, Scene scene)
       if (col_index < 0)
         col_index = 0;
 
-      if (col_index >= scene.width)
-        col_index = scene.width - 1;
+      if (col_index >= scene.map.width)
+        col_index = scene.map.width - 1;
 
       if (casted_ray.y < 0)
         break;
 
-      if (casted_ray.y > scene.height * MAP_UNIT_SIZE)
+      if (casted_ray.y > scene.map.height * MAP_UNIT_SIZE)
         break;
 
-      if (scene.map[row_index][col_index] > 0)
+      if (scene.map.grid[row_index][col_index] > 0)
       {
         break;
       }
@@ -191,9 +191,9 @@ Vector getRayColIntersect(Vector origin, Vector ray, Scene scene)
 
 void castActorRays(Actor *actor, Scene scene)
 {
-  double increment_rad = actor->field_of_view / actor->number_of_rays;
+  double increment_rad = actor->field_of_view / NUM_RAYS;
   double starting_angle = -actor->field_of_view / 2 + increment_rad;
-  for (int i = 0; i < actor->number_of_rays; i++)
+  for (int i = 0; i < NUM_RAYS; i++)
   {
     Vector new_vect = actor->dir;
     rotateVector(&new_vect,
@@ -202,5 +202,38 @@ void castActorRays(Actor *actor, Scene scene)
     Vector row_intersect = getRayRowIntersect(actor->pos, new_vect, scene);
     Vector col_intersect = getRayColIntersect(actor->pos, new_vect, scene);
     actor->view_cone[i] = row_intersect.mag < col_intersect.mag ? row_intersect : col_intersect;
+  }
+}
+
+void castPlayerRays(Player *player, Scene scene)
+{
+  Vector dir = player->actor.dir; // Player's direction vector
+  Vector plane = player->plane;   // Player's plane vector (perpendicular to direction)
+
+  double rad_per_col = player->actor.field_of_view / WIN_WIDTH; // Radians per pixel
+  double offset = -player->actor.field_of_view / 2;
+  double camera_x;
+
+  for (int x = 0; x < WIN_WIDTH; x++)
+  {
+    // Calculate x-coordinate in camera space
+    camera_x = 2 * x / (double)WIN_WIDTH - 1; // Normalized coordinate in camera space
+
+    // Calculate ray direction
+    Vector ray_dir = setVector(dir.x + plane.x * camera_x,
+                               dir.y + plane.y * camera_x,
+                               sqrt(ray_dir.x * ray_dir.x + ray_dir.y * ray_dir.y),
+                               dir.angle);
+
+    ray_dir = normalizeVector(ray_dir);
+    rotateVector(&ray_dir, offset + x * rad_per_col);
+
+    // Perform raycasting with ray_dir and player->actor.pos as origin
+    // Example of calling intersection functions (to be implemented)
+    Vector row_intersect = getRayRowIntersect(player->actor.pos, ray_dir, scene);
+    Vector col_intersect = getRayColIntersect(player->actor.pos, ray_dir, scene);
+
+    // Store the closest intersection or whatever you need
+    player->actor.view_cone[x] = row_intersect.mag < col_intersect.mag ? row_intersect : col_intersect;
   }
 }

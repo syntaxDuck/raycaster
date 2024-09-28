@@ -13,7 +13,6 @@ typedef struct
 typedef struct
 {
     int size;
-    int number_of_rays;
     double field_of_view;
 
     double max_vel;
@@ -21,8 +20,8 @@ typedef struct
 
     Vector pos;
     Vector dir;
-    Vector *view_cone;
     Vector velocity;
+    Vector *view_cone;
 } Actor;
 
 typedef struct
@@ -39,11 +38,17 @@ typedef struct Node
 
 typedef struct
 {
-    Uint8 **map;
-    Uint8 unit_size;
-    Uint8 width;
-    Uint8 height;
+    Uint8 **grid;
+    int unit_size;
+    int width;
+    int height;
+} Map;
+
+typedef struct
+{
+    Map map;
     Player player;
     Actor_List_Node actors;
 } Scene;
+
 #endif

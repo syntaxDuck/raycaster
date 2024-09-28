@@ -1,5 +1,15 @@
 #include "Utility.h"
 
+Vector normalizeVector(Vector vector)
+{
+  Vector norm_vect;
+  norm_vect.x /= vector.mag;
+  norm_vect.y /= vector.mag;
+  norm_vect.mag = 1;
+  norm_vect.angle = vector.angle;
+  return norm_vect;
+}
+
 void rotateVector(Vector *vector, double angle)
 {
   double newX = vector->x * cos(angle) - vector->y * sin(angle);
@@ -17,14 +27,6 @@ void rotateVector(Vector *vector, double angle)
   {
     vector->angle -= 2 * M_PI;
   }
-}
-
-void moveVector(Vector *vector, double x, double y)
-{
-  vector->x = x;
-  vector->y = y;
-  vector->mag = sqrtf(x * x + y * y);
-  vector->angle = atan2(x / vector->mag, y / vector->mag);
 }
 
 void scaleVector(Vector *vector, double mag)
@@ -52,17 +54,19 @@ Vector transposeVector(Vector origin, Vector vector)
   return newVect;
 }
 
-void calculateVectorMag(Vector *vect)
+void calcVectorMag(Vector *vect)
 {
   vect->mag = sqrt(vect->x * vect->x + vect->y * vect->y);
 }
 
-void setVector(Vector *vect, double x, double y, double mag, double angle)
+Vector setVector(double x, double y, double mag, double angle)
 {
-  vect->x = x;
-  vect->y = y;
-  vect->mag = mag;
-  vect->angle = angle;
+  Vector vect;
+  vect.x = x;
+  vect.y = y;
+  vect.mag = mag;
+  vect.angle = angle;
+  return vect;
 }
 
 // Function to generate points along the circumference of a circle using Bézier

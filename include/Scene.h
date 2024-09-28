@@ -11,20 +11,27 @@
 #include "Utility.h"
 #include "Actor.h"
 
-void loadScene(Scene *Scene, Uint8 map[MAP_HEIGHT][MAP_WIDTH]);
-void setSceneRenderer(SDL_Renderer *rend);
+Uint8 **loadMapFromFile(const char *filename, int *map_width, int *map_height);
+void printMap(Uint8 **map, int map_width, int map_height);
+void freeMap(Uint8 **map, int map_height);
+void set2dSceneRenderer(SDL_Renderer *rend);
+void setFpSceneRenderer(SDL_Renderer *rend);
 
-void draw2DScene(Scene Scene);
-void drawMap(Scene Scene);
-void drawPlayer(Player player);
+void draw2DScene(Scene scene);
+void draw2dMap(Scene Scene);
+void draw2dPlayer(Player player);
+void drawPlayerPlane(Player player);
+void drawPlayerViewRays(Player player);
 void drawActor(Actor actor);
-void drawActorViewDir(Actor actor);
 void drawActorVelDir(Actor actor);
+void drawActorViewDir(Actor actor);
 void drawActorViewRays(Actor actor);
-void drawVectorFromActor(Actor actor, Vector vect, int scale, long color);
 
-void process2DScene(Scene *Scene);
-void processPlayerMotion(Player *player);
-void processPlayerView(Scene *Scene);
+void drawFpScene(Scene *scene);
+// void drawVectorFromActor(Actor actor, Vector vect, int scale, long color);
+
+void process2DScene(Scene *scene);
+void processPlayerView(Scene *scene);
+void processPlayerMotion(Scene *scene);
 
 #endif

@@ -1,6 +1,7 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 #include <SDL2/SDL.h>
+
 typedef struct
 {
     char *title;
@@ -35,8 +36,16 @@ typedef struct
 
 typedef struct
 {
+    double perp_wall_distance;
+    int side;
+    Vector vect;
+} WallIntersect;
+
+typedef struct
+{
     Actor actor;
     Vector plane;
+    WallIntersect *intersects;
 } Player;
 
 typedef struct Node

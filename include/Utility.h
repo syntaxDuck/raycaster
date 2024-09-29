@@ -8,12 +8,13 @@
 
 #include "Structs.h"
 
+void printVector(Vector vector);
 void rotateVector(Vector *vect, double angle);
 void scaleVector(Vector *vector, double mag);
 void rescaleVector(Vector *vector, double new_mag);
-void calculateVectorMag(Vector *vect);
+void calculateVectorMag(Vector *vector);
 
-Vector setVector(double x, double y, double mag, double angle);
+Vector setVector(double x, double y);
 Vector transposeVector(Vector origin, Vector vector);
 Vector normalizeVector(Vector vector);
 

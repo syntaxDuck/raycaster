@@ -2,16 +2,6 @@
 
 SDL_Renderer *renderer;
 
-// void set2dSceneRenderer(SDL_Renderer *rend)
-// {
-//   renderer = rend;
-// }
-
-// void setFpSceneRenderer(SDL_Renderer *rend)
-// {
-//   renderer = rend;
-// }
-
 Uint8 **loadMapFromFile(const char *filename, int *map_width, int *map_height)
 {
   // Open the file
@@ -83,24 +73,6 @@ void freeMap(Uint8 **map, int map_height)
   free(map);
 }
 
-// void loadMap(Map *map, Uint8 grid[MAP_HEIGHT][MAP_WIDTH])
-// {
-//   grid = malloc(map->height * sizeof(Uint8 *));
-//   for (int i = 0; i < map->height; i++)
-//   {
-//     map->grid[i] = malloc(map->width * sizeof(Uint8));
-//   }
-
-//   // Copy map data into map->map
-//   for (int row = 0; row < map->height; row++)
-//   {
-//     for (int col = 0; col < map->width; col++)
-//     {
-//       map->grid[row][col] = grid[row][col];
-//     }
-//   }
-// }
-
 void draw2dScene(Scene scene, SDL_Renderer *rend)
 {
   renderer = rend;
@@ -154,20 +126,23 @@ void draw2dPlayer(Player player)
 
   if (DEBUG)
   {
+    drawPlayerViewRays(player);
     drawActorViewDir(player.actor);
     drawActorVelDir(player.actor);
-    drawPlayerViewRays(player);
     drawPlayerPlane(player);
   }
 }
 
 void drawPlayerPlane(Player player)
 {
-  SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-  SDL_RenderDrawLine(renderer, player.actor.pos.x + player.actor.dir.x - player.plane.x,
-                     player.actor.pos.y + player.actor.dir.y - player.plane.y,
-                     player.actor.pos.x + player.actor.dir.x + player.plane.x,
-                     player.actor.pos.y + player.actor.dir.y + player.plane.y);
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+  Vector scaled_dir = player.actor.dir, scaled_plane = player.plane;
+  scaleVector(&scaled_dir, 10);
+  scaleVector(&scaled_plane, 5);
+  SDL_RenderDrawLine(renderer, player.actor.pos.x + scaled_dir.x - scaled_plane.x,
+                     player.actor.pos.y + scaled_dir.y - scaled_plane.y,
+                     player.actor.pos.x + scaled_dir.x + scaled_plane.x,
+                     player.actor.pos.y + scaled_dir.y + scaled_plane.y);
 }
 
 void drawActor(Actor actor)
@@ -180,7 +155,8 @@ void drawActor(Actor actor)
 
 void drawActorViewDir(Actor actor)
 {
-  SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+  scaleVector(&actor.dir, 10);
   Vector view = transposeVector(actor.pos, actor.dir);
   SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, view.x,
                      view.y);
@@ -188,7 +164,7 @@ void drawActorViewDir(Actor actor)
 
 void drawActorVelDir(Actor actor)
 {
-  SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
   Vector vel = actor.velocity;
   scaleVector(&vel, 10);
   vel = transposeVector(actor.pos, vel);
@@ -212,9 +188,9 @@ void drawPlayerViewRays(Player player)
   SDL_SetRenderDrawColor(renderer, 255, 0, 255, 75);
   for (int i = 0; i < WIN_WIDTH; i++)
   {
-    Vector ray = player.actor.view_cone[i];
-    SDL_RenderDrawLine(renderer, player.actor.pos.x, player.actor.pos.y, ray.x,
-                       ray.y);
+    Vector ray = player.intersects[i].vect;
+    SDL_RenderDrawLine(renderer, player.actor.pos.x, player.actor.pos.y, ray.x * MAP_UNIT_SIZE,
+                       ray.y * MAP_UNIT_SIZE);
   }
 }
 
@@ -232,61 +208,22 @@ void drawFpScene(Scene scene, SDL_Renderer *rend)
   drawWalls(scene.player);
 }
 
-// void drawWalls(Player player)
-// {
-//   SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-//   for (int x = 0; x < WIN_WIDTH; x++)
-//   {
-//     Vector ray = player.actor.view_cone[x];
-//     double rel_angle = ray.angle - player.actor.dir.angle;
-//     double ang = 90 - rel_angle;
-//     double perp_wall = sin(ang) * ray.mag;
-//     SDL_RenderDrawLineF(renderer, x, 0, x, WIN_HEIGHT - perp_wall);
-//   }
-// }
-
 void drawWalls(Player player)
 {
   SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255); // Set default wall color to yellow
-
-  double fov_half = player.actor.field_of_view / 2.0; // Half of the field of view
-
   for (int x = 0; x < WIN_WIDTH; x++)
   {
-    // Get the current ray for this screen column
-    Vector ray = player.actor.view_cone[x];
+    WallIntersect intersect = player.intersects[x];
+    int line_height = (int)WIN_HEIGHT / intersect.perp_wall_distance;
+    int draw_start = -line_height / 2 + WIN_HEIGHT / 2;
+    if (draw_start < 0)
+      draw_start = 0;
+    int draw_end = line_height / 2 + WIN_HEIGHT / 2;
+    if (draw_end >= WIN_HEIGHT)
+      draw_end = WIN_HEIGHT - 1;
 
-    // Calculate the ray angle relative to the player's direction and the FOV
-    double ray_angle = player.actor.dir.angle - fov_half + (player.actor.field_of_view * x / WIN_WIDTH);
-
-    // Normalize the ray angle to the range [-π, π]
-    while (ray_angle > M_PI)
-      ray_angle -= 2 * M_PI;
-    while (ray_angle < -M_PI)
-      ray_angle += 2 * M_PI;
-
-    // Correct the distance for fisheye effect by using cosine of the ray angle
-    double corrected_distance = ray.mag * cos(ray_angle - player.actor.dir.angle);
-
-    // Avoid very small or negative distances (to prevent walls from becoming too large)
-    if (corrected_distance < 0.01)
-      corrected_distance = 0.01; // Avoid division by zero or excessive heights
-
-    // Calculate the height of the wall slice based on the corrected distance
-    double wall_height = (WIN_HEIGHT / corrected_distance) * MAP_UNIT_SIZE / 2;
-
-    // Calculate the starting and ending Y coordinates to draw the vertical slice
-    double wall_start = (WIN_HEIGHT / 2) - (wall_height / 2);
-    double wall_end = (WIN_HEIGHT / 2) + (wall_height / 2);
-
-    // Ensure wall_start and wall_end are within bounds
-    if (wall_start < 0)
-      wall_start = 0;
-    if (wall_end >= WIN_HEIGHT)
-      wall_end = WIN_HEIGHT - 1;
-
-    // Determine if it's hitting a vertical or horizontal wall
-    if (fabs(ray.x - (int)ray.x) < fabs(ray.y - (int)ray.y))
+    // // Determine if it's hitting a vertical or horizontal wall
+    if (intersect.side)
     {
       SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Red for vertical walls
     }
@@ -295,15 +232,10 @@ void drawWalls(Player player)
       SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255); // Blue for horizontal walls
     }
 
-    // Draw the vertical slice for the wall
-    SDL_RenderDrawLineF(renderer, x, wall_start, x, wall_end);
+    // // Draw the vertical slice for the wall
+    SDL_RenderDrawLineF(renderer, x, draw_end, x, draw_start);
   }
 }
-
-// void process2DScene(Scene *scene)
-// {
-//   processPlayerMotion(scene);
-// }
 
 void processPlayerMotion(Scene *scene)
 {

@@ -1,5 +1,10 @@
 #include "Utility.h"
 
+void printVector(Vector vector)
+{
+  printf("X: %f, Y: %f, Mag: %f, Angle: %f\n", vector.x, vector.y, vector.mag, vector.angle);
+}
+
 Vector normalizeVector(Vector vector)
 {
   Vector norm_vect;
@@ -32,15 +37,15 @@ void rotateVector(Vector *vector, double angle)
 void scaleVector(Vector *vector, double mag)
 {
   vector->mag += mag;
-  vector->x = -vector->mag * cos(vector->angle);
-  vector->y = -vector->mag * sin(vector->angle);
+  vector->x = vector->mag * cos(vector->angle);
+  vector->y = vector->mag * sin(vector->angle);
 }
 
 void rescaleVector(Vector *vector, double new_mag)
 {
   vector->mag = new_mag;
-  vector->x = -new_mag * cos(vector->angle);
-  vector->y = -new_mag * sin(vector->angle);
+  vector->x = new_mag * cos(vector->angle);
+  vector->y = new_mag * sin(vector->angle);
 }
 
 Vector transposeVector(Vector origin, Vector vector)
@@ -54,18 +59,27 @@ Vector transposeVector(Vector origin, Vector vector)
   return newVect;
 }
 
-void calcVectorMag(Vector *vect)
+void calculateVectorMag(Vector *vector)
 {
-  vect->mag = sqrt(vect->x * vect->x + vect->y * vect->y);
+  vector->mag = sqrt(vector->x * vector->x + vector->y * vector->y);
 }
 
-Vector setVector(double x, double y, double mag, double angle)
+void calculateVectorAngle(Vector *vector)
+{
+  vector->angle = atan2(vector->y, vector->x);
+  if (vector->angle < 0)
+  {
+    vector->angle += 2 * M_PI; // Ensure the angle is between 0 and 2π
+  }
+}
+
+Vector setVector(double x, double y)
 {
   Vector vect;
   vect.x = x;
   vect.y = y;
-  vect.mag = mag;
-  vect.angle = angle;
+  calculateVectorAngle(&vect);
+  calculateVectorMag(&vect);
   return vect;
 }
 

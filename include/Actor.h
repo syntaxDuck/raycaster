@@ -15,6 +15,8 @@ void freePlayer(Player *player);
 void castActorRays(Actor *actor, Scene scene);
 void processActorMotion(Actor *actor);
 
+// DDA algo
+WallIntersect getIntersect(Vector origin, Vector ray, Scene scene);
 Vector getRayRowIntersect(Vector origin, Vector ray, Scene scene);
 Vector getRayColIntersect(Vector origin, Vector ray, Scene scene);
 #endif

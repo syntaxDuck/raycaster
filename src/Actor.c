@@ -209,10 +209,73 @@ void castActorRays(Actor *actor, Scene scene)
   }
 }
 
+WallIntersect getIntersect(Vector origin, Vector ray_dir, Scene scene)
+{
+  Vector map = setVector((int)origin.x, (int)origin.y);
+  Vector side_dist;
+  Vector delta_dist = setVector(ray_dir.x == 0 ? 1e30 : fabs(1 / ray_dir.x),
+                                ray_dir.y == 0 ? 1e30 : fabs(1 / ray_dir.y));
+  double perp_wall_dist;
+  Vector step;
+  int hit = 0;
+  int side;
+  if (ray_dir.x < 0)
+  {
+    step.x = -1;
+    side_dist.x = (origin.x - map.x) * delta_dist.x;
+  }
+  else
+  {
+    step.x = 1;
+    side_dist.x = (map.x + 1.0 - origin.x) * delta_dist.x;
+  }
+
+  if (ray_dir.y < 0)
+  {
+    step.y = -1;
+    side_dist.y = (origin.y - map.y) * delta_dist.y;
+  }
+  else
+  {
+    step.y = 1;
+    side_dist.y = (map.y + 1.0 - origin.y) * delta_dist.y;
+  }
+
+  while (hit == 0)
+  {
+    if (side_dist.x < side_dist.y)
+    {
+      side_dist.x += delta_dist.x;
+      map.x += step.x;
+      side = 0;
+    }
+    else
+    {
+      side_dist.y += delta_dist.y;
+      map.y += step.y;
+      side = 1;
+    }
+
+    if (scene.map.grid[(int)map.y][(int)map.x] > 0)
+      hit = 1;
+  }
+  if (side == 0)
+    perp_wall_dist = side_dist.x - delta_dist.x;
+  else
+    perp_wall_dist = side_dist.y - delta_dist.y;
+
+  WallIntersect intersect;
+  intersect.vect = setVector(origin.x + ray_dir.x * perp_wall_dist, origin.y + ray_dir.y * perp_wall_dist);
+  intersect.perp_wall_distance = perp_wall_dist;
+  intersect.side = side;
+  return intersect;
+}
+
 void castPlayerRays(Player *player, Scene scene)
 {
   Vector dir = player->actor.dir; // Player's direction vector
   Vector plane = player->plane;   // Player's plane vector (perpendicular to direction)
+  Vector pos = setVector(player->actor.pos.x / MAP_UNIT_SIZE, player->actor.pos.y / MAP_UNIT_SIZE);
 
   double rad_per_col = player->actor.field_of_view / WIN_WIDTH; // Radians per pixel
   double offset = -player->actor.field_of_view / 2;
@@ -222,27 +285,14 @@ void castPlayerRays(Player *player, Scene scene)
   {
     // Calculate x-coordinate in camera space
     camera_x = 2 * x / (double)WIN_WIDTH - 1; // Normalized coordinate in camera space
-
-    // Calculate ray direction
-    Vector ray_dir = setVector(dir.x + plane.x * camera_x,
-                               dir.y + plane.y * camera_x,
-                               sqrt(ray_dir.x * ray_dir.x + ray_dir.y * ray_dir.y),
-                               dir.angle);
-
-    ray_dir = normalizeVector(ray_dir);
-    rotateVector(&ray_dir, offset + x * rad_per_col);
-
-    // Perform raycasting with ray_dir and player->actor.pos as origin
-    // Example of calling intersection functions (to be implemented)
-    Vector row_intersect = getRayRowIntersect(player->actor.pos, ray_dir, scene);
-    Vector col_intersect = getRayColIntersect(player->actor.pos, ray_dir, scene);
-
-    // Store the closest intersection or whatever you need
-    player->actor.view_cone[x] = row_intersect.mag < col_intersect.mag ? row_intersect : col_intersect;
+    Vector ray_dir = setVector(dir.x + plane.x * camera_x, dir.y + plane.y * camera_x);
+    player->intersects[x] = getIntersect(pos, ray_dir, scene);
+    player->actor.view_cone[x] = player->intersects[x].vect;
   }
 }
 
 void freePlayer(Player *player)
 {
   free(player->actor.view_cone);
+  free(player->intersects);
 }

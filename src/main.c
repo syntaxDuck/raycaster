@@ -17,13 +17,14 @@ Player createPlayer()
   player.actor.accel = PLAYER_ACCEL;
 
   // Initialize player's position and velocity
-  player.actor.pos = setVector(2 * (double)WIN_WIDTH / 3 - 1, 2 * (double)WIN_HEIGHT / 3 - 1, 0, 0);
-  player.actor.velocity = setVector(0, 0, 0, 0);
-  player.actor.dir = setVector(-1, 0, 1, 0);
+  player.actor.pos = setVector(2 * (double)WIN_WIDTH / 3 - 1, 2 * (double)WIN_HEIGHT / 3 - 1);
+  player.actor.velocity = setVector(0, 0);
+  printVector(player.actor.velocity);
+  player.actor.dir = setVector(-1, 0);
 
   // Calculate the player's plane (used for field of view in 3D rendering)
-  double y = player.actor.dir.x * tan(player.actor.field_of_view / 2);
-  player.plane = setVector(0, y, y, M_PI_2);
+  player.plane = setVector(0, player.actor.dir.x * tan(player.actor.field_of_view / 2));
+  player.intersects = malloc(sizeof(WallIntersect) * WIN_WIDTH);
 
   return player;
 }

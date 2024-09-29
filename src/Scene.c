@@ -205,12 +205,11 @@ void drawPlayerViewRays(Player player)
 void drawFpScene(Scene scene, SDL_Renderer *rend)
 {
   renderer = rend;
-  drawWalls(scene.player);
+  drawWalls(scene.player, scene);
 }
 
-void drawWalls(Player player)
+void drawWalls(Player player, Scene scene)
 {
-  SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255); // Set default wall color to yellow
   for (int x = 0; x < WIN_WIDTH; x++)
   {
     WallIntersect intersect = player.intersects[x];
@@ -222,18 +221,44 @@ void drawWalls(Player player)
     if (draw_end >= WIN_HEIGHT)
       draw_end = WIN_HEIGHT - 1;
 
-    // // Determine if it's hitting a vertical or horizontal wall
-    if (intersect.side)
-    {
-      SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Red for vertical walls
-    }
+    // Select the texture based on the wall type (example: intersect.side could be used for this)
+    int tex_num = scene.map.grid[(int)intersect.map_y][(int)intersect.map_x] - 1;
+    // Calculate the exact x-coordinate on the texture
+    double wall_x; // Exact position where the wall was hit
+    if (intersect.side == 0)
+      wall_x = intersect.vect.y;
     else
-    {
-      SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255); // Blue for horizontal walls
-    }
+      wall_x = intersect.vect.x;
+    wall_x -= floor(wall_x);
 
-    // // Draw the vertical slice for the wall
-    SDL_RenderDrawLineF(renderer, x, draw_end, x, draw_start);
+    // Calculate the x coordinate on the texture (from 0 to TEX_WIDTH - 1)
+    int tex_x = (int)(wall_x * (double)TEX_WIDTH);
+    if (intersect.side == 0 && intersect.ray_dir.x > 0)
+      tex_x = TEX_WIDTH - tex_x - 1;
+    if (intersect.side == 1 && intersect.ray_dir.y < 0)
+      tex_x = TEX_WIDTH - tex_x - 1;
+
+    // Draw the vertical wall slice
+    for (int y = draw_start; y < draw_end; y++)
+    {
+      // Calculate the corresponding y position on the texture
+      int tex_y = (((y * 2 - WIN_HEIGHT + line_height) * TEX_HEIGHT) / line_height) / 2;
+
+      // Get the color from the texture
+      Uint32 color = textures[tex_num][TEX_HEIGHT * tex_y + tex_x];
+
+      // Modify color for shadows if hitting a horizontal wall
+      if (intersect.side == 1)
+        color = (color >> 1) & 0x7F7F7F; // Darken the color
+
+      // Set the pixel color and draw the pixel
+      SDL_SetRenderDrawColor(renderer,
+                             (color & 0xFF0000) >> 16, // Red
+                             (color & 0x00FF00) >> 8,  // Green
+                             (color & 0x0000FF),       // Blue
+                             255);                     // Alpha
+      SDL_RenderDrawPoint(renderer, x, y);
+    }
   }
 }
 

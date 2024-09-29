@@ -5,9 +5,11 @@
 #define MAP_WIDTH 24
 #define MAP_HEIGHT 24
 #define MAP_UNIT_SIZE 20
+#define TEX_WIDTH 64
+#define TEX_HEIGHT 64
 #define WIN_WIDTH (MAP_UNIT_SIZE * MAP_WIDTH)
 #define WIN_HEIGHT (MAP_UNIT_SIZE * MAP_HEIGHT)
-#define REND_2D true
+#define REND_2D false
 #define REND_FP true
 #define DEBUG true
 
@@ -24,5 +26,7 @@
 
 // Actor defines
 #define NUM_RAYS 200
+
+int textures[8][TEX_HEIGHT * TEX_WIDTH];
 
 #endif

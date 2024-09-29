@@ -19,7 +19,6 @@ Player createPlayer()
   // Initialize player's position and velocity
   player.actor.pos = setVector(2 * (double)WIN_WIDTH / 3 - 1, 2 * (double)WIN_HEIGHT / 3 - 1);
   player.actor.velocity = setVector(0, 0);
-  printVector(player.actor.velocity);
   player.actor.dir = setVector(-1, 0);
 
   // Calculate the player's plane (used for field of view in 3D rendering)
@@ -52,6 +51,28 @@ Scene *createScene()
   scene->map = map;
   scene->player = createPlayer();
   return scene;
+}
+
+void createTextures()
+{
+  for (int x = 0; x < TEX_WIDTH; x++)
+  {
+    for (int y = 0; y < TEX_HEIGHT; y++)
+    {
+      int xorcolor = (x * 256 / TEX_WIDTH) ^ (y * 256 / TEX_HEIGHT);
+      // int xcolor = x * 256 / TEX_WIDTH;
+      int ycolor = y * 256 / TEX_HEIGHT;
+      int xycolor = y * 128 / TEX_HEIGHT + x * 128 / TEX_WIDTH;
+      textures[0][TEX_WIDTH * y + x] = 65536 * 254 * (x != y && x != TEX_WIDTH - y); // flat red texture with black cross
+      textures[1][TEX_WIDTH * y + x] = xycolor + 256 * xycolor + 65536 * xycolor;    // sloped greyscale
+      textures[2][TEX_WIDTH * y + x] = 256 * xycolor + 65536 * xycolor;              // sloped yellow gradient
+      textures[3][TEX_WIDTH * y + x] = xorcolor + 256 * xorcolor + 65536 * xorcolor; // xor greyscale
+      textures[4][TEX_WIDTH * y + x] = 256 * xorcolor;                               // xor green
+      textures[5][TEX_WIDTH * y + x] = 65536 * 192 * (x % 16 && y % 16);             // red bricks
+      textures[6][TEX_WIDTH * y + x] = 65536 * ycolor;                               // red gradient
+      textures[7][TEX_WIDTH * y + x] = 128 + 256 * 128 + 65536 * 128;                // flat grey texture
+    }
+  }
 }
 
 int initSDL(WindowData *window_data, const char *title, int width, int height)
@@ -180,6 +201,7 @@ int main(int argc, char *argv[])
 
   // Create the scene (map and player)
   Scene *scene = createScene();
+  createTextures();
 
   // Main game loop
   bool quit = false;

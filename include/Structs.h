@@ -38,7 +38,10 @@ typedef struct
 {
     double perp_wall_distance;
     int side;
+    int map_x;
+    int map_y;
     Vector vect;
+    Vector ray_dir;
 } WallIntersect;
 
 typedef struct

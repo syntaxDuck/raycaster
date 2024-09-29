@@ -6,9 +6,9 @@ void processActorMotion(Actor *actor)
   const Uint8 *state = SDL_GetKeyboardState(NULL);
 
   // Rotation Function
-  if (state[SDL_SCANCODE_RIGHT] ^ state[SDL_SCANCODE_LEFT])
+  if (state[SDL_SCANCODE_D] ^ state[SDL_SCANCODE_A])
   {
-    if (state[SDL_SCANCODE_LEFT])
+    if (state[SDL_SCANCODE_A])
     {
       rotateVector(&actor->dir, -PLAYER_TURN_SPEED);
     }
@@ -20,9 +20,9 @@ void processActorMotion(Actor *actor)
   }
 
   // Velocity Vector Function
-  if (state[SDL_SCANCODE_UP] ^ state[SDL_SCANCODE_DOWN])
+  if (state[SDL_SCANCODE_W] ^ state[SDL_SCANCODE_S])
   {
-    if (state[SDL_SCANCODE_UP])
+    if (state[SDL_SCANCODE_W])
     {
       actor->velocity.angle = actor->dir.angle;
     }
@@ -268,6 +268,9 @@ WallIntersect getIntersect(Vector origin, Vector ray_dir, Scene scene)
   intersect.vect = setVector(origin.x + ray_dir.x * perp_wall_dist, origin.y + ray_dir.y * perp_wall_dist);
   intersect.perp_wall_distance = perp_wall_dist;
   intersect.side = side;
+  intersect.map_x = map.x;
+  intersect.map_y = map.y;
+  intersect.ray_dir = ray_dir;
   return intersect;
 }
 

@@ -29,7 +29,7 @@ void drawActorViewDir(Actor actor);
 void drawActorViewRays(Actor actor);
 
 void drawFpScene(Scene scene, SDL_Renderer *rend);
-void drawWalls(Player player);
+void drawWalls(Player player, Scene scene);
 // void drawVectorFromActor(Actor actor, Vector vect, int scale, long color);
 
 void process2DScene(Scene *scene);

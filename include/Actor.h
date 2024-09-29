@@ -10,8 +10,11 @@
 #include "Utility.h"
 
 void castPlayerRays(Player *player, Scene scene);
+void freePlayer(Player *player);
+
 void castActorRays(Actor *actor, Scene scene);
 void processActorMotion(Actor *actor);
+
 Vector getRayRowIntersect(Vector origin, Vector ray, Scene scene);
 Vector getRayColIntersect(Vector origin, Vector ray, Scene scene);
 #endif

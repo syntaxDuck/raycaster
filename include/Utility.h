@@ -17,7 +17,4 @@ Vector setVector(double x, double y, double mag, double angle);
 Vector transposeVector(Vector origin, Vector vector);
 Vector normalizeVector(Vector vector);
 
-void initSDL(SDL_Window **window, SDL_Renderer **renderer, int win_width,
-             int win_height);
-
 #endif

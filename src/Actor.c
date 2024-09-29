@@ -69,6 +69,7 @@ Vector getRayRowIntersect(Vector origin, Vector ray, Scene scene)
       casted_ray.x = origin.x - x;
       casted_ray.y = origin.y + y;
       casted_ray.mag = sqrt(x * x + y * y);
+      casted_ray.angle = ray.angle;
       break;
     }
 
@@ -93,6 +94,7 @@ Vector getRayRowIntersect(Vector origin, Vector ray, Scene scene)
       casted_ray.x = origin.x - x;
       casted_ray.y = origin.y + y;
       casted_ray.mag = sqrt(x * x + y * y);
+      casted_ray.angle = ray.angle;
 
       row_index += casted_ray.y / MAP_UNIT_SIZE;
       col_index = casted_ray.x / MAP_UNIT_SIZE;
@@ -138,6 +140,7 @@ Vector getRayColIntersect(Vector origin, Vector ray, Scene scene)
       casted_ray.x = origin.x + x;
       casted_ray.y = origin.y - y;
       casted_ray.mag = sqrt(x * x + y * y);
+      casted_ray.angle = ray.angle;
       break;
     }
 
@@ -164,6 +167,7 @@ Vector getRayColIntersect(Vector origin, Vector ray, Scene scene)
       casted_ray.x = origin.x + x;
       casted_ray.y = origin.y - y;
       casted_ray.mag = sqrt(x * x + y * y);
+      casted_ray.angle = ray.angle;
 
       row_index = casted_ray.y / MAP_UNIT_SIZE;
       col_index += casted_ray.x / MAP_UNIT_SIZE;
@@ -236,4 +240,9 @@ void castPlayerRays(Player *player, Scene scene)
     // Store the closest intersection or whatever you need
     player->actor.view_cone[x] = row_intersect.mag < col_intersect.mag ? row_intersect : col_intersect;
   }
+}
+
+void freePlayer(Player *player)
+{
+  free(player->actor.view_cone);
 }

@@ -127,35 +127,3 @@ Vector setVector(double x, double y, double mag, double angle)
 //
 //   return texture;
 // }
-
-void initSDL(SDL_Window **window, SDL_Renderer **renderer, int win_width,
-             int win_height)
-{
-
-  if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
-  {
-    printf("Error initializing SDL: %s\n", SDL_GetError());
-    SDL_Quit();
-    exit(EXIT_FAILURE);
-  }
-
-  *window = SDL_CreateWindow("GAME", SDL_WINDOWPOS_CENTERED,
-                             SDL_WINDOWPOS_CENTERED, win_height, win_height, 0);
-
-  if (window == NULL)
-  {
-    printf("Error creating SDL window: %s\n", SDL_GetError());
-    SDL_Quit();
-    exit(EXIT_FAILURE);
-  }
-
-  *renderer = SDL_CreateRenderer(*window, -1, SDL_RENDERER_ACCELERATED);
-
-  if (renderer == NULL)
-  {
-    printf("Error creating SLD renderer: %s\n", SDL_GetError());
-    SDL_DestroyWindow(*window);
-    SDL_Quit();
-    exit(EXIT_FAILURE);
-  }
-}

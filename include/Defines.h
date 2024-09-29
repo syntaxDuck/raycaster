@@ -8,7 +8,7 @@
 #define WIN_WIDTH (MAP_UNIT_SIZE * MAP_WIDTH)
 #define WIN_HEIGHT (MAP_UNIT_SIZE * MAP_HEIGHT)
 #define REND_2D true
-#define REND_FP false
+#define REND_FP true
 #define DEBUG true
 
 // Generic
@@ -18,8 +18,8 @@
 // Player defines
 #define PLAYER_SIZE 7
 #define PLAYER_ACCEL 0.05
-#define PLAYER_TURN_SPEED 0.005
-#define PLAYER_MAX_SPEED 1
+#define PLAYER_TURN_SPEED 0.05
+#define PLAYER_MAX_SPEED 2
 #define PLAYER_FOV 66
 
 // Actor defines

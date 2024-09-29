@@ -1,6 +1,15 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 #include <SDL2/SDL.h>
+typedef struct
+{
+    char *title;
+    SDL_Window *window;
+    SDL_Renderer *renderer;
+    int frame_count;
+    float fps;
+    Uint32 last_time;
+} WindowData;
 
 typedef struct
 {

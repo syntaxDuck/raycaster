@@ -13,7 +13,7 @@ void castPlayerRays(Player *player, Scene scene);
 void freePlayer(Player *player);
 
 void castActorRays(Actor *actor, Scene scene);
-void processActorMotion(Actor *actor);
+void processActorMotion(Actor *actor, float fps);
 
 // DDA algo
 WallIntersect getIntersect(Vector origin, Vector ray, Scene scene);

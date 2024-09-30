@@ -7,7 +7,7 @@ void printVector(Vector vector)
 
 Vector normalizeVector(Vector vector)
 {
-  Vector norm_vect;
+  Vector norm_vect = vector;
   norm_vect.x /= vector.mag;
   norm_vect.y /= vector.mag;
   norm_vect.mag = 1;

@@ -18,22 +18,23 @@ void freeScene(Scene *scene);
 void set2dSceneRenderer(SDL_Renderer *rend);
 void setFpSceneRenderer(SDL_Renderer *rend);
 
-void draw2dScene(Scene scene, SDL_Renderer *rend);
-void draw2dMap(Scene Scene);
-void draw2dPlayer(Player player);
-void drawPlayerPlane(Player player);
-void drawPlayerViewRays(Player player);
-void drawActor(Actor actor);
-void drawActorVelDir(Actor actor);
-void drawActorViewDir(Actor actor);
-void drawActorViewRays(Actor actor);
+void render2dScene(Scene scene, SDL_Renderer *rend);
+void render2dMap(Scene Scene);
+void render2dPlayer(Player player);
+void renderPlayerPlane(Player player);
+void renderPlayerViewRays(Player player);
+void renderActorBody(Actor actor);
+void renderActorVelDir(Actor actor);
+void renderActorViewDir(Actor actor);
+void renderActorViewRays(Actor actor);
 
 void drawFpScene(Scene scene, SDL_Renderer *rend);
 void drawWalls(Player player, Scene scene);
+void renderWalls(Player player, Scene scene);
 // void drawVectorFromActor(Actor actor, Vector vect, int scale, long color);
 
 void process2DScene(Scene *scene);
 void processPlayerView(Scene *scene);
-void processPlayerMotion(Scene *scene);
+void processPlayerMotion(Scene *scene, float fps);
 
 #endif

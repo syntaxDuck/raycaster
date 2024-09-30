@@ -1,6 +1,6 @@
 #include "Actor.h"
 
-void processActorMotion(Actor *actor)
+void processActorMotion(Actor *actor, float fps)
 {
 
   const Uint8 *state = SDL_GetKeyboardState(NULL);
@@ -24,31 +24,15 @@ void processActorMotion(Actor *actor)
   {
     if (state[SDL_SCANCODE_W])
     {
-      actor->velocity.angle = actor->dir.angle;
+      actor->pos.x += actor->dir.x * (5 * fps);
+      actor->pos.y += actor->dir.y * (5 * fps);
     }
     else
     {
-      actor->velocity.angle = actor->dir.angle + M_PI;
-    }
-
-    if ((actor->velocity.mag + actor->accel) >
-        actor->max_vel)
-    {
-      rescaleVector(&actor->velocity, actor->max_vel);
-    }
-    else
-    {
-      scaleVector(&actor->velocity, actor->accel);
+      actor->pos.x -= actor->dir.x;
+      actor->pos.y -= actor->dir.y;
     }
   }
-
-  else
-  {
-    rescaleVector(&actor->velocity, 0);
-  }
-
-  actor->pos =
-      transposeVector(actor->pos, actor->velocity);
 }
 
 Vector getRayRowIntersect(Vector origin, Vector ray, Scene scene)

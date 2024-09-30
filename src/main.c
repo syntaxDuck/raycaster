@@ -209,15 +209,16 @@ int main(int argc, char *argv[])
   {
     if (REND_2D)
     {
-      quit = handleScene(&window_2d, *scene, draw2dScene);
+      quit = handleScene(&window_2d, *scene, render2dScene);
     }
 
     if (REND_FP)
     {
       quit = handleScene(&window_fp, *scene, drawFpScene);
     }
-
-    processPlayerMotion(scene);
+    Uint32 currentTime = SDL_GetTicks();
+    Uint32 timeElapsed = currentTime - window_fp.last_time; // In milliseconds
+    processPlayerMotion(scene, timeElapsed / 1000.0);
   }
 
   // Cleanup and exit

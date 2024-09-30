@@ -73,67 +73,66 @@ void freeMap(Uint8 **map, int map_height)
   free(map);
 }
 
-void draw2dScene(Scene scene, SDL_Renderer *rend)
+void render2dScene(Scene scene, SDL_Renderer *rend)
 {
   renderer = rend;
-  draw2dMap(scene);
-  draw2dPlayer(scene.player);
+  render2dMap(scene);
+  render2dPlayer(scene.player);
 }
 
-void draw2dMap(Scene scene)
+void render2dMap(Scene scene)
 {
-  int col_offset;
-  int row_offset;
+  int x_offset;
+  int y_offset;
 
+  // Set the background color (white)
   SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
   SDL_RenderClear(renderer);
 
-  for (int row = 0; row < scene.map.height; row++)
+  // Loop through the map and draw rectangles
+  for (int y = 0; y < scene.map.height; y++)
   {
-    if (row == scene.map.height - 1)
-      row_offset = 0;
-    else
-      row_offset = 1;
+    y_offset = (y == scene.map.height - 1) ? 0 : 1;
 
-    for (int col = 0; col < scene.map.width; col++)
+    for (int x = 0; x < scene.map.width; x++)
     {
+      x_offset = (x == scene.map.width - 1) ? 0 : 1;
 
-      if (col == scene.map.width - 1)
-        col_offset = 0;
-      else
-        col_offset = 1;
-
-      if (scene.map.grid[row][col])
+      // Set the color depending on the grid value
+      if (scene.map.grid[y][x])
       {
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Red for filled cells
       }
       else
       {
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black for empty cells
       }
 
-      SDL_Rect rectangle = {col * (scene.map.unit_size), row * (scene.map.unit_size),
-                            scene.map.unit_size - col_offset,
-                            scene.map.unit_size - row_offset};
+      // Define the rectangle for each cell in the map
+      SDL_Rect rectangle = {x * scene.map.unit_size, y * scene.map.unit_size,
+                            scene.map.unit_size - x_offset,
+                            scene.map.unit_size - y_offset};
+
+      // Draw the rectangle onto the texture
       SDL_RenderFillRect(renderer, &rectangle);
     }
   }
 }
 
-void draw2dPlayer(Player player)
+void render2dPlayer(Player player)
 {
-  drawActor(player.actor);
+  renderActorBody(player.actor);
 
   if (DEBUG)
   {
-    drawPlayerViewRays(player);
-    drawActorViewDir(player.actor);
-    drawActorVelDir(player.actor);
-    drawPlayerPlane(player);
+    renderPlayerViewRays(player);
+    renderActorViewDir(player.actor);
+    renderActorVelDir(player.actor);
+    renderPlayerPlane(player);
   }
 }
 
-void drawPlayerPlane(Player player)
+void renderPlayerPlane(Player player)
 {
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   Vector scaled_dir = player.actor.dir, scaled_plane = player.plane;
@@ -145,7 +144,7 @@ void drawPlayerPlane(Player player)
                      player.actor.pos.y + scaled_dir.y + scaled_plane.y);
 }
 
-void drawActor(Actor actor)
+void renderActorBody(Actor actor)
 {
   SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
   SDL_Rect rect = {actor.pos.x - (actor.size >> 1),
@@ -153,7 +152,7 @@ void drawActor(Actor actor)
   SDL_RenderFillRect(renderer, &rect);
 }
 
-void drawActorViewDir(Actor actor)
+void renderActorViewDir(Actor actor)
 {
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   scaleVector(&actor.dir, 10);
@@ -162,7 +161,7 @@ void drawActorViewDir(Actor actor)
                      view.y);
 }
 
-void drawActorVelDir(Actor actor)
+void renderActorVelDir(Actor actor)
 {
   SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
   Vector vel = actor.velocity;
@@ -172,7 +171,7 @@ void drawActorVelDir(Actor actor)
                      vel.y);
 }
 
-void drawActorViewRays(Actor actor)
+void renderActorViewRays(Actor actor)
 {
   SDL_SetRenderDrawColor(renderer, 255, 0, 255, 75);
   for (int i = 0; i < NUM_RAYS; i++)
@@ -183,7 +182,7 @@ void drawActorViewRays(Actor actor)
   }
 }
 
-void drawPlayerViewRays(Player player)
+void renderPlayerViewRays(Player player)
 {
   SDL_SetRenderDrawColor(renderer, 255, 0, 255, 75);
   for (int i = 0; i < WIN_WIDTH; i++)
@@ -205,11 +204,95 @@ void drawPlayerViewRays(Player player)
 void drawFpScene(Scene scene, SDL_Renderer *rend)
 {
   renderer = rend;
-  drawWalls(scene.player, scene);
+  renderWalls(scene.player, scene);
 }
 
-void drawWalls(Player player, Scene scene)
+void renderWalls(Player player, Scene scene)
 {
+  SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, WIN_WIDTH, WIN_HEIGHT);
+  void *pixels;
+  int pitch;
+  SDL_LockTexture(texture, NULL, &pixels, &pitch);
+  Uint32 *pixel_data = (Uint32 *)pixels;
+
+  for (int y = WIN_HEIGHT / 2 + 1; y < WIN_HEIGHT; ++y)
+  {
+    // rayDir for leftmost ray (x = 0) and rightmost ray (x = w)
+    float rayDirX0 = player.actor.dir.x - player.plane.x;
+    float rayDirY0 = player.actor.dir.y - player.plane.y;
+    float rayDirX1 = player.actor.dir.x + player.plane.x;
+    float rayDirY1 = player.actor.dir.y + player.plane.y;
+
+    // Current y position compared to the center of the screen (the horizon)
+    int p = y - WIN_HEIGHT / 2;
+
+    // Vertical position of the camera.
+    // NOTE: with 0.5, it's exactly in the center between floor and ceiling,
+    // matching also how the walls are being raycasted. For different values
+    // than 0.5, a separate loop must be done for ceiling and floor since
+    // they're no longer symmetrical.
+    float posZ = 0.5 * WIN_HEIGHT;
+
+    // Horizontal distance from the camera to the floor for the current row.
+    // 0.5 is the z position exactly in the middle between floor and ceiling.
+    // NOTE: this is affine textures mapping, which is not perspective correct
+    // except for perfectly horizontal and vertical surfaces like the floor.
+    // NOTE: this formula is explained as follows: The camera ray goes through
+    // the following two points: the camera itself, which is at a certain
+    // height (posZ), and a point in front of the camera (through an imagined
+    // vertical plane containing the screen pixels) with horizontal distance
+    // 1 from the camera, and vertical position p lower than posZ (posZ - p). When going
+    // through that point, the line has vertically traveled by p units and
+    // horizontally by 1 unit. To hit the floor, it instead needs to travel by
+    // posZ units. It will travel the same ratio horizontally. The ratio was
+    // 1 / p for going through the camera plane, so to go posZ times farther
+    // to reach the floor, we get that the total horizontal distance is posZ / p.
+    float rowDistance = posZ / p;
+
+    // calculate the real world step vector we have to add for each x (parallel to camera plane)
+    // adding step by step avoids multiplications with a weight in the inner loop
+    float floorStepX = rowDistance * (rayDirX1 - rayDirX0) / WIN_WIDTH;
+    float floorStepY = rowDistance * (rayDirY1 - rayDirY0) / WIN_WIDTH;
+
+    // real world coordinates of the leftmost column. This will be updated as we step to the right.
+    float floorX = player.actor.pos.x + rowDistance * rayDirX0;
+    float floorY = player.actor.pos.y + rowDistance * rayDirY0;
+
+    for (int x = 0; x < WIN_WIDTH; ++x)
+    {
+      // the cell coord is simply got from the integer parts of floorX and floorY
+      int cellX = (int)(floorX);
+      int cellY = (int)(floorY);
+
+      // get the textures coordinate from the fractional part
+      int tx = (int)(TEX_WIDTH * (floorX - cellX)) & (TEX_WIDTH - 1);
+      int ty = (int)(TEX_HEIGHT * (floorY - cellY)) & (TEX_HEIGHT - 1);
+
+      floorX += floorStepX;
+      floorY += floorStepY;
+
+      // choose textures and draw the pixel
+      int checkerBoardPattern = (int)(cellX + cellY) & 1;
+      int floortextures;
+      if (checkerBoardPattern == 0)
+        floortextures = 3;
+      else
+        floortextures = 4;
+      int ceilingtextures = 4;
+      Uint32 color;
+
+      // floor
+      color = textures[floortextures][TEX_HEIGHT * ty + tx];
+      color = (color >> 1) & 8355711; // make a bit darker
+      pixel_data[(y * (pitch / 4)) + x] = color;
+
+      // ceiling (symmetrical, at WIN_HEIGHT - y - 1 instead of y)
+      color = textures[ceilingtextures][TEX_HEIGHT * ty + tx];
+      color = (color >> 1) & 8355711; // make a bit darker
+      pixel_data[((WIN_HEIGHT - y - 1) * (pitch / 4)) + x] = color;
+    }
+  }
+
   for (int x = 0; x < WIN_WIDTH; x++)
   {
     WallIntersect intersect = player.intersects[x];
@@ -245,27 +328,32 @@ void drawWalls(Player player, Scene scene)
       int tex_y = (((y * 2 - WIN_HEIGHT + line_height) * TEX_HEIGHT) / line_height) / 2;
 
       // Get the color from the texture
-      Uint32 color = textures[tex_num][TEX_HEIGHT * tex_y + tex_x];
+      Uint32 color;
+      if (tex_num >= 0)
+      {
+        color = textures[tex_num][TEX_HEIGHT * tex_y + tex_x] << 8;
+        color |= 0xFF;
+      }
+
+      else
+        color = 0xFFFFFFFF;
 
       // Modify color for shadows if hitting a horizontal wall
       if (intersect.side == 1)
-        color = (color >> 1) & 0x7F7F7F; // Darken the color
+        color = (color >> 1) & 0x7F7F7FFF; // Darken the color
 
       // Set the pixel color and draw the pixel
-      SDL_SetRenderDrawColor(renderer,
-                             (color & 0xFF0000) >> 16, // Red
-                             (color & 0x00FF00) >> 8,  // Green
-                             (color & 0x0000FF),       // Blue
-                             255);                     // Alpha
-      SDL_RenderDrawPoint(renderer, x, y);
+      pixel_data[(y * (pitch / 4)) + x] = color;
     }
   }
+  SDL_UnlockTexture(texture);
+  SDL_RenderCopy(renderer, texture, NULL, NULL);
 }
 
-void processPlayerMotion(Scene *scene)
+void processPlayerMotion(Scene *scene, float fps)
 {
   Player *player = &scene->player;
-  processActorMotion(&player->actor);
+  processActorMotion(&player->actor, fps);
   rotateVector(&player->plane,
                player->actor.dir.angle - player->plane.angle + M_PI_2);
   castPlayerRays(player, *scene);

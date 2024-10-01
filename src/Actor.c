@@ -1,7 +1,8 @@
 #include "Actor.h"
 
-void processActorMotion(Actor *actor, float fps)
+void processActorMotion(Actor *actor, float frame_time)
 {
+  float movment_speed = 5 * MAP_UNIT_SIZE * frame_time;
 
   const Uint8 *state = SDL_GetKeyboardState(NULL);
 
@@ -24,13 +25,13 @@ void processActorMotion(Actor *actor, float fps)
   {
     if (state[SDL_SCANCODE_W])
     {
-      actor->pos.x += actor->dir.x * (5 * fps);
-      actor->pos.y += actor->dir.y * (5 * fps);
+      actor->pos.x += actor->dir.x * movment_speed;
+      actor->pos.y += actor->dir.y * movment_speed;
     }
     else
     {
-      actor->pos.x -= actor->dir.x;
-      actor->pos.y -= actor->dir.y;
+      actor->pos.x -= actor->dir.x * movment_speed;
+      actor->pos.y -= actor->dir.y * movment_speed;
     }
   }
 }

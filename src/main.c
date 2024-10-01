@@ -112,7 +112,7 @@ int initSDL(WindowData *window_data, const char *title, int width, int height)
   strcpy(window_data->title, title);
 
   window_data->frame_count = 0;
-  window_data->fps = 0.0f;
+  window_data->fps = MAX_FPS;
   window_data->last_time = SDL_GetTicks();
 
   return 0;
@@ -216,9 +216,8 @@ int main(int argc, char *argv[])
     {
       quit = handleScene(&window_fp, *scene, drawFpScene);
     }
-    Uint32 currentTime = SDL_GetTicks();
-    Uint32 timeElapsed = currentTime - window_fp.last_time; // In milliseconds
-    processPlayerMotion(scene, timeElapsed / 1000.0);
+
+    processPlayerMotion(scene, 1 / window_fp.fps);
   }
 
   // Cleanup and exit

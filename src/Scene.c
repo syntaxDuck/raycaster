@@ -207,6 +207,8 @@ void drawFpScene(Scene scene, SDL_Renderer *rend)
   renderWalls(scene.player, scene);
 }
 
+double scale = 0.0001;
+
 void renderWalls(Player player, Scene scene)
 {
   SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, WIN_WIDTH, WIN_HEIGHT);
@@ -225,6 +227,10 @@ void renderWalls(Player player, Scene scene)
 
     // Current y position compared to the center of the screen (the horizon)
     int p = y - WIN_HEIGHT / 2;
+    if (p == 0)
+      p = 1; // Prevent division by zero
+    if (p < 0)
+      p = 1; // Avoid negative p values
 
     // Vertical position of the camera.
     // NOTE: with 0.5, it's exactly in the center between floor and ceiling,
@@ -255,18 +261,22 @@ void renderWalls(Player player, Scene scene)
     float floorStepY = rowDistance * (rayDirY1 - rayDirY0) / WIN_WIDTH;
 
     // real world coordinates of the leftmost column. This will be updated as we step to the right.
-    float floorX = player.actor.pos.x + rowDistance * rayDirX0;
-    float floorY = player.actor.pos.y + rowDistance * rayDirY0;
+    float floorX = player.actor.pos.x / MAP_UNIT_SIZE + rowDistance * rayDirX0;
+    float floorY = player.actor.pos.y / MAP_UNIT_SIZE + rowDistance * rayDirY0;
 
     for (int x = 0; x < WIN_WIDTH; ++x)
     {
       // the cell coord is simply got from the integer parts of floorX and floorY
       int cellX = (int)(floorX);
       int cellY = (int)(floorY);
+      if (x == 0)
+        printf("y: %d, x: %d, floorX: %f, floorY: %f, floorStepX: %f, floorStepY: %f, cellX: %d, cellY: %d\n", y, x, floorX, floorY, floorStepX, floorStepY, cellX, cellY);
 
       // get the textures coordinate from the fractional part
-      int tx = (int)(TEX_WIDTH * (floorX - cellX)) & (TEX_WIDTH - 1);
-      int ty = (int)(TEX_HEIGHT * (floorY - cellY)) & (TEX_HEIGHT - 1);
+      int tx = (int)(TEX_WIDTH * (floorX - cellX)) % TEX_WIDTH;
+      int ty = (int)(TEX_HEIGHT * (floorY - cellY)) % TEX_HEIGHT;
+      if (x == 0)
+        printf("y: %d, x: %d, tx: %d, ty: %d\n", y, x, tx, ty);
 
       floorX += floorStepX;
       floorY += floorStepY;
@@ -283,12 +293,16 @@ void renderWalls(Player player, Scene scene)
 
       // floor
       color = textures[floortextures][TEX_HEIGHT * ty + tx];
-      color = (color >> 1) & 8355711; // make a bit darker
+      // color = (color >> 1) & 8355711; // make a bit darker
+      color = color << 8;
+      color |= 0xFF;
       pixel_data[(y * (pitch / 4)) + x] = color;
 
       // ceiling (symmetrical, at WIN_HEIGHT - y - 1 instead of y)
       color = textures[ceilingtextures][TEX_HEIGHT * ty + tx];
-      color = (color >> 1) & 8355711; // make a bit darker
+      // color = (color >> 1) & 8355711; // make a bit darker
+      color = color << 8;
+      color |= 0xFF;
       pixel_data[((WIN_HEIGHT - y - 1) * (pitch / 4)) + x] = color;
     }
   }
@@ -348,6 +362,7 @@ void renderWalls(Player player, Scene scene)
   }
   SDL_UnlockTexture(texture);
   SDL_RenderCopy(renderer, texture, NULL, NULL);
+  SDL_DestroyTexture(texture);
 }
 
 void processPlayerMotion(Scene *scene, float fps)

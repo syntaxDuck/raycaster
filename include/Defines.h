@@ -9,7 +9,8 @@
 #define TEX_HEIGHT 64
 #define WIN_WIDTH (MAP_UNIT_SIZE * MAP_WIDTH)
 #define WIN_HEIGHT (MAP_UNIT_SIZE * MAP_HEIGHT)
-#define REND_2D true
+#define MAX_FPS 120
+#define REND_2D false
 #define REND_FP true
 #define DEBUG true
 

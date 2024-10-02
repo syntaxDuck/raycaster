@@ -10,9 +10,10 @@
 #define WIN_WIDTH (MAP_UNIT_SIZE * MAP_WIDTH)
 #define WIN_HEIGHT (MAP_UNIT_SIZE * MAP_HEIGHT)
 #define MAX_FPS 120
-#define REND_2D false
+#define REND_2D true
 #define REND_FP true
 #define DEBUG true
+#define TEXTURES_PNG true
 
 // Generic
 #define DEG_TO_RAD M_PI / 180

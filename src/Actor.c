@@ -1,8 +1,8 @@
 #include "Actor.h"
 
-void processActorMotion(Actor *actor, float frame_time)
+void processActorMotion(Actor *actor, float frame_time, Uint8 **walls)
 {
-  float movment_speed = 5 * MAP_UNIT_SIZE * frame_time;
+  float movement_speed = 5 * MAP_UNIT_SIZE * frame_time;
 
   const Uint8 *state = SDL_GetKeyboardState(NULL);
 
@@ -25,13 +25,16 @@ void processActorMotion(Actor *actor, float frame_time)
   {
     if (state[SDL_SCANCODE_W])
     {
-      actor->pos.x += actor->dir.x * movment_speed;
-      actor->pos.y += actor->dir.y * movment_speed;
+      Vector new_pos = setVector(actor->pos.x + actor->dir.x * movement_speed,
+                                 actor->pos.y + actor->dir.y * movement_speed);
+      if (walls[(int)actor->pos.y / MAP_UNIT_SIZE][(int)new_pos.x / MAP_UNIT_SIZE] == false)
+        actor->pos.x = new_pos.x;
+      if (walls[(int)new_pos.y / MAP_UNIT_SIZE][(int)actor->pos.x / MAP_UNIT_SIZE] == false)
+        actor->pos.y = new_pos.y;
     }
     else
     {
-      actor->pos.x -= actor->dir.x * movment_speed;
-      actor->pos.y -= actor->dir.y * movment_speed;
+      return;
     }
   }
 }
@@ -96,7 +99,7 @@ Vector getRayRowIntersect(Vector origin, Vector ray, Scene scene)
       if (casted_ray.x > scene.map.width * MAP_UNIT_SIZE)
         break;
 
-      if (scene.map.grid[row_index][col_index] > 0)
+      if (scene.map.wall[row_index][col_index] > 0)
       {
         break;
       }
@@ -169,7 +172,7 @@ Vector getRayColIntersect(Vector origin, Vector ray, Scene scene)
       if (casted_ray.y > scene.map.height * MAP_UNIT_SIZE)
         break;
 
-      if (scene.map.grid[row_index][col_index] > 0)
+      if (scene.map.wall[row_index][col_index] > 0)
       {
         break;
       }
@@ -241,7 +244,7 @@ WallIntersect getIntersect(Vector origin, Vector ray_dir, Scene scene)
       side = 1;
     }
 
-    if (scene.map.grid[(int)map.y][(int)map.x] > 0)
+    if (scene.map.wall[(int)map.y][(int)map.x] > 0)
       hit = 1;
   }
   if (side == 0)

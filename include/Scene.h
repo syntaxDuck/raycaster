@@ -7,13 +7,11 @@
 #include <stdbool.h>
 
 #include "Defines.h"
+#include "Vector.h"
+#include "Map.h"
 #include "Structs.h"
-#include "Utility.h"
 #include "Actor.h"
 
-Uint8 **loadMapFromFile(const char *filename, int *map_width, int *map_height);
-void printMap(Uint8 **map, int map_width, int map_height);
-void freeMap(Uint8 **map, int map_height);
 void freeScene(Scene *scene);
 void set2dSceneRenderer(SDL_Renderer *rend);
 void setFpSceneRenderer(SDL_Renderer *rend);
@@ -31,10 +29,9 @@ void renderActorViewRays(Actor actor);
 void drawFpScene(Scene scene, SDL_Renderer *rend);
 void drawWalls(Player player, Scene scene);
 void renderWalls(Player player, Scene scene);
-// void drawVectorFromActor(Actor actor, Vector vect, int scale, long color);
 
 void process2DScene(Scene *scene);
 void processPlayerView(Scene *scene);
-void processPlayerMotion(Scene *scene, float fps);
+void processPlayerMotion(Scene *scene, float fps, Uint8 **grid);
 
 #endif

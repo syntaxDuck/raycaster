@@ -2,77 +2,6 @@
 
 SDL_Renderer *renderer;
 
-Uint8 **loadMapFromFile(const char *filename, int *map_width, int *map_height)
-{
-  // Open the file
-  FILE *file = fopen(filename, "r");
-  if (!file)
-  {
-    fprintf(stderr, "Failed to open map file: %s\n", filename);
-    return NULL;
-  }
-
-  // Read the width and height of the map
-  fscanf(file, "%d %d", map_width, map_height);
-
-  // Allocate memory for the map
-  Uint8 **map = malloc(*map_height * sizeof(Uint8 *));
-  if (!map)
-  {
-    fprintf(stderr, "Failed to allocate memory for map\n");
-    fclose(file);
-    return NULL;
-  }
-
-  for (int i = 0; i < *map_height; i++)
-  {
-    map[i] = malloc(*map_width * sizeof(Uint8));
-    if (!map[i])
-    {
-      fprintf(stderr, "Failed to allocate memory for map row\n");
-      fclose(file);
-      return NULL;
-    }
-
-    // Read each value into the map
-    for (int j = 0; j < *map_width; j++)
-    {
-      if (fscanf(file, "%hhu", &map[i][j]) != 1)
-      {
-        fprintf(stderr, "Failed to read value for map[%d][%d]\n", i, j);
-        fclose(file);
-        return NULL;
-      }
-    }
-  }
-
-  fclose(file);
-  return map;
-}
-
-// Function to print the map values to the console
-void printMap(Uint8 **map, int map_width, int map_height)
-{
-  for (int i = 0; i < map_height; i++)
-  {
-    for (int j = 0; j < map_width; j++)
-    {
-      printf("%d ", map[i][j]); // Print each value in the row
-    }
-    printf("\n"); // Newline after each row
-  }
-}
-
-// Function to free the dynamically allocated map memory
-void freeMap(Uint8 **map, int map_height)
-{
-  for (int i = 0; i < map_height; i++)
-  {
-    free(map[i]);
-  }
-  free(map);
-}
-
 void render2dScene(Scene scene, SDL_Renderer *rend)
 {
   renderer = rend;
@@ -99,7 +28,7 @@ void render2dMap(Scene scene)
       x_offset = (x == scene.map.width - 1) ? 0 : 1;
 
       // Set the color depending on the grid value
-      if (scene.map.grid[y][x])
+      if (scene.map.wall[y][x])
       {
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Red for filled cells
       }
@@ -135,13 +64,12 @@ void render2dPlayer(Player player)
 void renderPlayerPlane(Player player)
 {
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-  Vector scaled_dir = player.actor.dir, scaled_plane = player.plane;
-  scaleVector(&scaled_dir, 10);
-  scaleVector(&scaled_plane, 5);
-  SDL_RenderDrawLine(renderer, player.actor.pos.x + scaled_dir.x - scaled_plane.x,
-                     player.actor.pos.y + scaled_dir.y - scaled_plane.y,
-                     player.actor.pos.x + scaled_dir.x + scaled_plane.x,
-                     player.actor.pos.y + scaled_dir.y + scaled_plane.y);
+  setVectorMagnitude(&player.actor.dir, 10);
+  setVectorMagnitude(&player.plane, 5);
+  SDL_RenderDrawLine(renderer, player.actor.pos.x + player.actor.dir.x - player.plane.x,
+                     player.actor.pos.y + player.actor.dir.y - player.plane.y,
+                     player.actor.pos.x + player.actor.dir.x + player.plane.x,
+                     player.actor.pos.y + player.actor.dir.y + player.plane.y);
 }
 
 void renderActorBody(Actor actor)
@@ -155,20 +83,19 @@ void renderActorBody(Actor actor)
 void renderActorViewDir(Actor actor)
 {
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-  scaleVector(&actor.dir, 10);
-  Vector view = transposeVector(actor.pos, actor.dir);
-  SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, view.x,
-                     view.y);
+  setVectorMagnitude(&actor.dir, 10);
+  translateVector(&actor.dir, actor.pos);
+  SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, actor.dir.x,
+                     actor.dir.y);
 }
 
 void renderActorVelDir(Actor actor)
 {
   SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-  Vector vel = actor.velocity;
-  scaleVector(&vel, 10);
-  vel = transposeVector(actor.pos, vel);
-  SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, vel.x,
-                     vel.y);
+  setVectorMagnitude(&actor.velocity, 10);
+  translateVector(&actor.pos, actor.velocity);
+  SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, actor.velocity.x,
+                     actor.velocity.y);
 }
 
 void renderActorViewRays(Actor actor)
@@ -217,7 +144,7 @@ void renderWalls(Player player, Scene scene)
   SDL_LockTexture(texture, NULL, &pixels, &pitch);
   Uint32 *pixel_data = (Uint32 *)pixels;
 
-  for (int y = WIN_HEIGHT / 2 + 1; y < WIN_HEIGHT; ++y)
+  for (int y = WIN_HEIGHT / 2; y < WIN_HEIGHT; ++y)
   {
     // rayDir for leftmost ray (x = 0) and rightmost ray (x = w)
     float rayDirX0 = player.actor.dir.x - player.plane.x;
@@ -234,7 +161,7 @@ void renderWalls(Player player, Scene scene)
 
     // Vertical position of the camera.
     // NOTE: with 0.5, it's exactly in the center between floor and ceiling,
-    // matching also how the walls are being raycasted. For different values
+    // matching also how the wall are being raycasted. For different values
     // than 0.5, a separate loop must be done for ceiling and floor since
     // they're no longer symmetrical.
     float posZ = 0.5 * WIN_HEIGHT;
@@ -264,46 +191,46 @@ void renderWalls(Player player, Scene scene)
     float floorX = player.actor.pos.x / MAP_UNIT_SIZE + rowDistance * rayDirX0;
     float floorY = player.actor.pos.y / MAP_UNIT_SIZE + rowDistance * rayDirY0;
 
-    for (int x = 0; x < WIN_WIDTH; ++x)
+    for (int x = 0; x < WIN_WIDTH; x++)
     {
       // the cell coord is simply got from the integer parts of floorX and floorY
       int cellX = (int)(floorX);
       int cellY = (int)(floorY);
-      if (x == 0)
-        printf("y: %d, x: %d, floorX: %f, floorY: %f, floorStepX: %f, floorStepY: %f, cellX: %d, cellY: %d\n", y, x, floorX, floorY, floorStepX, floorStepY, cellX, cellY);
+
+      // if (x % 2 && y == WIN_HEIGHT / 2 + 1)
+      //   printf("y: %d, x: %d, floorX: %f, floorY: %f, floorStepX: %f, floorStepY: %f, cellX: %d, cellY: %d\n", y, x, floorX, floorY, floorStepX, floorStepY, cellX, cellY);
 
       // get the textures coordinate from the fractional part
       int tx = (int)(TEX_WIDTH * (floorX - cellX)) % TEX_WIDTH;
       int ty = (int)(TEX_HEIGHT * (floorY - cellY)) % TEX_HEIGHT;
-      if (x == 0)
-        printf("y: %d, x: %d, tx: %d, ty: %d\n", y, x, tx, ty);
+
+      // if (x == 0)
+      //   printf("y: %d, x: %d, tx: %d, ty: %d\n", y, x, tx, ty);
 
       floorX += floorStepX;
       floorY += floorStepY;
-
-      // choose textures and draw the pixel
-      int checkerBoardPattern = (int)(cellX + cellY) & 1;
-      int floortextures;
-      if (checkerBoardPattern == 0)
-        floortextures = 3;
-      else
-        floortextures = 4;
-      int ceilingtextures = 4;
       Uint32 color;
 
       // floor
-      color = textures[floortextures][TEX_HEIGHT * ty + tx];
-      // color = (color >> 1) & 8355711; // make a bit darker
-      color = color << 8;
-      color |= 0xFF;
+      if (cellX >= 0 && cellX <= 23 && cellY >= 0 && cellY <= 23)
+        color = textures[scene.map.floor[cellY][cellX]][TEX_HEIGHT * ty + tx];
+      else
+        color = (color >> 1) & 8355711; // make a bit darker
+      color = color << 8 | 0xFF;
       pixel_data[(y * (pitch / 4)) + x] = color;
 
-      // ceiling (symmetrical, at WIN_HEIGHT - y - 1 instead of y)
-      color = textures[ceilingtextures][TEX_HEIGHT * ty + tx];
-      // color = (color >> 1) & 8355711; // make a bit darker
-      color = color << 8;
-      color |= 0xFF;
-      pixel_data[((WIN_HEIGHT - y - 1) * (pitch / 4)) + x] = color;
+      // ceil
+      if (cellX >= 0 && cellX <= 23 && cellY >= 0 && cellY <= 23)
+      {
+        cellY--;
+        if (cellY < 0)
+          cellY = 0;
+
+        color = textures[scene.map.ceil[cellY][cellX]][TEX_HEIGHT * ty + tx] << 8 | 0xFF;
+      }
+      else
+        color = (color >> 1) & 8355711; // make a bit darker
+      pixel_data[((WIN_HEIGHT - y) * (pitch / 4)) + x] = color;
     }
   }
 
@@ -319,7 +246,7 @@ void renderWalls(Player player, Scene scene)
       draw_end = WIN_HEIGHT - 1;
 
     // Select the texture based on the wall type (example: intersect.side could be used for this)
-    int tex_num = scene.map.grid[(int)intersect.map_y][(int)intersect.map_x] - 1;
+    int tex_num = scene.map.wall[(int)intersect.map_y][(int)intersect.map_x] - 1;
     // Calculate the exact x-coordinate on the texture
     double wall_x; // Exact position where the wall was hit
     if (intersect.side == 0)
@@ -336,7 +263,7 @@ void renderWalls(Player player, Scene scene)
       tex_x = TEX_WIDTH - tex_x - 1;
 
     // Draw the vertical wall slice
-    for (int y = draw_start; y < draw_end; y++)
+    for (int y = draw_start; y <= draw_end; y++)
     {
       // Calculate the corresponding y position on the texture
       int tex_y = (((y * 2 - WIN_HEIGHT + line_height) * TEX_HEIGHT) / line_height) / 2;
@@ -344,11 +271,7 @@ void renderWalls(Player player, Scene scene)
       // Get the color from the texture
       Uint32 color;
       if (tex_num >= 0)
-      {
-        color = textures[tex_num][TEX_HEIGHT * tex_y + tex_x] << 8;
-        color |= 0xFF;
-      }
-
+        color = textures[tex_num][TEX_HEIGHT * tex_y + tex_x] << 8 | 0xFF;
       else
         color = 0xFFFFFFFF;
 
@@ -365,10 +288,10 @@ void renderWalls(Player player, Scene scene)
   SDL_DestroyTexture(texture);
 }
 
-void processPlayerMotion(Scene *scene, float fps)
+void processPlayerMotion(Scene *scene, float fps, Uint8 **grid)
 {
   Player *player = &scene->player;
-  processActorMotion(&player->actor, fps);
+  processActorMotion(&player->actor, fps, grid);
   rotateVector(&player->plane,
                player->actor.dir.angle - player->plane.angle + M_PI_2);
   castPlayerRays(player, *scene);
@@ -376,7 +299,7 @@ void processPlayerMotion(Scene *scene, float fps)
 
 void freeScene(Scene *scene)
 {
-  // freePlayer(scene->player);
-  freeMap(scene->map.grid, scene->map.height);
+  freePlayer(&scene->player);
+  freeMap(scene->map);
   free(scene);
 }

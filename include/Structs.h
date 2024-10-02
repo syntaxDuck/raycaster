@@ -1,6 +1,7 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
-#include <SDL2/SDL.h>
+#include "Vector.h"
+#include "Map.h"
 
 typedef struct
 {
@@ -11,14 +12,6 @@ typedef struct
     float fps;
     Uint32 last_time;
 } WindowData;
-
-typedef struct
-{
-    double x;
-    double y;
-    double mag;
-    double angle;
-} Vector;
 
 typedef struct
 {
@@ -56,14 +49,6 @@ typedef struct Node
     struct Node *next;
     Actor actor;
 } Actor_List_Node;
-
-typedef struct
-{
-    Uint8 **grid;
-    int unit_size;
-    int width;
-    int height;
-} Map;
 
 typedef struct
 {

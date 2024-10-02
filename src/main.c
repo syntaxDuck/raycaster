@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include "stb_image.h"
 
 #include "Defines.h"
 #include "Structs.h"
@@ -38,14 +39,13 @@ Scene *createScene()
   }
 
   // Initialize map
-  Map map;
-  map.unit_size = MAP_UNIT_SIZE;
-  map.grid = loadMapFromFile("../assets/maps/map.txt", &map.width, &map.height);
-  if (map.grid == NULL)
+  Map map = loadMap("../assets/maps/map.txt");
+  if (map.wall == NULL || map.ceil == NULL || map.floor == NULL)
   {
     fprintf(stderr, "Failed to load map from file\n");
     exit(EXIT_FAILURE);
   }
+  printMap(map);
 
   // Set the map and player for the scene
   scene->map = map;
@@ -55,6 +55,7 @@ Scene *createScene()
 
 void createTextures()
 {
+
   for (int x = 0; x < TEX_WIDTH; x++)
   {
     for (int y = 0; y < TEX_HEIGHT; y++)
@@ -207,6 +208,7 @@ int main(int argc, char *argv[])
   bool quit = false;
   while (!quit)
   {
+
     if (REND_2D)
     {
       quit = handleScene(&window_2d, *scene, render2dScene);
@@ -217,7 +219,7 @@ int main(int argc, char *argv[])
       quit = handleScene(&window_fp, *scene, drawFpScene);
     }
 
-    processPlayerMotion(scene, 1 / window_fp.fps);
+    processPlayerMotion(scene, 1 / window_fp.fps, scene->map.wall);
   }
 
   // Cleanup and exit

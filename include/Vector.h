@@ -46,14 +46,14 @@ Vector setPoint(double x, double y);
  * @param vector Pointer to the vector whose magnitude is being set.
  * @param mag The new magnitude to set.
  */
-void setVectorMagnitude(Vector *vector, double mag);
+void setVectorMagnitude(Vector *vect, double mag);
 
 /**
  * @brief Calculates the magnitude of the given vector based on its x and y components.
  *
  * @param vector Pointer to the vector whose magnitude is being calculated.
  */
-void calculateVectorMag(Vector *vector);
+void calculateVectorMag(Vector *vect);
 
 /**
  * @brief Calculates the angle of the vector based on its x and y components.
@@ -61,23 +61,14 @@ void calculateVectorMag(Vector *vector);
  *
  * @param vector Pointer to the vector whose angle is being calculated.
  */
-void calculateVectorAngle(Vector *vector);
+void calculateVectorAngle(Vector *vect);
 
 /**
  * @brief Prints the vector's x, y components, magnitude, and angle.
  *
  * @param vector The vector to be printed.
  */
-void printVector(Vector vector);
-
-/**
- * @brief Normalizes the given vector to a unit vector (magnitude = 1) if its magnitude is not zero.
- *        If the magnitude is zero, x, y are set to zero and angle to NAN.
- *
- * @param vector The vector to normalize.
- * @return Vector The normalized vector.
- */
-Vector normalizeVector(Vector vector);
+void printVector(Vector vect);
 
 /**
  * @brief Rotates the given vector by the specified angle (in radians).
@@ -86,6 +77,25 @@ Vector normalizeVector(Vector vector);
  * @param vector Pointer to the vector to be rotated.
  * @param angle The angle (in radians) by which to rotate the vector.
  */
-void rotateVector(Vector *vector, double angle);
+void rotateVector(Vector *vect, double angle);
+
+/**
+ * @brief Translates a vector that is relative to the origin to be relative to a given origin.
+ *        The translation is performed by adding the origin's coordinates to the vector's coordinates.
+ *
+ * @param vect The vector to be translated.
+ * @param origin The vector or point representing the new origin.
+ * @return Vector The translated vector.
+ */
+void translateVector(Vector *vect, Vector origin);
+
+/**
+ * @brief Normalizes the given vector to a unit vector (magnitude = 1) if its magnitude is not zero.
+ *        If the magnitude is zero, x, y are set to zero and angle to NAN.
+ *
+ * @param vector The vector to normalize.
+ * @return Vector The normalized vector.
+ */
+void normalizeVector(Vector *vect);
 
 #endif // VECTOR_H

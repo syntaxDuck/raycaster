@@ -7,13 +7,13 @@
 
 #include "Defines.h"
 #include "Structs.h"
-#include "Utility.h"
+#include "Vector.h"
 
 void castPlayerRays(Player *player, Scene scene);
 void freePlayer(Player *player);
 
 void castActorRays(Actor *actor, Scene scene);
-void processActorMotion(Actor *actor, float fps);
+void processActorMotion(Actor *actor, float fps, Uint8 **walls);
 
 // DDA algo
 WallIntersect getIntersect(Vector origin, Vector ray, Scene scene);

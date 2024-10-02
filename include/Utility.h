@@ -6,16 +6,12 @@
 #include <math.h>
 #include <stdlib.h>
 
-#include "Structs.h"
+#include "Vector.h"
 
-void printVector(Vector vector);
-void rotateVector(Vector *vect, double angle);
-void scaleVector(Vector *vector, double mag);
-void rescaleVector(Vector *vector, double new_mag);
-void calculateVectorMag(Vector *vector);
+Vector *generateCirclePoints(Vector center, double radius, int numPoints);
+void generateFilledCircle(SDL_Renderer *renderer, Vector center, double radius,
+                          int numPoints);
 
-Vector setVector(double x, double y);
-Vector transposeVector(Vector origin, Vector vector);
-Vector normalizeVector(Vector vector);
-
+SDL_Texture *drawFilledCircle(SDL_Renderer *renderer, Vector center_vect,
+                              int radius);
 #endif

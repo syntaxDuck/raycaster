@@ -42,58 +42,61 @@ void setVectorMagnitude(Vector *vector, double mag)
     }
 }
 
-// Calculates and sets the magnitude of the given vector based on its x and y components.
-void calculateVectorMag(Vector *vector)
+void translateVector(Vector *vect, Vector origin)
 {
-    vector->mag = sqrt(vector->x * vector->x + vector->y * vector->y); // Pythagorean theorem
+    *vect = setVector(vect->x + origin.x, vect->y + origin.y);
+}
+
+// Calculates and sets the magnitude of the given vector based on its x and y components.
+void calculateVectorMag(Vector *vect)
+{
+    vect->mag = sqrt(vect->x * vect->x + vect->y * vect->y); // Pythagorean theorem
 }
 
 // Calculates and sets the angle of the given vector based on its x and y components.
 // Ensures the angle is normalized to the range [0, 2π).
-void calculateVectorAngle(Vector *vector)
+void calculateVectorAngle(Vector *vect)
 {
-    vector->angle = atan2(vector->y, vector->x);        // Calculate angle using atan2 for full 360° range
-    vector->angle = fmod(vector->angle + M_2PI, M_2PI); // Normalize to [0, 2π)
+    vect->angle = atan2(vect->y, vect->x);          // Calculate angle using atan2 for full 360° range
+    vect->angle = fmod(vect->angle + M_2PI, M_2PI); // Normalize to [0, 2π)
 }
 
 // Prints the vector's components, magnitude, and angle to the console.
-void printVector(Vector vector)
+void printVector(Vector vect)
 {
-    printf("X: %f, Y: %f, Mag: %f, Angle: %f\n", vector.x, vector.y, vector.mag, vector.angle);
+    printf("X: %f, Y: %f, Mag: %f, Angle: %f\n", vect.x, vect.y, vect.mag, vect.angle);
 }
 
 // Normalizes the vector to a unit vector (magnitude = 1) if its magnitude is not zero.
 // If the vector has zero magnitude, its components are set to zero and the angle to NAN.
-Vector normalizeVector(Vector vector)
+void normalizeVector(Vector *vect)
 {
-    Vector norm_vect = vector;
-    if (vector.mag == 0)
+    Vector norm_vect = *vect;
+    if (vect->mag == 0)
     {
-        norm_vect.x = 0;
-        norm_vect.y = 0;
-        norm_vect.mag = 0;
-        norm_vect.angle = NAN; // Undefined angle for zero-magnitude vector
+        vect->x = 0;
+        vect->y = 0;
+        vect->mag = 0;
+        vect->angle = 0;
     }
     else
     {
-        norm_vect.x /= vector.mag;        // Normalize x component
-        norm_vect.y /= vector.mag;        // Normalize y component
-        norm_vect.mag = 1;                // Set magnitude to 1 for a unit vector
-        calculateVectorAngle(&norm_vect); // Recalculate the angle
+        vect->x /= vect->mag;       // Normalize x component
+        vect->y /= vect->mag;       // Normalize y component
+        vect->mag = 1;              // Set magnitude to 1 for a unit vector
+        calculateVectorAngle(vect); // Recalculate the angle
     }
-
-    return norm_vect;
 }
 
 // Rotates the vector by the given angle (in radians).
 // Updates the vector's x and y components and ensures the angle is normalized to [0, 2π).
-void rotateVector(Vector *vector, double angle)
+void rotateVector(Vector *vect, double angle)
 {
-    double newX = vector->x * cos(angle) - vector->y * sin(angle); // Rotation matrix for x
-    double newY = vector->x * sin(angle) + vector->y * cos(angle); // Rotation matrix for y
-    vector->x = newX;
-    vector->y = newY;
+    double newX = vect->x * cos(angle) - vect->y * sin(angle); // Rotation matrix for x
+    double newY = vect->x * sin(angle) + vect->y * cos(angle); // Rotation matrix for y
+    vect->x = newX;
+    vect->y = newY;
 
-    vector->angle += angle;                             // Update the vector's angle by adding the rotation
-    vector->angle = fmod(vector->angle + M_2PI, M_2PI); // Normalize the angle to [0, 2π)
+    vect->angle += angle;                           // Update the vector's angle by adding the rotation
+    vect->angle = fmod(vect->angle + M_2PI, M_2PI); // Normalize the angle to [0, 2π)
 }

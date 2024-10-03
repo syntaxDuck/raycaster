@@ -34,6 +34,12 @@ void processActorMotion(Actor *actor, float frame_time, Uint8 **walls)
     }
     else
     {
+      Vector new_pos = setVector(actor->pos.x - actor->dir.x * movement_speed,
+                                 actor->pos.y - actor->dir.y * movement_speed);
+      if (walls[(int)actor->pos.y / MAP_UNIT_SIZE][(int)new_pos.x / MAP_UNIT_SIZE] == false)
+        actor->pos.x = new_pos.x;
+      if (walls[(int)new_pos.y / MAP_UNIT_SIZE][(int)actor->pos.x / MAP_UNIT_SIZE] == false)
+        actor->pos.y = new_pos.y;
       return;
     }
   }
@@ -280,6 +286,15 @@ void castPlayerRays(Player *player, Scene scene)
     player->intersects[x] = getIntersect(pos, ray_dir, scene);
     player->actor.view_cone[x] = player->intersects[x].vect;
   }
+}
+
+void processPlayerMotion(Scene *scene, float fps, Uint8 **grid)
+{
+  Player *player = &scene->player;
+  processActorMotion(&player->actor, fps, grid);
+  rotateVector(&player->plane,
+               player->actor.dir.angle - player->plane.angle + M_PI_2);
+  castPlayerRays(player, *scene);
 }
 
 void freePlayer(Player *player)

@@ -28,7 +28,8 @@ void renderActorViewRays(Actor actor);
 
 void drawFpScene(Scene scene, SDL_Renderer *rend);
 void drawWalls(Player player, Scene scene);
-void renderWalls(Player player, Scene scene);
+void renderWalls(Player player, Map map);
+void renderFloorAndCeil(Player player, Map map);
 
 void process2DScene(Scene *scene);
 void processPlayerView(Scene *scene);

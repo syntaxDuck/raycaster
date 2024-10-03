@@ -131,18 +131,19 @@ void renderPlayerViewRays(Player player)
 void drawFpScene(Scene scene, SDL_Renderer *rend)
 {
   renderer = rend;
-  renderWalls(scene.player, scene);
+  renderFloorAndCeil(scene.player, scene.map);
+  renderWalls(scene.player, scene.map);
 }
 
-double scale = 0.0001;
-
-void renderWalls(Player player, Scene scene)
+void renderFloorAndCeil(Player player, Map map)
 {
   SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, WIN_WIDTH, WIN_HEIGHT);
   void *pixels;
   int pitch;
   SDL_LockTexture(texture, NULL, &pixels, &pitch);
+  memset(pixels, 0xFFFFFF00, pitch * WIN_HEIGHT);
   Uint32 *pixel_data = (Uint32 *)pixels;
+  Uint32 color;
 
   for (int y = WIN_HEIGHT / 2; y < WIN_HEIGHT; ++y)
   {
@@ -209,30 +210,44 @@ void renderWalls(Player player, Scene scene)
 
       floorX += floorStepX;
       floorY += floorStepY;
-      Uint32 color;
 
       // floor
       if (cellX >= 0 && cellX <= 23 && cellY >= 0 && cellY <= 23)
-        color = textures[scene.map.floor[cellY][cellX]][TEX_HEIGHT * ty + tx];
-      else
-        color = (color >> 1) & 8355711; // make a bit darker
-      color = color << 8 | 0xFF;
-      pixel_data[(y * (pitch / 4)) + x] = color;
-
-      // ceil
-      if (cellX >= 0 && cellX <= 23 && cellY >= 0 && cellY <= 23)
       {
+        // Floor
+        color = textures[map.floor[cellY][cellX]][TEX_HEIGHT * ty + tx] << 8 | 0xFF;
+        pixel_data[(y * (pitch / 4)) + x] = color;
+
+        // Ceil
         cellY--;
         if (cellY < 0)
           cellY = 0;
 
-        color = textures[scene.map.ceil[cellY][cellX]][TEX_HEIGHT * ty + tx] << 8 | 0xFF;
+        color = textures[map.ceil[cellY][cellX]][TEX_HEIGHT * ty + tx] << 8 | 0xFF;
+        pixel_data[((WIN_HEIGHT - y) * (pitch / 4)) + x] = color;
       }
       else
-        color = (color >> 1) & 8355711; // make a bit darker
-      pixel_data[((WIN_HEIGHT - y) * (pitch / 4)) + x] = color;
+      {
+        pixel_data[(y * (pitch / 4)) + x] = 0xFF00FFFF;
+        pixel_data[((WIN_HEIGHT - y) * (pitch / 4)) + x] = 0xFF00FFFF;
+      }
     }
   }
+  SDL_UnlockTexture(texture);
+  SDL_RenderCopy(renderer, texture, NULL, NULL);
+  SDL_DestroyTexture(texture);
+}
+
+void renderWalls(Player player, Map map)
+{
+  SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, WIN_WIDTH, WIN_HEIGHT);
+  SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+  void *pixels;
+  int pitch;
+  SDL_LockTexture(texture, NULL, &pixels, &pitch);
+  memset(pixels, 0, pitch * WIN_HEIGHT);
+  Uint32 *pixel_data = (Uint32 *)pixels;
+  Uint32 color;
 
   for (int x = 0; x < WIN_WIDTH; x++)
   {
@@ -246,7 +261,7 @@ void renderWalls(Player player, Scene scene)
       draw_end = WIN_HEIGHT - 1;
 
     // Select the texture based on the wall type (example: intersect.side could be used for this)
-    int tex_num = scene.map.wall[(int)intersect.map_y][(int)intersect.map_x] - 1;
+    int tex_num = map.wall[(int)intersect.map_y][(int)intersect.map_x] - 1;
     // Calculate the exact x-coordinate on the texture
     double wall_x; // Exact position where the wall was hit
     if (intersect.side == 0)
@@ -269,15 +284,14 @@ void renderWalls(Player player, Scene scene)
       int tex_y = (((y * 2 - WIN_HEIGHT + line_height) * TEX_HEIGHT) / line_height) / 2;
 
       // Get the color from the texture
-      Uint32 color;
       if (tex_num >= 0)
         color = textures[tex_num][TEX_HEIGHT * tex_y + tex_x] << 8 | 0xFF;
       else
-        color = 0xFFFFFFFF;
+        color = 0xFF00FFFF;
 
       // Modify color for shadows if hitting a horizontal wall
-      if (intersect.side == 1)
-        color = (color >> 1) & 0x7F7F7FFF; // Darken the color
+      // if (intersect.side == 1)
+      //   color = ((color >> 9) & 0x7F7F7F) << 8 | 0xFF; // Darken the color
 
       // Set the pixel color and draw the pixel
       pixel_data[(y * (pitch / 4)) + x] = color;
@@ -286,15 +300,6 @@ void renderWalls(Player player, Scene scene)
   SDL_UnlockTexture(texture);
   SDL_RenderCopy(renderer, texture, NULL, NULL);
   SDL_DestroyTexture(texture);
-}
-
-void processPlayerMotion(Scene *scene, float fps, Uint8 **grid)
-{
-  Player *player = &scene->player;
-  processActorMotion(&player->actor, fps, grid);
-  rotateVector(&player->plane,
-               player->actor.dir.angle - player->plane.angle + M_PI_2);
-  castPlayerRays(player, *scene);
 }
 
 void freeScene(Scene *scene)

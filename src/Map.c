@@ -8,7 +8,7 @@ void printMap(Map map)
     {
         for (int j = 0; j < map.width; j++)
         {
-            printf("%d ", map.wall[i][j]); // Print each value in the row
+            printf("%d ", map.walls[i][j]); // Print each value in the row
         }
         printf("\n"); // Newline after each row
     }
@@ -55,10 +55,10 @@ void loadMapGridFromFile(const char *filename, Map *map)
     fscanf(file, "%d %d", &map->width, &map->height);
 
     // Allocate memory for the map
-    Uint8 **wall = malloc(map->height * sizeof(Uint8 *));
+    Uint8 **walls = malloc(map->height * sizeof(Uint8 *));
     Uint8 **ceil = malloc(map->height * sizeof(Uint8 *));
     Uint8 **floor = malloc(map->height * sizeof(Uint8 *));
-    if (!wall || !ceil || !floor)
+    if (!walls || !ceil || !floor)
     {
         fprintf(stderr, "Failed to allocate memory for map\n");
         fclose(file);
@@ -67,10 +67,10 @@ void loadMapGridFromFile(const char *filename, Map *map)
 
     for (int i = 0; i < map->height; i++)
     {
-        wall[i] = malloc(map->width * sizeof(Uint8));
-        if (!wall[i])
+        walls[i] = malloc(map->width * sizeof(Uint8));
+        if (!walls[i])
         {
-            fprintf(stderr, "Failed to allocate memory for wall row\n");
+            fprintf(stderr, "Failed to allocate memory for walls row\n");
             fclose(file);
             return;
         }
@@ -78,9 +78,9 @@ void loadMapGridFromFile(const char *filename, Map *map)
         // Read each value into the map
         for (int j = 0; j < map->width; j++)
         {
-            if (fscanf(file, "%hhu", &wall[i][j]) != 1)
+            if (fscanf(file, "%hhu", &walls[i][j]) != 1)
             {
-                fprintf(stderr, "Failed to read value for wall[%d][%d]\n", i, j);
+                fprintf(stderr, "Failed to read value for walls[%d][%d]\n", i, j);
                 fclose(file);
                 return;
             }
@@ -132,7 +132,7 @@ void loadMapGridFromFile(const char *filename, Map *map)
             }
         }
     }
-    map->wall = wall;
+    map->walls = walls;
     map->ceil = ceil;
     map->floor = floor;
     fclose(file);
@@ -143,11 +143,11 @@ void freeMap(Map map)
 {
     for (int i = 0; i < map.height; i++)
     {
-        free(map.wall[i]);
+        free(map.walls[i]);
         free(map.ceil[i]);
         free(map.floor[i]);
     }
-    free(map.wall);
+    free(map.walls);
     free(map.ceil);
     free(map.floor);
 }

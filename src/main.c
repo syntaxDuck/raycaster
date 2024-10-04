@@ -1,80 +1,6 @@
-#include <SDL2/SDL.h>
-#include "stb_image.h"
-
 #include "Defines.h"
-#include "Structs.h"
 #include "Scene.h"
-
-Player createPlayer()
-{
-  Player player;
-
-  player.actor.size = PLAYER_SIZE;
-  player.actor.field_of_view = PLAYER_FOV * DEG_TO_RAD;
-
-  // Allocate memory for the player's view cone
-  player.actor.view_cone = malloc(sizeof(Vector) * WIN_WIDTH);
-  player.actor.max_vel = PLAYER_MAX_SPEED;
-  player.actor.accel = PLAYER_ACCEL;
-
-  // Initialize player's position and velocity
-  player.actor.pos = setVector(2 * (double)WIN_WIDTH / 3 - 1, 2 * (double)WIN_HEIGHT / 3 - 1);
-  player.actor.velocity = setVector(0, 0);
-  player.actor.dir = setVector(-1, 0);
-
-  // Calculate the player's plane (used for field of view in 3D rendering)
-  player.plane = setVector(0, player.actor.dir.x * tan(player.actor.field_of_view / 2));
-  player.intersects = malloc(sizeof(WallIntersect) * WIN_WIDTH);
-
-  return player;
-}
-
-Scene *createScene()
-{
-  Scene *scene = malloc(sizeof(Scene));
-  if (!scene)
-  {
-    fprintf(stderr, "Failed to allocate memory for scene\n");
-    exit(EXIT_FAILURE);
-  }
-
-  // Initialize map
-  Map map = loadMap("../assets/maps/map.txt");
-  if (map.wall == NULL || map.ceil == NULL || map.floor == NULL)
-  {
-    fprintf(stderr, "Failed to load map from file\n");
-    exit(EXIT_FAILURE);
-  }
-  printMap(map);
-
-  // Set the map and player for the scene
-  scene->map = map;
-  scene->player = createPlayer();
-  return scene;
-}
-
-void createTextures()
-{
-
-  for (int x = 0; x < TEX_WIDTH; x++)
-  {
-    for (int y = 0; y < TEX_HEIGHT; y++)
-    {
-      int xorcolor = (x * 256 / TEX_WIDTH) ^ (y * 256 / TEX_HEIGHT);
-      // int xcolor = x * 256 / TEX_WIDTH;
-      int ycolor = y * 256 / TEX_HEIGHT;
-      int xycolor = y * 128 / TEX_HEIGHT + x * 128 / TEX_WIDTH;
-      textures[0][TEX_WIDTH * y + x] = 65536 * 254 * (x != y && x != TEX_WIDTH - y); // flat red texture with black cross
-      textures[1][TEX_WIDTH * y + x] = xycolor + 256 * xycolor + 65536 * xycolor;    // sloped greyscale
-      textures[2][TEX_WIDTH * y + x] = 256 * xycolor + 65536 * xycolor;              // sloped yellow gradient
-      textures[3][TEX_WIDTH * y + x] = xorcolor + 256 * xorcolor + 65536 * xorcolor; // xor greyscale
-      textures[4][TEX_WIDTH * y + x] = 256 * xorcolor;                               // xor green
-      textures[5][TEX_WIDTH * y + x] = 65536 * 192 * (x % 16 && y % 16);             // red bricks
-      textures[6][TEX_WIDTH * y + x] = 65536 * ycolor;                               // red gradient
-      textures[7][TEX_WIDTH * y + x] = 128 + 256 * 128 + 65536 * 128;                // flat grey texture
-    }
-  }
-}
+#include "Texture.h"
 
 int initSDL(WindowData *window_data, const char *title, int width, int height)
 {
@@ -83,6 +9,13 @@ int initSDL(WindowData *window_data, const char *title, int width, int height)
   {
     fprintf(stderr, "SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
     return -1;
+  }
+
+  if (IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG) == 0)
+  {
+    fprintf(stderr, "IMG_Init Error: %s\n", IMG_GetError());
+    SDL_Quit(); // Clean up SDL
+    return 1;   // or handle the error appropriately
   }
 
   // Create the window
@@ -119,72 +52,6 @@ int initSDL(WindowData *window_data, const char *title, int width, int height)
   return 0;
 }
 
-void updateFrameCounter(WindowData *window_data)
-{
-  // Increment the frame count
-  window_data->frame_count++;
-
-  // Calculate time elapsed since the last FPS update
-  Uint32 currentTime = SDL_GetTicks();
-  Uint32 timeElapsed = currentTime - window_data->last_time; // In milliseconds
-
-  // Update FPS once per second (1000 milliseconds)
-  if (timeElapsed >= 1000)
-  {
-    // Calculate the frames per second (FPS)
-    window_data->fps = (float)window_data->frame_count / (timeElapsed / 1000.0f);
-
-    // Reset frame count and lastTime for the next FPS calculation
-    window_data->frame_count = 0;
-    window_data->last_time = currentTime;
-
-    // Create a new title string that includes the FPS count
-    char title[256];
-    snprintf(title, sizeof(title), "%s - FPS: %.2f", window_data->title, window_data->fps);
-
-    // Set the new window title with the FPS
-    SDL_SetWindowTitle(window_data->window, title);
-  }
-}
-
-bool handleScene(WindowData *window_data, Scene scene, void (*draw)(Scene, SDL_Renderer *))
-{
-  SDL_Event event;
-  bool quit = false;
-  while (SDL_PollEvent(&event) != 0)
-  {
-    if (event.type == SDL_QUIT)
-    {
-      quit = true;
-    }
-  }
-
-  // Clear the screen
-  SDL_SetRenderDrawColor(window_data->renderer, 0, 0, 0, 255);
-  SDL_RenderClear(window_data->renderer);
-
-  // Here you would draw your scene
-  draw(scene, window_data->renderer);
-
-  // Update the frame count in the window title
-  updateFrameCounter(window_data);
-
-  // Present the rendered frame to the screen
-  SDL_RenderPresent(window_data->renderer);
-
-  return quit;
-}
-
-void freeWindowData(WindowData *window_data)
-{
-  if (window_data->renderer)
-    SDL_DestroyRenderer(window_data->renderer);
-  if (window_data->window)
-    SDL_DestroyWindow(window_data->window);
-
-  free(window_data->title);
-}
-
 int main(int argc, char *argv[])
 {
   WindowData window_2d, window_fp;
@@ -209,17 +76,17 @@ int main(int argc, char *argv[])
   while (!quit)
   {
 
+    if (REND_FP)
+    {
+      quit = handleScene(&window_fp, *scene, renderFpScene);
+    }
+
     if (REND_2D)
     {
       quit = handleScene(&window_2d, *scene, render2dScene);
     }
 
-    if (REND_FP)
-    {
-      quit = handleScene(&window_fp, *scene, drawFpScene);
-    }
-
-    processPlayerMotion(scene, 1 / window_fp.fps, scene->map.wall);
+    processPlayerMotion(&scene->player, 1 / window_fp.fps, scene->map);
   }
 
   // Cleanup and exit

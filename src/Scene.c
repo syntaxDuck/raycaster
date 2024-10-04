@@ -2,6 +2,85 @@
 
 SDL_Renderer *renderer;
 
+Scene *createScene()
+{
+  Scene *scene = malloc(sizeof(Scene));
+  if (!scene)
+  {
+    fprintf(stderr, "Failed to allocate memory for scene\n");
+    exit(EXIT_FAILURE);
+  }
+
+  // Initialize map
+  Map map = loadMap("../assets/maps/map.txt");
+  if (map.walls == NULL || map.ceil == NULL || map.floor == NULL)
+  {
+    fprintf(stderr, "Failed to load map from file\n");
+    exit(EXIT_FAILURE);
+  }
+
+  // Set the map and player for the scene
+  scene->map = map;
+  scene->player = createPlayer();
+  return scene;
+}
+
+bool handleScene(WindowData *window_data, Scene scene, void (*draw)(Scene, SDL_Renderer *))
+{
+  SDL_Event event;
+  bool quit = false;
+  while (SDL_PollEvent(&event) != 0)
+  {
+    if (event.type == SDL_QUIT)
+    {
+      quit = true;
+    }
+  }
+
+  // Clear the screen
+  SDL_SetRenderDrawColor(window_data->renderer, 0, 0, 0, 255);
+  SDL_RenderClear(window_data->renderer);
+
+  // Here you would draw your scene
+  draw(scene, window_data->renderer);
+
+  // Update the frame count in the window title
+  updateFrameCounter(window_data);
+
+  // Present the rendered frame to the screen
+  SDL_RenderPresent(window_data->renderer);
+
+  return quit;
+}
+
+void updateFrameCounter(WindowData *window_data)
+{
+  // Increment the frame count
+  window_data->frame_count++;
+
+  // Calculate time elapsed since the last FPS update
+  Uint32 currentTime = SDL_GetTicks();
+  Uint32 timeElapsed = currentTime - window_data->last_time; // In milliseconds
+
+  // Update FPS once per second (1000 milliseconds)
+  if (timeElapsed >= 1000)
+  {
+    // Calculate the frames per second (FPS)
+    window_data->fps = (float)window_data->frame_count / (timeElapsed / 1000.0f);
+
+    // Reset frame count and lastTime for the next FPS calculation
+    window_data->frame_count = 0;
+    window_data->last_time = currentTime;
+
+    // Create a new title string that includes the FPS count
+    char title[256];
+    snprintf(title, sizeof(title), "%s - FPS: %.2f", window_data->title, window_data->fps);
+
+    // Set the new window title with the FPS
+    SDL_SetWindowTitle(window_data->window, title);
+  }
+}
+
 void render2dScene(Scene scene, SDL_Renderer *rend)
 {
   renderer = rend;
@@ -28,7 +107,7 @@ void render2dMap(Scene scene)
       x_offset = (x == scene.map.width - 1) ? 0 : 1;
 
       // Set the color depending on the grid value
-      if (scene.map.wall[y][x])
+      if (scene.map.walls[y][x])
       {
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Red for filled cells
       }
@@ -128,7 +207,7 @@ void renderPlayerViewRays(Player player)
 //   SDL_RenderDrawLine(renderer_2d, actor.pos.x, actor.pos.y, vect.x, vect.y);
 // }
 
-void drawFpScene(Scene scene, SDL_Renderer *rend)
+void renderFpScene(Scene scene, SDL_Renderer *rend)
 {
   renderer = rend;
   renderFloorAndCeil(scene.player, scene.map);
@@ -162,7 +241,7 @@ void renderFloorAndCeil(Player player, Map map)
 
     // Vertical position of the camera.
     // NOTE: with 0.5, it's exactly in the center between floor and ceiling,
-    // matching also how the wall are being raycasted. For different values
+    // matching also how the walls are being raycasted. For different values
     // than 0.5, a separate loop must be done for ceiling and floor since
     // they're no longer symmetrical.
     float posZ = 0.5 * WIN_HEIGHT;
@@ -260,10 +339,10 @@ void renderWalls(Player player, Map map)
     if (draw_end >= WIN_HEIGHT)
       draw_end = WIN_HEIGHT - 1;
 
-    // Select the texture based on the wall type (example: intersect.side could be used for this)
-    int tex_num = map.wall[(int)intersect.map_y][(int)intersect.map_x] - 1;
+    // Select the texture based on the walls type (example: intersect.side could be used for this)
+    int tex_num = map.walls[(int)intersect.map_y][(int)intersect.map_x] - 1;
     // Calculate the exact x-coordinate on the texture
-    double wall_x; // Exact position where the wall was hit
+    double wall_x; // Exact position where the walls was hit
     if (intersect.side == 0)
       wall_x = intersect.vect.y;
     else
@@ -277,7 +356,7 @@ void renderWalls(Player player, Map map)
     if (intersect.side == 1 && intersect.ray_dir.y < 0)
       tex_x = TEX_WIDTH - tex_x - 1;
 
-    // Draw the vertical wall slice
+    // Draw the vertical walls slice
     for (int y = draw_start; y <= draw_end; y++)
     {
       // Calculate the corresponding y position on the texture
@@ -289,7 +368,7 @@ void renderWalls(Player player, Map map)
       else
         color = 0xFF00FFFF;
 
-      // Modify color for shadows if hitting a horizontal wall
+      // Modify color for shadows if hitting a horizontal walls
       // if (intersect.side == 1)
       //   color = ((color >> 9) & 0x7F7F7F) << 8 | 0xFF; // Darken the color
 
@@ -307,4 +386,14 @@ void freeScene(Scene *scene)
   freePlayer(&scene->player);
   freeMap(scene->map);
   free(scene);
+}
+
+void freeWindowData(WindowData *window_data)
+{
+  if (window_data->renderer)
+    SDL_DestroyRenderer(window_data->renderer);
+  if (window_data->window)
+    SDL_DestroyWindow(window_data->window);
+
+  free(window_data->title);
 }

@@ -1,6 +1,6 @@
 #include "Actor.h"
 
-void processActorMotion(Actor *actor, float frame_time, Uint8 **walls)
+void processActorMotion(Actor *actor, float frame_time, Map map)
 {
   float movement_speed = 5 * MAP_UNIT_SIZE * frame_time;
 
@@ -27,25 +27,25 @@ void processActorMotion(Actor *actor, float frame_time, Uint8 **walls)
     {
       Vector new_pos = setVector(actor->pos.x + actor->dir.x * movement_speed,
                                  actor->pos.y + actor->dir.y * movement_speed);
-      if (walls[(int)actor->pos.y / MAP_UNIT_SIZE][(int)new_pos.x / MAP_UNIT_SIZE] == false)
+      if (map.walls[(int)actor->pos.y / MAP_UNIT_SIZE][(int)new_pos.x / MAP_UNIT_SIZE] == false)
         actor->pos.x = new_pos.x;
-      if (walls[(int)new_pos.y / MAP_UNIT_SIZE][(int)actor->pos.x / MAP_UNIT_SIZE] == false)
+      if (map.walls[(int)new_pos.y / MAP_UNIT_SIZE][(int)actor->pos.x / MAP_UNIT_SIZE] == false)
         actor->pos.y = new_pos.y;
     }
     else
     {
       Vector new_pos = setVector(actor->pos.x - actor->dir.x * movement_speed,
                                  actor->pos.y - actor->dir.y * movement_speed);
-      if (walls[(int)actor->pos.y / MAP_UNIT_SIZE][(int)new_pos.x / MAP_UNIT_SIZE] == false)
+      if (map.walls[(int)actor->pos.y / MAP_UNIT_SIZE][(int)new_pos.x / MAP_UNIT_SIZE] == false)
         actor->pos.x = new_pos.x;
-      if (walls[(int)new_pos.y / MAP_UNIT_SIZE][(int)actor->pos.x / MAP_UNIT_SIZE] == false)
+      if (map.walls[(int)new_pos.y / MAP_UNIT_SIZE][(int)actor->pos.x / MAP_UNIT_SIZE] == false)
         actor->pos.y = new_pos.y;
       return;
     }
   }
 }
 
-Vector getRayRowIntersect(Vector origin, Vector ray, Scene scene)
+Vector getRayRowIntersect(Vector origin, Vector ray, Map map)
 {
   Vector casted_ray;
   double x, y;
@@ -96,16 +96,16 @@ Vector getRayRowIntersect(Vector origin, Vector ray, Scene scene)
       if (row_index < 0)
         row_index = 0;
 
-      if (row_index >= scene.map.height)
-        row_index = scene.map.height - 1;
+      if (row_index >= map.height)
+        row_index = map.height - 1;
 
       if (casted_ray.x < 0)
         break;
 
-      if (casted_ray.x > scene.map.width * MAP_UNIT_SIZE)
+      if (casted_ray.x > map.width * MAP_UNIT_SIZE)
         break;
 
-      if (scene.map.wall[row_index][col_index] > 0)
+      if (map.walls[row_index][col_index] > 0)
       {
         break;
       }
@@ -114,7 +114,7 @@ Vector getRayRowIntersect(Vector origin, Vector ray, Scene scene)
   return casted_ray;
 }
 
-Vector getRayColIntersect(Vector origin, Vector ray, Scene scene)
+Vector getRayColIntersect(Vector origin, Vector ray, Map map)
 {
   Vector casted_ray;
   double x, y;
@@ -169,16 +169,16 @@ Vector getRayColIntersect(Vector origin, Vector ray, Scene scene)
       if (col_index < 0)
         col_index = 0;
 
-      if (col_index >= scene.map.width)
-        col_index = scene.map.width - 1;
+      if (col_index >= map.width)
+        col_index = map.width - 1;
 
       if (casted_ray.y < 0)
         break;
 
-      if (casted_ray.y > scene.map.height * MAP_UNIT_SIZE)
+      if (casted_ray.y > map.height * MAP_UNIT_SIZE)
         break;
 
-      if (scene.map.wall[row_index][col_index] > 0)
+      if (map.walls[row_index][col_index] > 0)
       {
         break;
       }
@@ -187,7 +187,7 @@ Vector getRayColIntersect(Vector origin, Vector ray, Scene scene)
   return casted_ray;
 }
 
-void castActorRays(Actor *actor, Scene scene)
+void castActorRays(Actor *actor, Map map)
 {
   double increment_rad = actor->field_of_view / NUM_RAYS;
   double starting_angle = -actor->field_of_view / 2 + increment_rad;
@@ -197,108 +197,8 @@ void castActorRays(Actor *actor, Scene scene)
     rotateVector(&new_vect,
                  starting_angle + i * increment_rad);
 
-    Vector row_intersect = getRayRowIntersect(actor->pos, new_vect, scene);
-    Vector col_intersect = getRayColIntersect(actor->pos, new_vect, scene);
+    Vector row_intersect = getRayRowIntersect(actor->pos, new_vect, map);
+    Vector col_intersect = getRayColIntersect(actor->pos, new_vect, map);
     actor->view_cone[i] = row_intersect.mag < col_intersect.mag ? row_intersect : col_intersect;
   }
-}
-
-WallIntersect getIntersect(Vector origin, Vector ray_dir, Scene scene)
-{
-  Vector map = setVector((int)origin.x, (int)origin.y);
-  Vector side_dist;
-  Vector delta_dist = setVector(ray_dir.x == 0 ? 1e30 : fabs(1 / ray_dir.x),
-                                ray_dir.y == 0 ? 1e30 : fabs(1 / ray_dir.y));
-  double perp_wall_dist;
-  Vector step;
-  int hit = 0;
-  int side;
-  if (ray_dir.x < 0)
-  {
-    step.x = -1;
-    side_dist.x = (origin.x - map.x) * delta_dist.x;
-  }
-  else
-  {
-    step.x = 1;
-    side_dist.x = (map.x + 1.0 - origin.x) * delta_dist.x;
-  }
-
-  if (ray_dir.y < 0)
-  {
-    step.y = -1;
-    side_dist.y = (origin.y - map.y) * delta_dist.y;
-  }
-  else
-  {
-    step.y = 1;
-    side_dist.y = (map.y + 1.0 - origin.y) * delta_dist.y;
-  }
-
-  while (hit == 0)
-  {
-    if (side_dist.x < side_dist.y)
-    {
-      side_dist.x += delta_dist.x;
-      map.x += step.x;
-      side = 0;
-    }
-    else
-    {
-      side_dist.y += delta_dist.y;
-      map.y += step.y;
-      side = 1;
-    }
-
-    if (scene.map.wall[(int)map.y][(int)map.x] > 0)
-      hit = 1;
-  }
-  if (side == 0)
-    perp_wall_dist = side_dist.x - delta_dist.x;
-  else
-    perp_wall_dist = side_dist.y - delta_dist.y;
-
-  WallIntersect intersect;
-  intersect.vect = setVector(origin.x + ray_dir.x * perp_wall_dist, origin.y + ray_dir.y * perp_wall_dist);
-  intersect.perp_wall_distance = perp_wall_dist;
-  intersect.side = side;
-  intersect.map_x = map.x;
-  intersect.map_y = map.y;
-  intersect.ray_dir = ray_dir;
-  return intersect;
-}
-
-void castPlayerRays(Player *player, Scene scene)
-{
-  Vector dir = player->actor.dir; // Player's direction vector
-  Vector plane = player->plane;   // Player's plane vector (perpendicular to direction)
-  Vector pos = setVector(player->actor.pos.x / MAP_UNIT_SIZE, player->actor.pos.y / MAP_UNIT_SIZE);
-
-  double rad_per_col = player->actor.field_of_view / WIN_WIDTH; // Radians per pixel
-  double offset = -player->actor.field_of_view / 2;
-  double camera_x;
-
-  for (int x = 0; x < WIN_WIDTH; x++)
-  {
-    // Calculate x-coordinate in camera space
-    camera_x = 2 * x / (double)WIN_WIDTH - 1; // Normalized coordinate in camera space
-    Vector ray_dir = setVector(dir.x + plane.x * camera_x, dir.y + plane.y * camera_x);
-    player->intersects[x] = getIntersect(pos, ray_dir, scene);
-    player->actor.view_cone[x] = player->intersects[x].vect;
-  }
-}
-
-void processPlayerMotion(Scene *scene, float fps, Uint8 **grid)
-{
-  Player *player = &scene->player;
-  processActorMotion(&player->actor, fps, grid);
-  rotateVector(&player->plane,
-               player->actor.dir.angle - player->plane.angle + M_PI_2);
-  castPlayerRays(player, *scene);
-}
-
-void freePlayer(Player *player)
-{
-  free(player->actor.view_cone);
-  free(player->intersects);
 }

@@ -8,7 +8,7 @@
 
 typedef struct
 {
-    Uint8 **wall;
+    Uint8 **walls;
     Uint8 **ceil;
     Uint8 **floor;
     int unit_size;

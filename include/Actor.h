@@ -6,17 +6,33 @@
 #include <stdbool.h>
 
 #include "Defines.h"
-#include "Structs.h"
+#include "Map.h"
 #include "Vector.h"
 
-void castPlayerRays(Player *player, Scene scene);
-void freePlayer(Player *player);
+typedef struct
+{
+    int size;
+    double field_of_view;
 
-void castActorRays(Actor *actor, Scene scene);
-void processActorMotion(Actor *actor, float fps, Uint8 **walls);
+    double max_vel;
+    double accel;
+
+    Vector pos;
+    Vector dir;
+    Vector velocity;
+    Vector *view_cone;
+} Actor;
+
+typedef struct Node
+{
+    struct Node *next;
+    Actor actor;
+} Actor_List_Node;
+
+void castActorRays(Actor *actor, Map map);
+void processActorMotion(Actor *actor, float fps, Map map);
 
 // DDA algo
-WallIntersect getIntersect(Vector origin, Vector ray, Scene scene);
-Vector getRayRowIntersect(Vector origin, Vector ray, Scene scene);
-Vector getRayColIntersect(Vector origin, Vector ray, Scene scene);
+Vector getRayRowIntersect(Vector origin, Vector ray, Map map);
+Vector getRayColIntersect(Vector origin, Vector ray, Map map);
 #endif

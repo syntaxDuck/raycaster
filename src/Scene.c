@@ -25,62 +25,6 @@ Scene *createScene()
   return scene;
 }
 
-bool handleScene(WindowData *window_data, Scene scene, void (*draw)(Scene, SDL_Renderer *))
-{
-  SDL_Event event;
-  bool quit = false;
-  while (SDL_PollEvent(&event) != 0)
-  {
-    if (event.type == SDL_QUIT)
-    {
-      quit = true;
-    }
-  }
-
-  // Clear the screen
-  SDL_SetRenderDrawColor(window_data->renderer, 0, 0, 0, 255);
-  SDL_RenderClear(window_data->renderer);
-
-  // Here you would draw your scene
-  draw(scene, window_data->renderer);
-
-  // Update the frame count in the window title
-  updateFrameCounter(window_data);
-
-  // Present the rendered frame to the screen
-  SDL_RenderPresent(window_data->renderer);
-
-  return quit;
-}
-
-void updateFrameCounter(WindowData *window_data)
-{
-  // Increment the frame count
-  window_data->frame_count++;
-
-  // Calculate time elapsed since the last FPS update
-  Uint32 currentTime = SDL_GetTicks();
-  Uint32 timeElapsed = currentTime - window_data->last_time; // In milliseconds
-
-  // Update FPS once per second (1000 milliseconds)
-  if (timeElapsed >= 1000)
-  {
-    // Calculate the frames per second (FPS)
-    window_data->fps = (float)window_data->frame_count / (timeElapsed / 1000.0f);
-
-    // Reset frame count and lastTime for the next FPS calculation
-    window_data->frame_count = 0;
-    window_data->last_time = currentTime;
-
-    // Create a new title string that includes the FPS count
-    char title[256];
-    snprintf(title, sizeof(title), "%s - FPS: %.2f", window_data->title, window_data->fps);
-
-    // Set the new window title with the FPS
-    SDL_SetWindowTitle(window_data->window, title);
-  }
-}
-
 void render2dScene(Scene scene, SDL_Renderer *rend)
 {
   renderer = rend;
@@ -386,14 +330,4 @@ void freeScene(Scene *scene)
   freePlayer(&scene->player);
   freeMap(scene->map);
   free(scene);
-}
-
-void freeWindowData(WindowData *window_data)
-{
-  if (window_data->renderer)
-    SDL_DestroyRenderer(window_data->renderer);
-  if (window_data->window)
-    SDL_DestroyWindow(window_data->window);
-
-  free(window_data->title);
 }

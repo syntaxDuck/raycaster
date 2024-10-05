@@ -1,8 +1,9 @@
 #include "Defines.h"
 #include "Scene.h"
 #include "Texture.h"
+#include "Window.h"
 
-int initSDL(WindowData *window_data, const char *title, int width, int height)
+int main(int argc, char *argv[])
 {
   // Initialize SDL
   if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -18,81 +19,76 @@ int initSDL(WindowData *window_data, const char *title, int width, int height)
     return 1;   // or handle the error appropriately
   }
 
-  // Create the window
-  window_data->window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
-  if (window_data->window == NULL)
-  {
-    fprintf(stderr, "Window could not be created! SDL_Error: %s\n", SDL_GetError());
-    SDL_Quit();
-    return -1;
-  }
-
-  // Create the renderer
-  window_data->renderer = SDL_CreateRenderer(window_data->window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-  if (window_data->renderer == NULL)
-  {
-    fprintf(stderr, "Renderer could not be created! SDL_Error: %s\n", SDL_GetError());
-    SDL_DestroyWindow(window_data->window);
-    SDL_Quit();
-    return -1;
-  }
-
-  // Set the renderer color (optional)
-  SDL_SetRenderDrawBlendMode(window_data->renderer, SDL_BLENDMODE_BLEND);
-  SDL_SetRenderDrawColor(window_data->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-
-  // Initialize frame count
-  window_data->title = malloc(sizeof(char) * strlen(title));
-  strcpy(window_data->title, title);
-
-  window_data->frame_count = 0;
-  window_data->fps = MAX_FPS;
-  window_data->last_time = SDL_GetTicks();
-
-  return 0;
-}
-
-int main(int argc, char *argv[])
-{
-  WindowData window_2d, window_fp;
-  // Initialize first-person rendering window and renderer
-  if (REND_FP)
-  {
-    initSDL(&window_fp, "FP Viewport", WIN_WIDTH, WIN_HEIGHT);
-  }
-
-  // Initialize 2D rendering window and renderer
-  if (REND_2D)
-  {
-    initSDL(&window_2d, "2D Viewport", WIN_WIDTH, WIN_HEIGHT);
-  }
+  WindowData *window_2d;
+  WindowData *window_main = createWindow("Main Viewport",
+                                         SDL_WINDOWPOS_CENTERED,
+                                         SDL_WINDOWPOS_CENTERED,
+                                         WIN_WIDTH, WIN_HEIGHT);
 
   // Create the scene (map and player)
   Scene *scene = createScene();
   createTextures();
 
   // Main game loop
+  SDL_Event event;
   bool quit = false;
+  bool show_2d = false;
+
+  const Uint8 *state;
+  bool key_pressed = false;
   while (!quit)
   {
-
-    if (REND_FP)
+    // Handle events
+    while (SDL_PollEvent(&event) != 0)
     {
-      quit = handleScene(&window_fp, *scene, renderFpScene);
+      if (event.type == SDL_QUIT)
+      {
+        quit = true;
+      }
+      if (event.type == SDL_KEYDOWN && !key_pressed)
+      {
+        key_pressed = true;
+        state = SDL_GetKeyboardState(NULL);
+        if (state[SDL_SCANCODE_2])
+        {
+          if (!show_2d)
+          {
+            int x, y;
+            SDL_GetWindowPosition(window_main->window, &x, &y);
+            window_2d = createWindow("2D Viewport", x - WIN_WIDTH, y, WIN_WIDTH, WIN_HEIGHT);
+            show_2d = true;
+          }
+          else
+          {
+            freeWindowData(window_2d);
+            SDL_RaiseWindow(window_main->window);
+            window_2d = NULL;
+            show_2d = false;
+          }
+        }
+      }
+      if (event.type == SDL_KEYUP)
+      {
+        key_pressed = false;
+      }
     }
 
-    if (REND_2D)
+    renderScene(window_main->renderer, *scene, renderFpScene);
+    updateFrameCounter(window_main);
+
+    if (show_2d)
     {
-      quit = handleScene(&window_2d, *scene, render2dScene);
+      renderScene(window_2d->renderer, *scene, render2dScene);
     }
 
-    processPlayerMotion(&scene->player, 1 / window_fp.fps, scene->map);
+    processPlayerMotion(&scene->player, 1 / window_main->fps, scene->map);
   }
 
   // Cleanup and exit
   freeScene(scene);
-  freeWindowData(&window_2d);
-  freeWindowData(&window_fp);
+  freeWindowData(window_main);
+  freeWindowData(window_2d);
+  IMG_Quit();
   SDL_Quit();
   return 0;
 }

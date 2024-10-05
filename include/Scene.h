@@ -20,19 +20,7 @@ typedef struct
     Actor_List_Node actors;
 } Scene;
 
-typedef struct
-{
-    char *title;
-    SDL_Window *window;
-    SDL_Renderer *renderer;
-    int frame_count;
-    float fps;
-    Uint32 last_time;
-} WindowData;
-
 Scene *createScene();
-bool handleScene(WindowData *window_data, Scene scene, void (*draw)(Scene, SDL_Renderer *));
-void updateFrameCounter(WindowData *window_data);
 void set2dSceneRenderer(SDL_Renderer *rend);
 void setFpSceneRenderer(SDL_Renderer *rend);
 
@@ -50,5 +38,4 @@ void renderWalls(Player player, Map map);
 void renderFloorAndCeil(Player player, Map map);
 
 void freeScene(Scene *scene);
-void freeWindowData(WindowData *window_data);
 #endif

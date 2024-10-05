@@ -80,7 +80,9 @@ void loadMapGridFromFile(const char *filename, Map *map)
         {
             if (fscanf(file, "%hhu", &walls[i][j]) != 1)
             {
-                fprintf(stderr, "Failed to read value for walls[%d][%d]\n", i, j);
+                fprintf(stderr,
+                        "Failed to read value for walls[%d][%d]\n",
+                        i, j);
                 fclose(file);
                 return;
             }
@@ -102,7 +104,9 @@ void loadMapGridFromFile(const char *filename, Map *map)
         {
             if (fscanf(file, "%hhu", &ceil[i][j]) != 1)
             {
-                fprintf(stderr, "Failed to read value for ceil[%d][%d]\n", i, j);
+                fprintf(stderr,
+                        "Failed to read value for ceil[%d][%d]\n",
+                        i, j);
                 fclose(file);
                 return;
                 ;
@@ -126,7 +130,9 @@ void loadMapGridFromFile(const char *filename, Map *map)
         {
             if (fscanf(file, "%hhu", &floor[i][j]) != 1)
             {
-                fprintf(stderr, "Failed to read value for floor[%d][%d]\n", i, j);
+                fprintf(stderr,
+                        "Failed to read value for floor[%d][%d]\n",
+                        i, j);
                 fclose(file);
                 return;
             }

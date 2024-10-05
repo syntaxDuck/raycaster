@@ -64,7 +64,8 @@ void calculateVectorAngle(Vector *vect)
 // Prints the vector's components, magnitude, and angle to the console.
 void printVector(Vector vect)
 {
-    printf("X: %f, Y: %f, Mag: %f, Angle: %f\n", vect.x, vect.y, vect.mag, vect.angle);
+    printf("X: %f, Y: %f, Mag: %f, Angle: %f\n",
+           vect.x, vect.y, vect.mag, vect.angle);
 }
 
 // Normalizes the vector to a unit vector (magnitude = 1) if its magnitude is not zero.

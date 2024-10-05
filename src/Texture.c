@@ -14,7 +14,8 @@ int *loadImageData(const char *filePath, int *width, int *height)
     *width = surface->w;
     *height = surface->h;
     SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA8888, 0);
-    printf("Loaded surface: %dx%d, format: %d\n", surface->w, surface->h, surface->format->format);
+    printf("Loaded surface: %dx%d, format: %d\n",
+           surface->w, surface->h, surface->format->format);
     // Allocate an array of ints to hold the pixel data
     int *pixelData = malloc(surface->w * surface->h * sizeof(int));
     if (!pixelData)
@@ -48,7 +49,9 @@ void createTextures()
 {
     int width, height;
 
-    int *test = loadImageData("../assets/textures/pillar.png", &width, &height);
+    int *test = loadImageData("../assets/textures/pillar.png",
+                              &width, &height);
+
     for (int x = 0; x < TEX_WIDTH; x++)
     {
         for (int y = 0; y < TEX_HEIGHT; y++)

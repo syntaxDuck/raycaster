@@ -4,7 +4,8 @@ void castPlayerRays(Player *player, Map map)
 {
     Vector dir = player->actor.dir; // Player's direction vector
     Vector plane = player->plane;   // Player's plane vector (perpendicular to direction)
-    Vector pos = setVector(player->actor.pos.x / MAP_UNIT_SIZE, player->actor.pos.y / MAP_UNIT_SIZE);
+    Vector pos = setVector(player->actor.pos.x / MAP_UNIT_SIZE,
+                           player->actor.pos.y / MAP_UNIT_SIZE);
 
     double rad_per_col = player->actor.field_of_view / WIN_WIDTH; // Radians per pixel
     double offset = -player->actor.field_of_view / 2;
@@ -14,7 +15,8 @@ void castPlayerRays(Player *player, Map map)
     {
         // Calculate x-coordinate in camera space
         camera_x = 2 * x / (double)WIN_WIDTH - 1; // Normalized coordinate in camera space
-        Vector ray_dir = setVector(dir.x + plane.x * camera_x, dir.y + plane.y * camera_x);
+        Vector ray_dir = setVector(dir.x + plane.x * camera_x,
+                                   dir.y + plane.y * camera_x);
         player->intersects[x] = getWallIntersect(pos, ray_dir, map);
         player->actor.view_cone[x] = player->intersects[x].vect;
     }
@@ -76,7 +78,8 @@ WallIntersect getWallIntersect(Vector origin, Vector ray_dir, Map map)
         perp_wall_dist = side_dist.y - delta_dist.y;
 
     WallIntersect intersect;
-    intersect.vect = setVector(origin.x + ray_dir.x * perp_wall_dist, origin.y + ray_dir.y * perp_wall_dist);
+    intersect.vect = setVector(origin.x + ray_dir.x * perp_wall_dist,
+                               origin.y + ray_dir.y * perp_wall_dist);
     intersect.perp_wall_distance = perp_wall_dist;
     intersect.side = side;
     intersect.map_x = map_pos.x;
@@ -106,7 +109,8 @@ Player createPlayer()
     player.actor.accel = PLAYER_ACCEL;
 
     // Initialize player's position and velocity
-    player.actor.pos = setVector(2 * (double)WIN_WIDTH / 3 - 1, 2 * (double)WIN_HEIGHT / 3 - 1);
+    player.actor.pos = setVector(2 * (double)WIN_WIDTH / 3 - 1,
+                                 2 * (double)WIN_HEIGHT / 3 - 1);
     player.actor.velocity = setVector(0, 0);
     player.actor.dir = setVector(-1, 0);
 

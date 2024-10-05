@@ -8,7 +8,9 @@ int main(int argc, char *argv[])
   // Initialize SDL
   if (SDL_Init(SDL_INIT_VIDEO) < 0)
   {
-    fprintf(stderr, "SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+    fprintf(stderr,
+            "SDL could not initialize! SDL_Error: %s\n",
+            SDL_GetError());
     return -1;
   }
 
@@ -55,7 +57,10 @@ int main(int argc, char *argv[])
           {
             int x, y;
             SDL_GetWindowPosition(window_main->window, &x, &y);
-            window_2d = createWindow("2D Viewport", x - WIN_WIDTH, y, WIN_WIDTH, WIN_HEIGHT);
+            window_2d = createWindow("2D Viewport",
+                                     x - WIN_WIDTH,
+                                     y, WIN_WIDTH,
+                                     WIN_HEIGHT);
             show_2d = true;
           }
           else

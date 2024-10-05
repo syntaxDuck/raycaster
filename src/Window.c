@@ -1,6 +1,8 @@
 #include "Window.h"
 
-void renderScene(SDL_Renderer *renderer, Scene scene, void (*render)(Scene, SDL_Renderer *renderer))
+void renderScene(SDL_Renderer *renderer,
+                 Scene scene,
+                 void (*render)(Scene, SDL_Renderer *renderer))
 {
 
     // Clear the screen
@@ -35,7 +37,11 @@ void updateFrameCounter(WindowData *window_data)
 
         // Create a new title string that includes the FPS count
         char title[256];
-        snprintf(title, sizeof(title), "%s - FPS: %.2f", window_data->title, window_data->fps);
+        snprintf(title,
+                 sizeof(title),
+                 "%s - FPS: %.2f",
+                 window_data->title,
+                 window_data->fps);
 
         // Set the new window title with the FPS
         SDL_SetWindowTitle(window_data->window, title);
@@ -46,19 +52,29 @@ WindowData *createWindow(char *title, int x, int y, int width, int height)
 {
     // Create the window
     WindowData *window = malloc(sizeof(WindowData));
-    window->window = SDL_CreateWindow(title, x, y, width, height, SDL_WINDOW_SHOWN);
+    window->window = SDL_CreateWindow(title,
+                                      x, y,
+                                      width, height,
+                                      SDL_WINDOW_SHOWN);
+
     if (window->window == NULL)
     {
-        fprintf(stderr, "Window could not be created! SDL_Error: %s\n", SDL_GetError());
+        fprintf(stderr,
+                "Window could not be created! SDL_Error: %s\n",
+                SDL_GetError());
         SDL_Quit();
         return false;
     }
 
     // Create the renderer
-    window->renderer = SDL_CreateRenderer(window->window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    window->renderer = SDL_CreateRenderer(window->window,
+                                          -1,
+                                          SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (window->renderer == NULL)
     {
-        fprintf(stderr, "Renderer could not be created! SDL_Error: %s\n", SDL_GetError());
+        fprintf(stderr,
+                "Renderer could not be created! SDL_Error: %s\n",
+                SDL_GetError());
         SDL_DestroyWindow(window->window);
         SDL_Quit();
         return false;

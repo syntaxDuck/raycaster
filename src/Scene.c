@@ -89,7 +89,8 @@ void renderPlayerPlane(Player player)
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   setVectorMagnitude(&player.actor.dir, 10);
   setVectorMagnitude(&player.plane, 5);
-  SDL_RenderDrawLine(renderer, player.actor.pos.x + player.actor.dir.x - player.plane.x,
+  SDL_RenderDrawLine(renderer,
+                     player.actor.pos.x + player.actor.dir.x - player.plane.x,
                      player.actor.pos.y + player.actor.dir.y - player.plane.y,
                      player.actor.pos.x + player.actor.dir.x + player.plane.x,
                      player.actor.pos.y + player.actor.dir.y + player.plane.y);
@@ -108,7 +109,10 @@ void renderActorViewDir(Actor actor)
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   setVectorMagnitude(&actor.dir, 10);
   translateVector(&actor.dir, actor.pos);
-  SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, actor.dir.x,
+  SDL_RenderDrawLine(renderer,
+                     actor.pos.x,
+                     actor.pos.y,
+                     actor.dir.x,
                      actor.dir.y);
 }
 
@@ -117,7 +121,10 @@ void renderActorVelDir(Actor actor)
   SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
   setVectorMagnitude(&actor.velocity, 10);
   translateVector(&actor.pos, actor.velocity);
-  SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, actor.velocity.x,
+  SDL_RenderDrawLine(renderer,
+                     actor.pos.x,
+                     actor.pos.y,
+                     actor.velocity.x,
                      actor.velocity.y);
 }
 
@@ -127,7 +134,10 @@ void renderActorViewRays(Actor actor)
   for (int i = 0; i < NUM_RAYS; i++)
   {
     Vector ray = actor.view_cone[i];
-    SDL_RenderDrawLine(renderer, actor.pos.x, actor.pos.y, ray.x,
+    SDL_RenderDrawLine(renderer,
+                       actor.pos.x,
+                       actor.pos.y,
+                       ray.x,
                        ray.y);
   }
 }
@@ -138,7 +148,10 @@ void renderPlayerViewRays(Player player)
   for (int i = 0; i < WIN_WIDTH; i++)
   {
     Vector ray = player.intersects[i].vect;
-    SDL_RenderDrawLine(renderer, player.actor.pos.x, player.actor.pos.y, ray.x * MAP_UNIT_SIZE,
+    SDL_RenderDrawLine(renderer,
+                       player.actor.pos.x,
+                       player.actor.pos.y,
+                       ray.x * MAP_UNIT_SIZE,
                        ray.y * MAP_UNIT_SIZE);
   }
 }
@@ -160,7 +173,11 @@ void renderFpScene(Scene scene, SDL_Renderer *rend)
 
 void renderFloorAndCeil(Player player, Map map)
 {
-  SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, WIN_WIDTH, WIN_HEIGHT);
+  SDL_Texture *texture = SDL_CreateTexture(renderer,
+                                           SDL_PIXELFORMAT_RGBA8888,
+                                           SDL_TEXTUREACCESS_STREAMING,
+                                           WIN_WIDTH,
+                                           WIN_HEIGHT);
   void *pixels;
   int pitch;
   SDL_LockTexture(texture, NULL, &pixels, &pitch);
@@ -263,7 +280,11 @@ void renderFloorAndCeil(Player player, Map map)
 
 void renderWalls(Player player, Map map)
 {
-  SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, WIN_WIDTH, WIN_HEIGHT);
+  SDL_Texture *texture = SDL_CreateTexture(renderer,
+                                           SDL_PIXELFORMAT_RGBA8888,
+                                           SDL_TEXTUREACCESS_STREAMING,
+                                           WIN_WIDTH,
+                                           WIN_HEIGHT);
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
   void *pixels;
   int pitch;

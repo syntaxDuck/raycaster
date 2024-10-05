@@ -18,7 +18,9 @@ typedef struct
 } WindowData;
 
 WindowData *createWindow(char *title, int x, int y, int width, int height);
-void renderScene(SDL_Renderer *renderer, Scene scene, void (*render)(Scene, SDL_Renderer *renderer));
+void renderScene(SDL_Renderer *renderer,
+                 Scene scene,
+                 void (*render)(Scene, SDL_Renderer *renderer));
 void updateFrameCounter(WindowData *window_data);
 void freeWindowData(WindowData *window_data);
 #endif

@@ -13,7 +13,6 @@ void renderScene(SDL_Renderer *renderer,
     render(scene, renderer);
 
     // Present the rendered frame to the screen
-    SDL_RenderPresent(renderer);
 }
 
 void updateFrameCounter(WindowData *window_data)

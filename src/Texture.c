@@ -49,8 +49,8 @@ void createTextures()
 {
     int width, height;
 
-    int *test = loadImageData("../assets/textures/pillar.png",
-                              &width, &height);
+    // int *test = loadImageData("../assets/textures/pillar.png",
+    //                           &width, &height);
 
     for (int x = 0; x < TEX_WIDTH; x++)
     {
@@ -60,8 +60,8 @@ void createTextures()
             // int xcolor = x * 256 / TEX_WIDTH;
             int ycolor = y * 256 / TEX_HEIGHT;
             int xycolor = y * 128 / TEX_HEIGHT + x * 128 / TEX_WIDTH;
-            textures[0][TEX_WIDTH * y + x] = test[TEX_HEIGHT * y + x];
-            // textures[0][TEX_WIDTH * y + x] = 65536 * 254 * (x != y && x != TEX_WIDTH - y); // flat red texture with black cross
+            // textures[0][TEX_WIDTH * y + x] = test[TEX_HEIGHT * y + x];
+            textures[0][TEX_WIDTH * y + x] = 65536 * 254 * (x != y && x != TEX_WIDTH - y); // flat red texture with black cross
             textures[1][TEX_WIDTH * y + x] = xycolor + 256 * xycolor + 65536 * xycolor;    // sloped greyscale
             textures[2][TEX_WIDTH * y + x] = 256 * xycolor + 65536 * xycolor;              // sloped yellow gradient
             textures[3][TEX_WIDTH * y + x] = xorcolor + 256 * xorcolor + 65536 * xorcolor; // xor greyscale

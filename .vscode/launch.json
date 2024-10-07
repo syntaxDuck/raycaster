@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "LLDB (CodeLLDB)",
+      "type": "lldb", // This tells VSCode to use the CodeLLDB extension
+      "request": "launch",
+      "program": "${workspaceFolder}/build/${fileBasenameNoExtension}", // Replace with your executable path
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopOnEntry": false,
+      "initCommands": []
+    }
+  ]
+}

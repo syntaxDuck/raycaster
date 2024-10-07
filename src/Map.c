@@ -49,6 +49,7 @@ void loadMapGridFromFile(const char *filename, Map *map)
     if (!file)
     {
         fprintf(stderr, "Failed to open map file: %s\n", filename);
+        exit(1);
     }
 
     // Read the width and height of the map

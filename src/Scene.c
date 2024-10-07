@@ -12,7 +12,7 @@ Scene *createScene()
   }
 
   // Initialize map
-  Map map = loadMap("../assets/maps/map.txt");
+  Map map = loadMap("./assets/maps/map.txt");
   if (map.walls == NULL || map.ceil == NULL || map.floor == NULL)
   {
     fprintf(stderr, "Failed to load map from file\n");
@@ -304,7 +304,12 @@ void renderWalls(Player player, Map map)
     if (draw_end >= WIN_HEIGHT)
       draw_end = WIN_HEIGHT - 1;
 
+    // TODO: This is causing segfaults, currently patched with if statements
     // Select the texture based on the walls type (example: intersect.side could be used for this)
+    if (intersect.map_x < 0 || intersect.map_x > map.width)
+      intersect.map_x = 0;
+    if (intersect.map_y < 0 || intersect.map_y > map.height)
+      intersect.map_y = 0;
     int tex_num = map.walls[(int)intersect.map_y][(int)intersect.map_x] - 1;
     // Calculate the exact x-coordinate on the texture
     double wall_x; // Exact position where the walls was hit

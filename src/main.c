@@ -42,6 +42,7 @@ void render_nuklear(struct nk_context *ctx, SDL_Renderer *renderer)
   nk_sdl_render(NK_ANTI_ALIASING_ON);
 }
 
+// TODO: this function seems to be throwing an exception when multipl keys are pressed
 void handleEvents(struct nk_context *ctx, SDL_Event *event, bool *quit,
                   bool *key_pressed, bool *show_2d,
                   WindowData *window_main, WindowData *window_2d)
@@ -54,7 +55,7 @@ void handleEvents(struct nk_context *ctx, SDL_Event *event, bool *quit,
     {
       *quit = true;
     }
-    if (event->type == SDL_KEYDOWN && !key_pressed)
+    if (event->type == SDL_KEYDOWN && !*key_pressed)
     {
       *key_pressed = true;
       const Uint8 *state = SDL_GetKeyboardState(NULL);

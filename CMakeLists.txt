@@ -33,7 +33,7 @@ include_directories(/opt/homebrew/include/SDL2)
 link_directories(/opt/homebrew/lib)
 
 # Add project executable
-add_executable(raycaster ${SOURCES})
+add_executable(main ${SOURCES})
 
 # Link libraries
-target_link_libraries(raycaster ${SDL2_LIBRARIES} /opt/homebrew/Cellar/sdl2_image/2.8.2_2/lib/libSDL2_image.dylib m)
+target_link_libraries(main ${SDL2_LIBRARIES} /opt/homebrew/Cellar/sdl2_image/2.8.2_2/lib/libSDL2_image.dylib m)

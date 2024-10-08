@@ -17,7 +17,7 @@
 
 void render_nuklear(struct nk_context *ctx, SDL_Renderer *renderer)
 {
-  if (nk_begin(ctx, "Demo", nk_rect(50, 50, 230, 230),
+  if (nk_begin(ctx, "Demo", nk_rect(0, 0, WIN_WIDTH / 2, WIN_HEIGHT),
                NK_WINDOW_BORDER | NK_WINDOW_MOVABLE |
                    NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE |
                    NK_WINDOW_TITLE))
@@ -42,9 +42,9 @@ void render_nuklear(struct nk_context *ctx, SDL_Renderer *renderer)
   nk_sdl_render(NK_ANTI_ALIASING_ON);
 }
 
-// TODO: this function seems to be throwing an exception when multipl keys are pressed
+// TODO: this function seems to be throwing an exception when multiple keys are pressed
 void handleEvents(struct nk_context *ctx, SDL_Event *event, bool *quit,
-                  bool *key_pressed, bool *show_2d,
+                  bool *key_pressed, bool *show_2d, bool *game_focused,
                   WindowData *window_main, WindowData *window_2d)
 {
   // Handle events
@@ -63,20 +63,12 @@ void handleEvents(struct nk_context *ctx, SDL_Event *event, bool *quit,
       {
         if (!*show_2d)
         {
-          int x, y;
-          SDL_GetWindowPosition(window_main->window, &x, &y);
-          window_2d = createWindow("2D Viewport",
-                                   x - WIN_WIDTH,
-                                   y, WIN_WIDTH,
-                                   WIN_HEIGHT);
           *show_2d = true;
         }
         else
         {
-          freeWindowData(window_2d);
-          SDL_RaiseWindow(window_main->window);
-          window_2d = NULL;
-          show_2d = false;
+          SDL_HideWindow(window_2d->window);
+          *show_2d = false;
         }
       }
     }
@@ -84,10 +76,21 @@ void handleEvents(struct nk_context *ctx, SDL_Event *event, bool *quit,
     {
       key_pressed = false;
     }
+
+    if (event->type == SDL_MOUSEMOTION && event->motion.x < WIN_WIDTH / 2)
+    {
+      *game_focused = false;
+    }
+
+    if (event->type == SDL_MOUSEMOTION && event->motion.x >= WIN_WIDTH / 2)
+    {
+      *game_focused = true;
+    }
     nk_sdl_handle_event(event);
   }
   nk_input_end(ctx);
 }
+
 struct nk_context *setupMenu(WindowData *window)
 {
   struct nk_context *ctx = nk_sdl_init(window->window,
@@ -125,11 +128,17 @@ int main(int argc, char *argv[])
     return 1;   // or handle the error appropriately
   }
 
-  WindowData *window_2d;
   WindowData *window_main = createWindow("Main Viewport",
                                          SDL_WINDOWPOS_CENTERED,
                                          SDL_WINDOWPOS_CENTERED,
                                          WIN_WIDTH, WIN_HEIGHT);
+
+  int x, y;
+  SDL_GetWindowPosition(window_main->window, &x, &y);
+  WindowData *window_2d = createWindow("2D Viewport",
+                                       x - WIN_WIDTH,
+                                       y, WIN_WIDTH,
+                                       WIN_HEIGHT);
 
   struct nk_context *ctx = setupMenu(window_main);
 
@@ -140,24 +149,28 @@ int main(int argc, char *argv[])
   // // Main game loop
   SDL_Event event;
   bool quit = false;
-  bool show_2d = false;
+  bool show_2d = true;
   bool key_pressed = false;
+  bool game_focused = true;
   while (!quit)
   {
     handleEvents(ctx, &event, &quit, &key_pressed,
-                 &show_2d, window_main, window_2d);
+                 &show_2d, &game_focused, window_main, window_2d);
 
     renderScene(window_main->renderer, *scene, renderFpScene);
     render_nuklear(ctx, window_main->renderer);
     SDL_RenderPresent(window_main->renderer);
-    updateFrameCounter(window_main);
 
     if (show_2d)
     {
       renderScene(window_2d->renderer, *scene, render2dScene);
+      SDL_RenderPresent(window_2d->renderer);
     }
 
-    processPlayerMotion(&scene->player, 1 / window_main->fps, scene->map);
+    updateFrameCounter(window_main);
+
+    if (game_focused)
+      processPlayerMotion(&scene->player, 1 / window_main->fps, scene->map);
   }
 
   // Cleanup and exit

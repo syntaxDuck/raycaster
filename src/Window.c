@@ -54,7 +54,7 @@ WindowData *createWindow(char *title, int x, int y, int width, int height)
     window->window = SDL_CreateWindow(title,
                                       x, y,
                                       width, height,
-                                      SDL_WINDOW_SHOWN);
+                                      SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
     if (window->window == NULL)
     {
@@ -68,7 +68,8 @@ WindowData *createWindow(char *title, int x, int y, int width, int height)
     // Create the renderer
     window->renderer = SDL_CreateRenderer(window->window,
                                           -1,
-                                          SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+                                          SDL_RENDERER_ACCELERATED |
+                                              SDL_RENDERER_PRESENTVSYNC);
     if (window->renderer == NULL)
     {
         fprintf(stderr,

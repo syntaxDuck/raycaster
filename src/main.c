@@ -15,6 +15,15 @@
 #include "nuklear.h"
 #include "nuklear_sdl_renderer.h"
 
+typedef struct
+{
+  bool quit;
+  bool show_2d;
+  bool game_focused;
+  bool key_pressed;
+} EventContext;
+
+// TODO: Make system compatable with resizing window
 void render_nuklear(struct nk_context *ctx, SDL_Renderer *renderer)
 {
   if (nk_begin(ctx, "Demo", nk_rect(0, 0, WIN_WIDTH / 2, WIN_HEIGHT),
@@ -42,51 +51,55 @@ void render_nuklear(struct nk_context *ctx, SDL_Renderer *renderer)
   nk_sdl_render(NK_ANTI_ALIASING_ON);
 }
 
-// TODO: this function seems to be throwing an exception when multiple keys are pressed
-void handleEvents(struct nk_context *ctx, SDL_Event *event, bool *quit,
-                  bool *key_pressed, bool *show_2d, bool *game_focused,
+// TODO: this function seems to be throwing an exception when multiple
+//       keys are pressed
+// TODO: utilize view ports for game editor
+void handleEvents(struct nk_context *ctx, EventContext *event_ctx,
                   WindowData *window_main, WindowData *window_2d)
 {
   // Handle events
+  SDL_Event event;
   nk_input_begin(ctx);
-  while (SDL_PollEvent(event) != 0)
+  while (SDL_PollEvent(&event) != 0)
   {
-    if (event->type == SDL_QUIT)
+    if (event.type == SDL_QUIT)
     {
-      *quit = true;
+      event_ctx->quit = true;
     }
-    if (event->type == SDL_KEYDOWN && !*key_pressed)
+    if (event.type == SDL_KEYDOWN && !event_ctx->key_pressed)
     {
-      *key_pressed = true;
+      event_ctx->key_pressed = true;
       const Uint8 *state = SDL_GetKeyboardState(NULL);
       if (state[SDL_SCANCODE_2])
       {
-        if (!*show_2d)
+        if (!event_ctx->show_2d)
         {
-          *show_2d = true;
+          event_ctx->show_2d = true;
+          SDL_ShowWindow(window_2d->window);
         }
         else
         {
           SDL_HideWindow(window_2d->window);
-          *show_2d = false;
+          SDL_RaiseWindow(window_main->window);
+          event_ctx->show_2d = false;
         }
       }
     }
-    if (event->type == SDL_KEYUP)
+    if (event.type == SDL_KEYUP)
     {
-      key_pressed = false;
+      event_ctx->key_pressed = false;
     }
 
-    if (event->type == SDL_MOUSEMOTION && event->motion.x < WIN_WIDTH / 2)
+    if (event.type == SDL_MOUSEMOTION && event.motion.x < WIN_WIDTH / 2)
     {
-      *game_focused = false;
+      event_ctx->game_focused = false;
     }
 
-    if (event->type == SDL_MOUSEMOTION && event->motion.x >= WIN_WIDTH / 2)
+    if (event.type == SDL_MOUSEMOTION && event.motion.x >= WIN_WIDTH / 2)
     {
-      *game_focused = true;
+      event_ctx->game_focused = true;
     }
-    nk_sdl_handle_event(event);
+    nk_sdl_handle_event(&event);
   }
   nk_input_end(ctx);
 }
@@ -139,6 +152,7 @@ int main(int argc, char *argv[])
                                        x - WIN_WIDTH,
                                        y, WIN_WIDTH,
                                        WIN_HEIGHT);
+  SDL_HideWindow(window_2d->window);
 
   struct nk_context *ctx = setupMenu(window_main);
 
@@ -147,21 +161,22 @@ int main(int argc, char *argv[])
   createTextures();
 
   // // Main game loop
-  SDL_Event event;
-  bool quit = false;
-  bool show_2d = true;
-  bool key_pressed = false;
-  bool game_focused = true;
-  while (!quit)
+
+  EventContext event_ctx;
+  event_ctx.quit = false;
+  event_ctx.show_2d = false;
+  event_ctx.game_focused = false;
+  event_ctx.key_pressed = false;
+
+  while (!event_ctx.quit)
   {
-    handleEvents(ctx, &event, &quit, &key_pressed,
-                 &show_2d, &game_focused, window_main, window_2d);
+    handleEvents(ctx, &event_ctx, window_main, window_2d);
 
     renderScene(window_main->renderer, *scene, renderFpScene);
     render_nuklear(ctx, window_main->renderer);
     SDL_RenderPresent(window_main->renderer);
 
-    if (show_2d)
+    if (event_ctx.show_2d)
     {
       renderScene(window_2d->renderer, *scene, render2dScene);
       SDL_RenderPresent(window_2d->renderer);
@@ -169,7 +184,7 @@ int main(int argc, char *argv[])
 
     updateFrameCounter(window_main);
 
-    if (game_focused)
+    if (event_ctx.game_focused)
       processPlayerMotion(&scene->player, 1 / window_main->fps, scene->map);
   }
 

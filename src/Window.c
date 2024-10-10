@@ -15,7 +15,7 @@ void renderScene(SDL_Renderer *renderer,
     // Present the rendered frame to the screen
 }
 
-void updateFrameCounter(WindowData *window_data)
+void updateFrameCounter(WindowCtx *window_data)
 {
     // Increment the frame count
     window_data->frame_count++;
@@ -47,10 +47,10 @@ void updateFrameCounter(WindowData *window_data)
     }
 }
 
-WindowData *createWindow(char *title, int x, int y, int width, int height)
+WindowCtx *createWindow(char *title, int x, int y, int width, int height)
 {
     // Create the window
-    WindowData *window = malloc(sizeof(WindowData));
+    WindowCtx *window = malloc(sizeof(WindowCtx));
     window->window = SDL_CreateWindow(title,
                                       x, y,
                                       width, height,
@@ -103,7 +103,7 @@ WindowData *createWindow(char *title, int x, int y, int width, int height)
     return window;
 }
 
-void freeWindowData(WindowData *window_data)
+void freeWindowData(WindowCtx *window_data)
 {
     SDL_DestroyRenderer(window_data->renderer);
     SDL_DestroyWindow(window_data->window);

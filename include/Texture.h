@@ -6,6 +6,13 @@
 #include <stdint.h>
 #include "Defines.h"
 
+typedef struct
+{
+    int *texture;
+    int height;
+    int width;
+} Texture;
+
 void createTextures();
 int *loadImageData(const char *filePath, int *width, int *height);
 

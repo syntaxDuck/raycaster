@@ -75,13 +75,12 @@ void render2dPlayer(Player player)
 {
   renderActorBody(player.actor);
 
-  if (DEBUG)
-  {
-    renderPlayerViewRays(player);
-    renderActorViewDir(player.actor);
-    renderActorVelDir(player.actor);
-    renderPlayerPlane(player);
-  }
+#ifdef DEBUG
+  renderPlayerViewRays(player);
+  renderActorViewDir(player.actor);
+  renderActorVelDir(player.actor);
+  renderPlayerPlane(player);
+#endif
 }
 
 void renderPlayerPlane(Player player)

@@ -21,16 +21,26 @@ typedef struct
   bool show_2d;
   bool game_focused;
   bool key_pressed;
-} EventContext;
+} EditorEventCtx;
+
+typedef struct
+{
+  struct nk_context *nk_ctx;
+  EditorEventCtx *event_ctx;
+  SDL_Rect menu_vp;
+  SDL_Rect game_vp;
+} EditorCtx;
 
 // TODO: Make system compatable with resizing window
-void render_nuklear(struct nk_context *ctx, SDL_Renderer *renderer)
+void render_nuklear(struct nk_context *ctx, struct nk_rect vp, SDL_Renderer *renderer)
 {
-  if (nk_begin(ctx, "Demo", nk_rect(0, 0, WIN_WIDTH / 2, WIN_HEIGHT),
-               NK_WINDOW_BORDER | NK_WINDOW_MOVABLE |
-                   NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE |
+  if (nk_begin(ctx, "Demo", vp,
+               NK_WINDOW_BORDER |
+                   NK_WINDOW_SCALABLE |
                    NK_WINDOW_TITLE))
   {
+    struct nk_vec2 window_size = nk_window_get_size(ctx);
+    nk_window_set_size(ctx, "Demo", nk_vec2(window_size.x, vp.h));
     static char text[64] = "Hello, Nuklear!";
     nk_layout_row_static(ctx, 30, 80, 1);
     if (nk_button_label(ctx, "Button"))
@@ -53,19 +63,22 @@ void render_nuklear(struct nk_context *ctx, SDL_Renderer *renderer)
 
 // TODO: this function seems to be throwing an exception when multiple
 //       keys are pressed
-// TODO: utilize view ports for game editor
-void handleEvents(struct nk_context *ctx, EventContext *event_ctx,
-                  WindowData *window_main, WindowData *window_2d)
+void handleWindowEvents(struct nk_context *ctx, EditorEventCtx *event_ctx,
+                        WindowCtx *window_main)
 {
   // Handle events
   SDL_Event event;
+#ifdef DEBUG
   nk_input_begin(ctx);
+#endif
+
   while (SDL_PollEvent(&event) != 0)
   {
     if (event.type == SDL_QUIT)
     {
       event_ctx->quit = true;
     }
+#ifdef DEBUG
     if (event.type == SDL_KEYDOWN && !event_ctx->key_pressed)
     {
       event_ctx->key_pressed = true;
@@ -75,12 +88,9 @@ void handleEvents(struct nk_context *ctx, EventContext *event_ctx,
         if (!event_ctx->show_2d)
         {
           event_ctx->show_2d = true;
-          SDL_ShowWindow(window_2d->window);
         }
         else
         {
-          SDL_HideWindow(window_2d->window);
-          SDL_RaiseWindow(window_main->window);
           event_ctx->show_2d = false;
         }
       }
@@ -100,11 +110,15 @@ void handleEvents(struct nk_context *ctx, EventContext *event_ctx,
       event_ctx->game_focused = true;
     }
     nk_sdl_handle_event(&event);
+#endif
   }
+
+#ifdef DEBUG
   nk_input_end(ctx);
+#endif
 }
 
-struct nk_context *setupMenu(WindowData *window)
+struct nk_context *setupMenu(WindowCtx *window)
 {
   struct nk_context *ctx = nk_sdl_init(window->window,
                                        window->renderer);
@@ -121,6 +135,16 @@ struct nk_context *setupMenu(WindowData *window)
   nk_style_set_font(ctx, &font->handle);
 
   return ctx;
+}
+
+SDL_Rect *createRect(int x, int y, int w, int h)
+{
+  SDL_Rect *rect = malloc(sizeof(SDL_Rect));
+  rect->x = x;
+  rect->y = y;
+  rect->w = w;
+  rect->h = h;
+  return rect;
 }
 
 int main(int argc, char *argv[])
@@ -141,58 +165,60 @@ int main(int argc, char *argv[])
     return 1;   // or handle the error appropriately
   }
 
-  WindowData *window_main = createWindow("Main Viewport",
-                                         SDL_WINDOWPOS_CENTERED,
-                                         SDL_WINDOWPOS_CENTERED,
-                                         WIN_WIDTH, WIN_HEIGHT);
+  WindowCtx *window_main = createWindow("Main Viewport",
+                                        SDL_WINDOWPOS_CENTERED,
+                                        SDL_WINDOWPOS_CENTERED,
+                                        WIN_WIDTH, WIN_HEIGHT);
 
-  int x, y;
-  SDL_GetWindowPosition(window_main->window, &x, &y);
-  WindowData *window_2d = createWindow("2D Viewport",
-                                       x - WIN_WIDTH,
-                                       y, WIN_WIDTH,
-                                       WIN_HEIGHT);
-  SDL_HideWindow(window_2d->window);
+  struct nk_context *ctx;
+#ifdef DEBUG
+  EditorCtx editor_ctx;
+  ctx = setupMenu(window_main);
 
-  struct nk_context *ctx = setupMenu(window_main);
+  struct nk_rect nk_vp = nk_rect(0, 0, WIN_WIDTH / 3, WIN_HEIGHT);
+  SDL_Rect *game_vp = createRect(nk_vp.x + nk_vp.w, nk_vp.y, WIN_WIDTH - nk_vp.w, WIN_HEIGHT);
+#else
+  SDL_Rect *game_vp = createRect(0, 0, WIN_WIDTH, WIN_HEIGHT);
+#endif
 
   // Create the scene (map and player)
   Scene *scene = createScene();
   createTextures();
 
-  // // Main game loop
+  // Main game loop
 
-  EventContext event_ctx;
+  EditorEventCtx event_ctx;
   event_ctx.quit = false;
   event_ctx.show_2d = false;
   event_ctx.game_focused = false;
   event_ctx.key_pressed = false;
 
+  SDL_Event event;
   while (!event_ctx.quit)
   {
-    handleEvents(ctx, &event_ctx, window_main, window_2d);
+    handleWindowEvents(ctx, &event_ctx, window_main);
 
+    SDL_RenderSetViewport(window_main->renderer, game_vp);
     renderScene(window_main->renderer, *scene, renderFpScene);
-    render_nuklear(ctx, window_main->renderer);
+
+#ifdef DEBUG
+    SDL_RenderSetViewport(window_main->renderer, NULL);
+    render_nuklear(ctx, nk_vp, window_main->renderer);
+#endif
+
     SDL_RenderPresent(window_main->renderer);
-
-    if (event_ctx.show_2d)
-    {
-      renderScene(window_2d->renderer, *scene, render2dScene);
-      SDL_RenderPresent(window_2d->renderer);
-    }
-
     updateFrameCounter(window_main);
-
-    if (event_ctx.game_focused)
-      processPlayerMotion(&scene->player, 1 / window_main->fps, scene->map);
+    processPlayerMotion(&scene->player, 1 / window_main->fps, scene->map);
   }
 
-  // Cleanup and exit
+// Cleanup and exit
+#ifdef DEBUG
   nk_sdl_shutdown();
+#endif
+
   freeScene(scene);
   freeWindowData(window_main);
-  freeWindowData(window_2d);
+  free(game_vp);
   IMG_Quit();
   SDL_Quit();
   return 0;

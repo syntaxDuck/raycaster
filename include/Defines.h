@@ -12,7 +12,7 @@
 #define MAX_FPS 120
 #define REND_2D true
 #define REND_FP true
-#define DEBUG true
+#define DEBUG
 #define TEXTURES_PNG true
 
 // Generic

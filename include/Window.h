@@ -15,12 +15,12 @@ typedef struct
     int frame_count;
     float fps;
     Uint32 last_time;
-} WindowData;
+} WindowCtx;
 
-WindowData *createWindow(char *title, int x, int y, int width, int height);
+WindowCtx *createWindow(char *title, int x, int y, int width, int height);
 void renderScene(SDL_Renderer *renderer,
                  Scene scene,
                  void (*render)(Scene, SDL_Renderer *renderer));
-void updateFrameCounter(WindowData *window_data);
-void freeWindowData(WindowData *window_data);
+void updateFrameCounter(WindowCtx *window_data);
+void freeWindowData(WindowCtx *window_data);
 #endif

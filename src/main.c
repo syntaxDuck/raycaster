@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
   editor_ctx.event_ctx = event_ctx;
 
   SDL_Event event;
-  while (!event_ctx.quit)
+  while (!editor_ctx.event_ctx.quit)
   {
     handleWindowEvents(&editor_ctx, window_main);
 

@@ -36,7 +36,7 @@ void render_nuklear(struct nk_context *ctx, struct nk_rect vp,
 void handleWindowEvents(EditorCtx *editor_ctx, WindowCtx *window_main)
 {
     // Handle events
-    EditorEventCtx event_ctx = editor_ctx->event_ctx;
+    EditorEventCtx *event_ctx = &editor_ctx->event_ctx;
     SDL_Event event;
 #ifdef DEBUG
     nk_input_begin(editor_ctx->menu_ctx);
@@ -46,38 +46,38 @@ void handleWindowEvents(EditorCtx *editor_ctx, WindowCtx *window_main)
     {
         if (event.type == SDL_QUIT)
         {
-            event_ctx.quit = true;
+            event_ctx->quit = true;
         }
 #ifdef DEBUG
-        if (event.type == SDL_KEYDOWN && !event_ctx.key_pressed)
+        if (event.type == SDL_KEYDOWN && !event_ctx->key_pressed)
         {
-            event_ctx.key_pressed = true;
+            event_ctx->key_pressed = true;
             const Uint8 *state = SDL_GetKeyboardState(NULL);
             if (state[SDL_SCANCODE_2])
             {
-                if (!event_ctx.show_2d)
+                if (!event_ctx->show_2d)
                 {
-                    event_ctx.show_2d = true;
+                    event_ctx->show_2d = true;
                 }
                 else
                 {
-                    event_ctx.show_2d = false;
+                    event_ctx->show_2d = false;
                 }
             }
         }
         if (event.type == SDL_KEYUP)
         {
-            event_ctx.key_pressed = false;
+            event_ctx->key_pressed = false;
         }
 
         if (event.type == SDL_MOUSEMOTION && event.motion.x < WIN_WIDTH / 2)
         {
-            event_ctx.game_focused = false;
+            event_ctx->game_focused = false;
         }
 
         if (event.type == SDL_MOUSEMOTION && event.motion.x >= WIN_WIDTH / 2)
         {
-            event_ctx.game_focused = true;
+            event_ctx->game_focused = true;
         }
         nk_sdl_handle_event(&event);
 #endif

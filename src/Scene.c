@@ -8,7 +8,7 @@ Scene *createScene()
   if (!scene)
   {
     fprintf(stderr, "Failed to allocate memory for scene\n");
-    exit(EXIT_FAILURE);
+    exit(1);
   }
 
   // Initialize map
@@ -16,12 +16,20 @@ Scene *createScene()
   if (map.walls == NULL || map.ceil == NULL || map.floor == NULL)
   {
     fprintf(stderr, "Failed to load map from file\n");
-    exit(EXIT_FAILURE);
+    exit(1);
+  }
+
+  Texture *textures = createTextures();
+  if (textures == NULL)
+  {
+    fprintf(stderr, "Failed to load textues\n");
+    exit(1);
   }
 
   // Set the map and player for the scene
   scene->map = map;
   scene->player = createPlayer();
+  scene->textures = textures;
   return scene;
 }
 
@@ -166,11 +174,11 @@ void renderPlayerViewRays(Player player)
 void renderFpScene(Scene scene, SDL_Renderer *rend)
 {
   renderer = rend;
-  renderFloorAndCeil(scene.player, scene.map);
-  renderWalls(scene.player, scene.map);
+  renderFloorAndCeil(scene);
+  renderWalls(scene);
 }
 
-void renderFloorAndCeil(Player player, Map map)
+void renderFloorAndCeil(Scene scene)
 {
   SDL_Texture *texture = SDL_CreateTexture(renderer,
                                            SDL_PIXELFORMAT_RGBA8888,
@@ -187,10 +195,10 @@ void renderFloorAndCeil(Player player, Map map)
   for (int y = WIN_HEIGHT / 2; y < WIN_HEIGHT; ++y)
   {
     // rayDir for leftmost ray (x = 0) and rightmost ray (x = w)
-    float rayDirX0 = player.actor.dir.x - player.plane.x;
-    float rayDirY0 = player.actor.dir.y - player.plane.y;
-    float rayDirX1 = player.actor.dir.x + player.plane.x;
-    float rayDirY1 = player.actor.dir.y + player.plane.y;
+    float rayDirX0 = scene.player.actor.dir.x - scene.player.plane.x;
+    float rayDirY0 = scene.player.actor.dir.y - scene.player.plane.y;
+    float rayDirX1 = scene.player.actor.dir.x + scene.player.plane.x;
+    float rayDirY1 = scene.player.actor.dir.y + scene.player.plane.y;
 
     // Current y position compared to the center of the screen (the horizon)
     int p = y - WIN_HEIGHT / 2;
@@ -228,8 +236,8 @@ void renderFloorAndCeil(Player player, Map map)
     float floorStepY = rowDistance * (rayDirY1 - rayDirY0) / WIN_WIDTH;
 
     // real world coordinates of the leftmost column. This will be updated as we step to the right.
-    float floorX = player.actor.pos.x / MAP_UNIT_SIZE + rowDistance * rayDirX0;
-    float floorY = player.actor.pos.y / MAP_UNIT_SIZE + rowDistance * rayDirY0;
+    float floorX = scene.player.actor.pos.x / MAP_UNIT_SIZE + rowDistance * rayDirX0;
+    float floorY = scene.player.actor.pos.y / MAP_UNIT_SIZE + rowDistance * rayDirY0;
 
     for (int x = 0; x < WIN_WIDTH; x++)
     {
@@ -254,7 +262,11 @@ void renderFloorAndCeil(Player player, Map map)
       if (cellX >= 0 && cellX <= 23 && cellY >= 0 && cellY <= 23)
       {
         // Floor
-        color = textures[map.floor[cellY][cellX]][TEX_HEIGHT * ty + tx] << 8 | 0xFF;
+        int texture_index = scene.map.floor[cellY][cellX];
+        color = scene.textures[texture_index]
+                        .texture[TEX_HEIGHT * ty + tx]
+                    << 8 |
+                0xFF;
         pixel_data[(y * (pitch / 4)) + x] = color;
 
         // Ceil
@@ -262,7 +274,7 @@ void renderFloorAndCeil(Player player, Map map)
         if (cellY < 0)
           cellY = 0;
 
-        color = textures[map.ceil[cellY][cellX]][TEX_HEIGHT * ty + tx] << 8 | 0xFF;
+        color = scene.textures[scene.map.ceil[cellY][cellX]].texture[TEX_HEIGHT * ty + tx] << 8 | 0xFF;
         pixel_data[((WIN_HEIGHT - y) * (pitch / 4)) + x] = color;
       }
       else
@@ -277,7 +289,7 @@ void renderFloorAndCeil(Player player, Map map)
   SDL_DestroyTexture(texture);
 }
 
-void renderWalls(Player player, Map map)
+void renderWalls(Scene scene)
 {
   SDL_Texture *texture = SDL_CreateTexture(renderer,
                                            SDL_PIXELFORMAT_RGBA8888,
@@ -294,7 +306,7 @@ void renderWalls(Player player, Map map)
 
   for (int x = 0; x < WIN_WIDTH; x++)
   {
-    WallIntersect intersect = player.intersects[x];
+    WallIntersect intersect = scene.player.intersects[x];
     int line_height = (int)WIN_HEIGHT / intersect.perp_wall_distance;
     int draw_start = -line_height / 2 + WIN_HEIGHT / 2;
     if (draw_start < 0)
@@ -305,11 +317,12 @@ void renderWalls(Player player, Map map)
 
     // TODO: This is causing segfaults, currently patched with if statements
     // Select the texture based on the walls type (example: intersect.side could be used for this)
-    if (intersect.map_x < 0 || intersect.map_x > map.width)
+    if (intersect.map_x < 0 || intersect.map_x > scene.map.width)
       intersect.map_x = 0;
-    if (intersect.map_y < 0 || intersect.map_y > map.height)
+    if (intersect.map_y < 0 || intersect.map_y > scene.map.height)
       intersect.map_y = 0;
-    int tex_num = map.walls[(int)intersect.map_y][(int)intersect.map_x] - 1;
+    int tex_num =
+        scene.map.walls[(int)intersect.map_y][(int)intersect.map_x] - 1;
     // Calculate the exact x-coordinate on the texture
     double wall_x; // Exact position where the walls was hit
     if (intersect.side == 0)
@@ -333,7 +346,7 @@ void renderWalls(Player player, Map map)
 
       // Get the color from the texture
       if (tex_num >= 0)
-        color = textures[tex_num][TEX_HEIGHT * tex_y + tex_x] << 8 | 0xFF;
+        color = scene.textures[tex_num].texture[TEX_HEIGHT * tex_y + tex_x] << 8 | 0xFF;
       else
         color = 0xFF00FFFF;
 

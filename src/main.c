@@ -25,14 +25,20 @@ typedef struct
 
 typedef struct
 {
-  struct nk_context *nk_ctx;
+  struct nk_context *menu_ctx;
   EditorEventCtx *event_ctx;
-  SDL_Rect menu_vp;
-  SDL_Rect game_vp;
+  struct nk_rect menu_vp;
 } EditorCtx;
 
+typedef struct
+{
+  Scene *scene;
+  SDL_Rect game_vp;
+} GameCtx;
+
 // TODO: Make system compatable with resizing window
-void render_nuklear(struct nk_context *ctx, struct nk_rect vp, SDL_Renderer *renderer)
+void render_nuklear(struct nk_context *ctx, struct nk_rect vp,
+                    SDL_Renderer *renderer)
 {
   if (nk_begin(ctx, "Demo", vp,
                NK_WINDOW_BORDER |
@@ -63,13 +69,13 @@ void render_nuklear(struct nk_context *ctx, struct nk_rect vp, SDL_Renderer *ren
 
 // TODO: this function seems to be throwing an exception when multiple
 //       keys are pressed
-void handleWindowEvents(struct nk_context *ctx, EditorEventCtx *event_ctx,
-                        WindowCtx *window_main)
+void handleWindowEvents(EditorCtx *editor_ctx, WindowCtx *window_main)
 {
   // Handle events
+  EditorEventCtx *event_ctx = editor_ctx->event_ctx;
   SDL_Event event;
 #ifdef DEBUG
-  nk_input_begin(ctx);
+  nk_input_begin(editor_ctx->menu_ctx);
 #endif
 
   while (SDL_PollEvent(&event) != 0)
@@ -114,7 +120,7 @@ void handleWindowEvents(struct nk_context *ctx, EditorEventCtx *event_ctx,
   }
 
 #ifdef DEBUG
-  nk_input_end(ctx);
+  nk_input_end(editor_ctx->menu_ctx);
 #endif
 }
 
@@ -137,13 +143,13 @@ struct nk_context *setupMenu(WindowCtx *window)
   return ctx;
 }
 
-SDL_Rect *createRect(int x, int y, int w, int h)
+SDL_Rect createRect(int x, int y, int w, int h)
 {
-  SDL_Rect *rect = malloc(sizeof(SDL_Rect));
-  rect->x = x;
-  rect->y = y;
-  rect->w = w;
-  rect->h = h;
+  SDL_Rect rect;
+  rect.x = x;
+  rect.y = y;
+  rect.w = w;
+  rect.h = h;
   return rect;
 }
 
@@ -170,20 +176,22 @@ int main(int argc, char *argv[])
                                         SDL_WINDOWPOS_CENTERED,
                                         WIN_WIDTH, WIN_HEIGHT);
 
-  struct nk_context *ctx;
-#ifdef DEBUG
   EditorCtx editor_ctx;
-  ctx = setupMenu(window_main);
+  GameCtx game_ctx;
+#ifdef DEBUG
+  editor_ctx.menu_ctx = setupMenu(window_main);
+  editor_ctx.menu_vp = nk_rect(0, 0, WIN_WIDTH / 3, WIN_HEIGHT);
 
-  struct nk_rect nk_vp = nk_rect(0, 0, WIN_WIDTH / 3, WIN_HEIGHT);
-  SDL_Rect *game_vp = createRect(nk_vp.x + nk_vp.w, nk_vp.y, WIN_WIDTH - nk_vp.w, WIN_HEIGHT);
+  game_ctx.game_vp = createRect(editor_ctx.menu_vp.x + editor_ctx.menu_vp.w,
+                                editor_ctx.menu_vp.y,
+                                WIN_WIDTH - editor_ctx.menu_vp.w,
+                                WIN_HEIGHT);
 #else
-  SDL_Rect *game_vp = createRect(0, 0, WIN_WIDTH, WIN_HEIGHT);
+  game_ctx.game_vp = createRect(0, 0, WIN_WIDTH, WIN_HEIGHT);
 #endif
 
   // Create the scene (map and player)
-  Scene *scene = createScene();
-  createTextures();
+  game_ctx.scene = createScene();
 
   // Main game loop
 
@@ -193,22 +201,31 @@ int main(int argc, char *argv[])
   event_ctx.game_focused = false;
   event_ctx.key_pressed = false;
 
+  editor_ctx.event_ctx = &event_ctx;
+
   SDL_Event event;
   while (!event_ctx.quit)
   {
-    handleWindowEvents(ctx, &event_ctx, window_main);
+    handleWindowEvents(&editor_ctx, window_main);
 
-    SDL_RenderSetViewport(window_main->renderer, game_vp);
-    renderScene(window_main->renderer, *scene, renderFpScene);
+    SDL_RenderSetViewport(window_main->renderer, &game_ctx.game_vp);
+    renderScene(window_main->renderer, *game_ctx.scene, renderFpScene);
 
 #ifdef DEBUG
-    SDL_RenderSetViewport(window_main->renderer, NULL);
-    render_nuklear(ctx, nk_vp, window_main->renderer);
+    SDL_Rect rect;
+    rect.x = editor_ctx.menu_vp.x;
+    rect.y = editor_ctx.menu_vp.y;
+    rect.w = editor_ctx.menu_vp.w;
+    rect.h = editor_ctx.menu_vp.h;
+    SDL_RenderSetViewport(window_main->renderer, &rect);
+    render_nuklear(editor_ctx.menu_ctx,
+                   editor_ctx.menu_vp, window_main->renderer);
 #endif
 
     SDL_RenderPresent(window_main->renderer);
     updateFrameCounter(window_main);
-    processPlayerMotion(&scene->player, 1 / window_main->fps, scene->map);
+    processPlayerMotion(&game_ctx.scene->player,
+                        1 / window_main->fps, game_ctx.scene->map);
   }
 
 // Cleanup and exit
@@ -216,9 +233,8 @@ int main(int argc, char *argv[])
   nk_sdl_shutdown();
 #endif
 
-  freeScene(scene);
+  freeScene(game_ctx.scene);
   freeWindowData(window_main);
-  free(game_vp);
   IMG_Quit();
   SDL_Quit();
   return 0;

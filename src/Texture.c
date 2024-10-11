@@ -45,13 +45,23 @@ int *loadImageData(const char *filePath, int *width, int *height)
     return pixelData;
 }
 
-void createTextures()
+Texture *createTextures()
 {
+    // int textures[8][TEX_HEIGHT * TEX_WIDTH];
+    Texture *textures = malloc(sizeof(Texture) * 8);
     int width, height;
 
     // int *test = loadImageData("../assets/textures/pillar.png",
     //                           &width, &height);
 
+    textures[0].texture = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
+    textures[1].texture = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
+    textures[2].texture = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
+    textures[3].texture = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
+    textures[4].texture = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
+    textures[5].texture = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
+    textures[6].texture = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
+    textures[7].texture = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
     for (int x = 0; x < TEX_WIDTH; x++)
     {
         for (int y = 0; y < TEX_HEIGHT; y++)
@@ -61,14 +71,16 @@ void createTextures()
             int ycolor = y * 256 / TEX_HEIGHT;
             int xycolor = y * 128 / TEX_HEIGHT + x * 128 / TEX_WIDTH;
             // textures[0][TEX_WIDTH * y + x] = test[TEX_HEIGHT * y + x];
-            textures[0][TEX_WIDTH * y + x] = 65536 * 254 * (x != y && x != TEX_WIDTH - y); // flat red texture with black cross
-            textures[1][TEX_WIDTH * y + x] = xycolor + 256 * xycolor + 65536 * xycolor;    // sloped greyscale
-            textures[2][TEX_WIDTH * y + x] = 256 * xycolor + 65536 * xycolor;              // sloped yellow gradient
-            textures[3][TEX_WIDTH * y + x] = xorcolor + 256 * xorcolor + 65536 * xorcolor; // xor greyscale
-            textures[4][TEX_WIDTH * y + x] = 256 * xorcolor;                               // xor green
-            textures[5][TEX_WIDTH * y + x] = 65536 * 192 * (x % 16 && y % 16);             // red bricks
-            textures[6][TEX_WIDTH * y + x] = 65536 * ycolor;                               // red gradient
-            textures[7][TEX_WIDTH * y + x] = 128 + 256 * 128 + 65536 * 128;                // flat grey texture
+            textures[0].texture[TEX_WIDTH * y + x] = 65536 * 254 * (x != y && x != TEX_WIDTH - y); // flat red texture with black cross
+            textures[1].texture[TEX_WIDTH * y + x] = xycolor + 256 * xycolor + 65536 * xycolor;    // sloped greyscale
+            textures[2].texture[TEX_WIDTH * y + x] = 256 * xycolor + 65536 * xycolor;              // sloped yellow gradient
+            textures[3].texture[TEX_WIDTH * y + x] = xorcolor + 256 * xorcolor + 65536 * xorcolor; // xor greyscale
+            textures[4].texture[TEX_WIDTH * y + x] = 256 * xorcolor;                               // xor green
+            textures[5].texture[TEX_WIDTH * y + x] = 65536 * 192 * (x % 16 && y % 16);             // red bricks
+            textures[6].texture[TEX_WIDTH * y + x] = 65536 * ycolor;                               // red gradient
+            textures[7].texture[TEX_WIDTH * y + x] = 128 + 256 * 128 + 65536 * 128;                // flat grey texture
         }
     }
+
+    return textures;
 }

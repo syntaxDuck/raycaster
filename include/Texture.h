@@ -13,7 +13,7 @@ typedef struct
     int width;
 } Texture;
 
-void createTextures();
+Texture *createTextures();
 int *loadImageData(const char *filePath, int *width, int *height);
 
 #endif

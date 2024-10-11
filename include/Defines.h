@@ -29,6 +29,4 @@
 // Actor defines
 #define NUM_RAYS 200
 
-int textures[8][TEX_HEIGHT * TEX_WIDTH];
-
 #endif

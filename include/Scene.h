@@ -8,6 +8,7 @@
 #include <stdbool.h>
 
 #include "Defines.h"
+#include "Texture.h"
 #include "Vector.h"
 #include "Player.h"
 #include "Actor.h"
@@ -17,7 +18,7 @@ typedef struct
 {
     Map map;
     Player player;
-    Actor_List_Node actors;
+    Texture *textures;
 } Scene;
 
 Scene *createScene();
@@ -34,8 +35,8 @@ void renderActorBody(Actor actor);
 void renderActorVelDir(Actor actor);
 void renderActorViewDir(Actor actor);
 void renderActorViewRays(Actor actor);
-void renderWalls(Player player, Map map);
-void renderFloorAndCeil(Player player, Map map);
+void renderWalls(Scene scene);
+void renderFloorAndCeil(Scene scene);
 
 void freeScene(Scene *scene);
 #endif

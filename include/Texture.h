@@ -8,12 +8,13 @@
 
 typedef struct
 {
-    int *texture;
+    int *pixels;
     int height;
     int width;
 } Texture;
 
 Texture *createTextures();
 int *loadImageData(const char *filePath, int *width, int *height);
+void freeTexture(Texture *texture);
 
 #endif

@@ -22,7 +22,7 @@ Scene *createScene()
   Texture *textures = createTextures();
   if (textures == NULL)
   {
-    fprintf(stderr, "Failed to load textues\n");
+    fprintf(stderr, "Failed to load textures\n");
     exit(1);
   }
 
@@ -263,8 +263,8 @@ void renderFloorAndCeil(Scene scene)
       {
         // Floor
         int texture_index = scene.map.floor[cellY][cellX];
-        color = scene.textures[texture_index]
-                        .texture[TEX_HEIGHT * ty + tx]
+        color = scene.textures[scene.map.floor[cellY][cellX]]
+                        .pixels[TEX_HEIGHT * ty + tx]
                     << 8 |
                 0xFF;
         pixel_data[(y * (pitch / 4)) + x] = color;
@@ -274,7 +274,7 @@ void renderFloorAndCeil(Scene scene)
         if (cellY < 0)
           cellY = 0;
 
-        color = scene.textures[scene.map.ceil[cellY][cellX]].texture[TEX_HEIGHT * ty + tx] << 8 | 0xFF;
+        color = scene.textures[scene.map.ceil[cellY][cellX]].pixels[TEX_HEIGHT * ty + tx] << 8 | 0xFF;
         pixel_data[((WIN_HEIGHT - y) * (pitch / 4)) + x] = color;
       }
       else
@@ -346,7 +346,7 @@ void renderWalls(Scene scene)
 
       // Get the color from the texture
       if (tex_num >= 0)
-        color = scene.textures[tex_num].texture[TEX_HEIGHT * tex_y + tex_x] << 8 | 0xFF;
+        color = scene.textures[tex_num].pixels[TEX_HEIGHT * tex_y + tex_x] << 8 | 0xFF;
       else
         color = 0xFF00FFFF;
 

@@ -6,6 +6,14 @@
 #include <stdint.h>
 
 #include "Scene.h"
+#include "Debug.h"
+#include "Game.h"
+
+typedef struct
+{
+    bool quit;
+    bool key_pressed;
+} WindowState;
 
 typedef struct
 {
@@ -15,12 +23,11 @@ typedef struct
     int frame_count;
     float fps;
     Uint32 last_time;
+    WindowState state;
 } WindowCtx;
 
 WindowCtx *createWindow(char *title, int x, int y, int width, int height);
-void renderScene(SDL_Renderer *renderer,
-                 Scene scene,
-                 void (*render)(Scene, SDL_Renderer *renderer));
+void handleWindowEvents(WindowState *state, SDL_Event event);
 void updateFrameCounter(WindowCtx *window_data);
 void freeWindowData(WindowCtx *window_data);
 #endif

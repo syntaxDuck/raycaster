@@ -21,12 +21,16 @@ typedef struct
     Texture *textures;
 } Scene;
 
-Scene *createScene();
+Scene *createScene(char *map_path, SDL_Renderer *renderer);
+void setSceneRenderer(SDL_Renderer *renderer);
+
+void setSceneRenderer(SDL_Renderer *renderer);
 void set2dSceneRenderer(SDL_Renderer *rend);
 void setFpSceneRenderer(SDL_Renderer *rend);
 
+void renderScene(SDL_Renderer *renderer, Scene scene, void (*render)(Scene));
 void render2dScene(Scene scene, SDL_Renderer *rend);
-void renderFpScene(Scene scene, SDL_Renderer *rend);
+void renderFpScene(Scene scene);
 void render2dMap(Scene Scene);
 void render2dPlayer(Player player);
 void renderPlayerPlane(Player player);

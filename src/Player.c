@@ -90,7 +90,7 @@ WallIntersect getWallIntersect(Vector origin, Vector ray_dir, Map map)
 
 void processPlayerMotion(Player *player, float fps, Map map)
 {
-    processActorMotion(&player->actor, fps, map);
+    processActorMotion(&player->actor, 1 / fps, map);
     rotateVector(&player->plane,
                  player->actor.dir.angle - player->plane.angle + M_PI_2);
     castPlayerRays(player, map);

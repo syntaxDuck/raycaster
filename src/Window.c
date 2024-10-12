@@ -1,52 +1,5 @@
 #include "Window.h"
 
-void renderScene(SDL_Renderer *renderer,
-                 Scene scene,
-                 void (*render)(Scene, SDL_Renderer *renderer))
-{
-
-    // Clear the screen
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
-
-    // Here you would draw your scene
-    render(scene, renderer);
-
-    // Present the rendered frame to the screen
-}
-
-void updateFrameCounter(WindowCtx *window_data)
-{
-    // Increment the frame count
-    window_data->frame_count++;
-
-    // Calculate time elapsed since the last FPS update
-    Uint32 currentTime = SDL_GetTicks();
-    Uint32 timeElapsed = currentTime - window_data->last_time; // In milliseconds
-
-    // Update FPS once per second (1000 milliseconds)
-    if (timeElapsed >= 1000)
-    {
-        // Calculate the frames per second (FPS)
-        window_data->fps = (float)window_data->frame_count / (timeElapsed / 1000.0f);
-
-        // Reset frame count and lastTime for the next FPS calculation
-        window_data->frame_count = 0;
-        window_data->last_time = currentTime;
-
-        // Create a new title string that includes the FPS count
-        char title[256];
-        snprintf(title,
-                 sizeof(title),
-                 "%s - FPS: %.2f",
-                 window_data->title,
-                 window_data->fps);
-
-        // Set the new window title with the FPS
-        SDL_SetWindowTitle(window_data->window, title);
-    }
-}
-
 WindowCtx *createWindow(char *title, int x, int y, int width, int height)
 {
     // Create the window
@@ -99,8 +52,60 @@ WindowCtx *createWindow(char *title, int x, int y, int width, int height)
     window->frame_count = 0;
     window->fps = MAX_FPS;
     window->last_time = SDL_GetTicks();
+    window->state.quit = false;
 
     return window;
+}
+
+void handleWindowEvents(WindowState *state, SDL_Event event)
+{
+    if (event.type == SDL_QUIT)
+    {
+        state->quit = true;
+    }
+
+    if (event.type == SDL_WINDOWEVENT)
+    {
+        // if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+        // {
+        //     game_ctx->game_vp.w = event.window.data1 - game_ctx->game_vp.x;
+        //     game_ctx->game_vp.h = event.window.data2 - game_ctx->game_vp.y;
+
+        //     editor_ctx->menu_vp.h = event.window.data2;
+        // }
+    }
+}
+
+void updateFrameCounter(WindowCtx *window_data)
+{
+    // Increment the frame count
+    window_data->frame_count++;
+
+    // Calculate time elapsed since the last FPS update
+    Uint32 currentTime = SDL_GetTicks();
+    Uint32 timeElapsed = currentTime - window_data->last_time; // In milliseconds
+
+    // Update FPS once per second (1000 milliseconds)
+    if (timeElapsed >= 1000)
+    {
+        // Calculate the frames per second (FPS)
+        window_data->fps = (float)window_data->frame_count / (timeElapsed / 1000.0f);
+
+        // Reset frame count and lastTime for the next FPS calculation
+        window_data->frame_count = 0;
+        window_data->last_time = currentTime;
+
+        // Create a new title string that includes the FPS count
+        char title[256];
+        snprintf(title,
+                 sizeof(title),
+                 "%s - FPS: %.2f",
+                 window_data->title,
+                 window_data->fps);
+
+        // Set the new window title with the FPS
+        SDL_SetWindowTitle(window_data->window, title);
+    }
 }
 
 void freeWindowData(WindowCtx *window_data)

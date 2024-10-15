@@ -8,6 +8,7 @@
 #include <stdbool.h>
 
 #include "Defines.h"
+#include "Window.h"
 #include "Texture.h"
 #include "Vector.h"
 #include "Player.h"
@@ -21,7 +22,8 @@ typedef struct
     Texture *textures;
 } Scene;
 
-Scene *createScene(char *map_path, SDL_Renderer *renderer);
+Scene *createScene(char *map_path, WindowCtx *win);
+void setSceneWindow(SDL_Window *window);
 void setSceneRenderer(SDL_Renderer *renderer);
 
 void setSceneRenderer(SDL_Renderer *renderer);

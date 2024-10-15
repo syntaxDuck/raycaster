@@ -4,10 +4,9 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
 #include <stdint.h>
+#include <stdbool.h>
 
-#include "Scene.h"
-#include "Debug.h"
-#include "Game.h"
+#include "Defines.h"
 
 typedef struct
 {

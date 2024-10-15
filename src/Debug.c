@@ -33,10 +33,10 @@ void render_nuklear(struct nk_context *ctx,
     nk_sdl_render(NK_ANTI_ALIASING_ON);
 }
 
-struct nk_context *setupMenu(SDL_Window *window, SDL_Renderer *renderer)
+struct nk_context *setupMenu(WindowCtx *win)
 {
-    struct nk_context *ctx = nk_sdl_init(window,
-                                         renderer);
+    struct nk_context *ctx = nk_sdl_init(win->window,
+                                         win->renderer);
     struct nk_font_atlas *atlas;
     struct nk_font_config config = nk_font_config(0);
     struct nk_font *font;

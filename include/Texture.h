@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <stdint.h>
+#include <dirent.h>
 #include "Defines.h"
 
 typedef struct
@@ -14,7 +15,7 @@ typedef struct
 } Texture;
 
 Texture *createTextures();
-int *loadImageData(const char *filePath, int *width, int *height);
+Uint32 *loadImageData(const char *filePath, int *width, int *height);
 void freeTexture(Texture *texture);
 
 #endif

@@ -1,10 +1,12 @@
 #include "Scene.h"
 
+SDL_Window *scene_window;
 SDL_Renderer *scene_renderer;
 
-Scene *createScene(char *map_path, SDL_Renderer *renderer)
+Scene *createScene(char *map_path, WindowCtx *win)
 {
-  setSceneRenderer(renderer);
+  setSceneWindow(win->window);
+  setSceneRenderer(win->renderer);
   Scene *scene = malloc(sizeof(Scene));
   if (!scene)
   {
@@ -37,6 +39,11 @@ Scene *createScene(char *map_path, SDL_Renderer *renderer)
 void setSceneRenderer(SDL_Renderer *rend)
 {
   scene_renderer = rend;
+}
+
+void setSceneWindow(SDL_Window *win)
+{
+  scene_window = win;
 }
 
 void renderScene(SDL_Renderer *renderer,
@@ -211,7 +218,9 @@ void renderFloorAndCeil(Scene scene)
   Uint32 *pixel_data = (Uint32 *)pixels;
   Uint32 color;
 
-  for (int y = WIN_HEIGHT / 2; y < WIN_HEIGHT; ++y)
+  int w, h;
+  SDL_GetWindowSizeInPixels(scene_window, &w, &h);
+  for (int y = h / 2; y < h; ++y)
   {
     // rayDir for leftmost ray (x = 0) and rightmost ray (x = w)
     float rayDirX0 = scene.player.actor.dir.x - scene.player.plane.x;
@@ -220,7 +229,7 @@ void renderFloorAndCeil(Scene scene)
     float rayDirY1 = scene.player.actor.dir.y + scene.player.plane.y;
 
     // Current y position compared to the center of the screen (the horizon)
-    int p = y - WIN_HEIGHT / 2;
+    int p = y - h / 2;
     if (p == 0)
       p = 1; // Prevent division by zero
     if (p < 0)
@@ -231,7 +240,7 @@ void renderFloorAndCeil(Scene scene)
     // matching also how the walls are being raycasted. For different values
     // than 0.5, a separate loop must be done for ceiling and floor since
     // they're no longer symmetrical.
-    float posZ = 0.5 * WIN_HEIGHT;
+    float posZ = 0.5 * h;
 
     // Horizontal distance from the camera to the floor for the current row.
     // 0.5 is the z position exactly in the middle between floor and ceiling.
@@ -251,14 +260,14 @@ void renderFloorAndCeil(Scene scene)
 
     // calculate the real world step vector we have to add for each x (parallel to camera plane)
     // adding step by step avoids multiplications with a weight in the inner loop
-    float floorStepX = rowDistance * (rayDirX1 - rayDirX0) / WIN_WIDTH;
-    float floorStepY = rowDistance * (rayDirY1 - rayDirY0) / WIN_WIDTH;
+    float floorStepX = rowDistance * (rayDirX1 - rayDirX0) / w;
+    float floorStepY = rowDistance * (rayDirY1 - rayDirY0) / w;
 
     // real world coordinates of the leftmost column. This will be updated as we step to the right.
     float floorX = scene.player.actor.pos.x / MAP_UNIT_SIZE + rowDistance * rayDirX0;
     float floorY = scene.player.actor.pos.y / MAP_UNIT_SIZE + rowDistance * rayDirY0;
 
-    for (int x = 0; x < WIN_WIDTH; x++)
+    for (int x = 0; x < w; x++)
     {
       // the cell coord is simply got from the integer parts of floorX and floorY
       int cellX = (int)(floorX);
@@ -283,9 +292,7 @@ void renderFloorAndCeil(Scene scene)
         // Floor
         int texture_index = scene.map.floor[cellY][cellX];
         color = scene.textures[scene.map.floor[cellY][cellX]]
-                        .pixels[TEX_HEIGHT * ty + tx]
-                    << 8 |
-                0xFF;
+                    .pixels[TEX_HEIGHT * ty + tx];
         pixel_data[(y * (pitch / 4)) + x] = color;
 
         // Ceil
@@ -293,13 +300,13 @@ void renderFloorAndCeil(Scene scene)
         if (cellY < 0)
           cellY = 0;
 
-        color = scene.textures[scene.map.ceil[cellY][cellX]].pixels[TEX_HEIGHT * ty + tx] << 8 | 0xFF;
-        pixel_data[((WIN_HEIGHT - y) * (pitch / 4)) + x] = color;
+        color = scene.textures[scene.map.ceil[cellY][cellX]].pixels[TEX_HEIGHT * ty + tx];
+        pixel_data[((h - y) * (pitch / 4)) + x] = color;
       }
       else
       {
         pixel_data[(y * (pitch / 4)) + x] = 0xFF00FFFF;
-        pixel_data[((WIN_HEIGHT - y) * (pitch / 4)) + x] = 0xFF00FFFF;
+        pixel_data[((h - y) * (pitch / 4)) + x] = 0xFF00FFFF;
       }
     }
   }
@@ -323,7 +330,9 @@ void renderWalls(Scene scene)
   Uint32 *pixel_data = (Uint32 *)pixels;
   Uint32 color;
 
-  for (int x = 0; x < WIN_WIDTH; x++)
+  int w, h;
+  SDL_GetWindowSizeInPixels(scene_window, &w, &h);
+  for (int x = 0; x < w; x++)
   {
     WallIntersect intersect = scene.player.intersects[x];
     int line_height = (int)WIN_HEIGHT / intersect.perp_wall_distance;
@@ -365,7 +374,7 @@ void renderWalls(Scene scene)
 
       // Get the color from the texture
       if (tex_num >= 0)
-        color = scene.textures[tex_num].pixels[TEX_HEIGHT * tex_y + tex_x] << 8 | 0xFF;
+        color = scene.textures[tex_num].pixels[TEX_HEIGHT * tex_y + tex_x];
       else
         color = 0xFF00FFFF;
 

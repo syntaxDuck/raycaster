@@ -1,5 +1,6 @@
 #include "Defines.h"
 #include "Debug.h"
+#include "Game.h"
 #include "Scene.h"
 #include "Texture.h"
 #include "Window.h"
@@ -47,13 +48,13 @@ int main(int argc, char *argv[])
   DebugCtx debug_ctx;
   GameCtx game_ctx;
 #ifdef DEBUG
-  debug_ctx.menu_ctx = setupMenu(window_main->window, window_main->renderer);
+  debug_ctx.menu_ctx = setupMenu(window_main);
   debug_ctx.state.show_2d = false;
   debug_ctx.state.focused = false;
   debug_ctx.state.key_pressed = false;
 #endif
 
-  game_ctx.scene = createScene("./assets/maps/map.txt", window_main->renderer);
+  game_ctx.scene = createScene("./assets/maps/map.txt", window_main);
 
   SDL_Event event;
   while (!window_main->state.quit)

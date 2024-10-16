@@ -3,6 +3,29 @@
 SDL_Window *scene_window;
 SDL_Renderer *scene_renderer;
 
+void sortSprites(int *s_sprite_order, double *s_sprit_dist, int num_s_sprites)
+{
+  for (int i = 0; i < num_s_sprites - 1; i++)
+  {
+    for (int j = 0; j < num_s_sprites - i - 1; j++)
+    {
+      // Compare distances of adjacent sprites
+      if (s_sprit_dist[j] < s_sprit_dist[j + 1])
+      {
+        // Swap distances
+        float temp_dist = s_sprit_dist[j];
+        s_sprit_dist[j] = s_sprit_dist[j + 1];
+        s_sprit_dist[j + 1] = temp_dist;
+
+        // Swap sprite orders to keep them aligned with distances
+        int temp_order = s_sprite_order[j];
+        s_sprite_order[j] = s_sprite_order[j + 1];
+        s_sprite_order[j + 1] = temp_order;
+      }
+    }
+  }
+}
+
 Scene *createScene(char *map_path, WindowCtx *win)
 {
   setSceneWindow(win->window);
@@ -29,10 +52,28 @@ Scene *createScene(char *map_path, WindowCtx *win)
     exit(1);
   }
 
+  StaticSprit *s_sprites = malloc(sizeof(StaticSprit) * 10);
+  if (s_sprites == NULL)
+  {
+    fprintf(stderr, "Failed to allocate memory for static sprits\n");
+    exit(1);
+  }
+  s_sprites[0].pos = setVector(10.5, 10.5);
+  s_sprites[0].texture = 10;
+  s_sprites[1].pos = setVector(15.5, 15.5);
+  s_sprites[1].texture = 9;
+  s_sprites[2].pos = setVector(5.5, 5.5);
+  s_sprites[2].texture = 8;
+
   // Set the map and player for the scene
   scene->map = map;
   scene->player = createPlayer();
+  scene->num_s_sprites = 3;
+  scene->s_sprite_order = malloc(sizeof(int) * scene->num_s_sprites);
+  scene->s_sprite_dist = malloc(sizeof(int) * scene->num_s_sprites);
+  scene->s_sprites = s_sprites;
   scene->textures = textures;
+
   return scene;
 }
 
@@ -202,6 +243,86 @@ void renderFpScene(Scene scene)
 {
   renderFloorAndCeil(scene);
   renderWalls(scene);
+  rendererSprites(scene);
+}
+
+void rendererSprites(Scene scene)
+{
+  Vector player_pos = scene.player.actor.pos;
+  player_pos.x /= MAP_UNIT_SIZE;
+  player_pos.y /= MAP_UNIT_SIZE;
+
+  SDL_Texture *texture = SDL_CreateTexture(scene_renderer,
+                                           SDL_PIXELFORMAT_RGBA8888,
+                                           SDL_TEXTUREACCESS_STREAMING,
+                                           WIN_WIDTH,
+                                           WIN_HEIGHT);
+  SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+  void *pixels;
+  int pitch;
+  SDL_LockTexture(texture, NULL, &pixels, &pitch);
+  memset(pixels, 0xFFFFFF00, pitch * WIN_HEIGHT);
+  Uint32 *pixel_data = (Uint32 *)pixels;
+  Uint32 color;
+
+  for (int i = 0; i < scene.num_s_sprites; i++)
+  {
+    scene.s_sprite_order[i] = i;
+    scene.s_sprite_dist[i] = ((player_pos.x - scene.s_sprites[i].pos.x) *
+                                  (player_pos.x - scene.s_sprites[i].pos.x) +
+                              (player_pos.y - scene.s_sprites[i].pos.y) *
+                                  (player_pos.y - scene.s_sprites[i].pos.y));
+  }
+  sortSprites(scene.s_sprite_order, scene.s_sprite_dist, scene.num_s_sprites);
+
+  for (int i = 0; i < scene.num_s_sprites; i++)
+  {
+    Vector rel_sprite_pos = setVector(scene.s_sprites[scene.s_sprite_order[i]].pos.x - player_pos.x,
+                                      scene.s_sprites[scene.s_sprite_order[i]].pos.y - player_pos.y);
+
+    double inv_det = 1.0 / (scene.player.plane.x * scene.player.actor.dir.y - scene.player.actor.dir.x * scene.player.plane.y);
+    Vector transform = setVector(inv_det * (scene.player.actor.dir.y * rel_sprite_pos.x - scene.player.actor.dir.x * rel_sprite_pos.y),
+                                 inv_det * (-scene.player.plane.y * rel_sprite_pos.x + scene.player.plane.x * rel_sprite_pos.y));
+    int sprite_screen_x = (int)((WIN_WIDTH / 2) * (1 + transform.x / transform.y));
+    int sprite_height = abs((int)(WIN_HEIGHT / transform.y));
+
+    int draw_start_y = -sprite_height / 2 + WIN_HEIGHT / 2;
+    if (draw_start_y < 0)
+      draw_start_y = 0;
+
+    int draw_end_y = sprite_height / 2 + WIN_HEIGHT / 2;
+    if (draw_end_y >= WIN_HEIGHT)
+      draw_end_y = WIN_HEIGHT - 1;
+
+    int sprite_width = abs((int)(WIN_HEIGHT / transform.y));
+    int draw_start_x = -sprite_width / 2 + sprite_screen_x;
+    if (draw_start_x < 0)
+      draw_start_x = 0;
+
+    int draw_end_x = sprite_width / 2 + sprite_screen_x;
+    if (draw_end_x >= WIN_WIDTH)
+      draw_end_x = WIN_WIDTH - 1;
+
+    for (int stripe = draw_start_x; stripe < draw_end_x; stripe++)
+    {
+      int tex_x = (int)(256 * (stripe - (-sprite_width / 2 + sprite_screen_x)) * TEX_WIDTH / sprite_width) / 256;
+      if (transform.y > 0 && stripe > 0 && stripe < WIN_WIDTH && transform.y < scene.player.intersects[stripe].perp_wall_distance)
+      {
+        for (int y = draw_start_y; y < draw_end_y; y++)
+        {
+          int d = (y) * 256 - WIN_HEIGHT * 128 + sprite_height * 128;
+          int tex_y = ((d * TEX_HEIGHT) / sprite_height) / 256;
+          color = scene.textures[scene.s_sprites[scene.s_sprite_order[i]].texture].pixels[TEX_WIDTH * tex_y + tex_x];
+
+          if ((color & 0xFF) == 0xFF)
+            pixel_data[(y * (pitch / 4)) + stripe] = color;
+        }
+      }
+    }
+  }
+  SDL_UnlockTexture(texture);
+  SDL_RenderCopy(scene_renderer, texture, NULL, NULL);
+  SDL_DestroyTexture(texture);
 }
 
 void renderFloorAndCeil(Scene scene)
@@ -335,13 +456,13 @@ void renderWalls(Scene scene)
   for (int x = 0; x < w; x++)
   {
     WallIntersect intersect = scene.player.intersects[x];
-    int line_height = (int)WIN_HEIGHT / intersect.perp_wall_distance;
-    int draw_start = -line_height / 2 + WIN_HEIGHT / 2;
+    int line_height = (int)h / intersect.perp_wall_distance;
+    int draw_start = -line_height / 2 + h / 2;
     if (draw_start < 0)
       draw_start = 0;
-    int draw_end = line_height / 2 + WIN_HEIGHT / 2;
-    if (draw_end >= WIN_HEIGHT)
-      draw_end = WIN_HEIGHT - 1;
+    int draw_end = line_height / 2 + h / 2;
+    if (draw_end >= h)
+      draw_end = h - 1;
 
     // TODO: This is causing segfaults, currently patched with if statements
     // Select the texture based on the walls type (example: intersect.side could be used for this)
@@ -350,7 +471,7 @@ void renderWalls(Scene scene)
     if (intersect.map_y < 0 || intersect.map_y > scene.map.height)
       intersect.map_y = 0;
     int tex_num =
-        scene.map.walls[(int)intersect.map_y][(int)intersect.map_x] - 1;
+        scene.map.walls[intersect.map_y][intersect.map_x] - 1;
     // Calculate the exact x-coordinate on the texture
     double wall_x; // Exact position where the walls was hit
     if (intersect.side == 0)

@@ -1,8 +1,8 @@
 #ifndef ACTOR_H
 #define ACTOR_H
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_surface.h>
+#include <SDL.h>
+#include <SDL_surface.h>
 #include <stdbool.h>
 
 #include "Defines.h"

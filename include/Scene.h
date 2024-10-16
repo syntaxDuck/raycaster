@@ -13,12 +13,19 @@
 #include "Vector.h"
 #include "Player.h"
 #include "Actor.h"
+#include "Sprite.h"
 #include "Map.h"
 
 typedef struct
 {
     Map map;
     Player player;
+
+    int num_s_sprites;
+    int *s_sprite_order;
+    double *s_sprite_dist;
+    StaticSprit *s_sprites;
+
     Texture *textures;
 } Scene;
 
@@ -33,6 +40,7 @@ void setFpSceneRenderer(SDL_Renderer *rend);
 void renderScene(SDL_Renderer *renderer, Scene scene, void (*render)(Scene));
 void render2dScene(Scene scene, SDL_Renderer *rend);
 void renderFpScene(Scene scene);
+void rendererSprites(Scene scene);
 void render2dMap(Scene Scene);
 void render2dPlayer(Player player);
 void renderPlayerPlane(Player player);

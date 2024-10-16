@@ -8,13 +8,13 @@ typedef struct
 {
     Vector pos;
     int texture;
-} StaticSprit;
+} StaticSprite;
 
 typedef struct
 {
     Actor actor;
     int texture;
-} DynamicSprit;
+} DynamicSprite;
 
 void sortSprites(int *s_sprite_order, double *s_sprit_dist, int num_s_sprites);
 #endif

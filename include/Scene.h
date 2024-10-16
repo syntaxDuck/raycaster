@@ -19,13 +19,26 @@
 
 typedef struct
 {
+    int num_sprites;
+    int *sprite_order;
+    double *sprite_dist;
+    StaticSprite *sprites;
+} SceneStaticSprites;
+
+typedef struct
+{
+    int num_sprites;
+    int *sprite_order;
+    double *sprite_dist;
+    DynamicSprite *sprites;
+} SceneDynamicSprites;
+
+typedef struct
+{
     Map map;
     Player player;
-
-    int num_s_sprites;
-    int *s_sprite_order;
-    double *s_sprite_dist;
-    StaticSprit *s_sprites;
+    SceneStaticSprites s_sprites;
+    SceneDynamicSprites d_sprites;
 
     Texture *textures;
 } Scene;

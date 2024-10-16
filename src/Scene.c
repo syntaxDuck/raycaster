@@ -24,25 +24,26 @@ Scene *createScene(char *map_path)
     exit(1);
   }
 
-  StaticSprit *s_sprites = malloc(sizeof(StaticSprit) * 10);
-  if (s_sprites == NULL)
+  SceneStaticSprites s_sprites;
+  s_sprites.sprites = malloc(sizeof(StaticSprite) * 10);
+  if (s_sprites.sprites == NULL)
   {
     fprintf(stderr, "Failed to allocate memory for static sprits\n");
     exit(1);
   }
-  s_sprites[0].pos = setVector(10.5, 10.5);
-  s_sprites[0].texture = 10;
-  s_sprites[1].pos = setVector(15.5, 15.5);
-  s_sprites[1].texture = 9;
-  s_sprites[2].pos = setVector(5.5, 5.5);
-  s_sprites[2].texture = 8;
+  s_sprites.sprites[0].pos = setVector(10.5, 10.5);
+  s_sprites.sprites[0].texture = 10;
+  s_sprites.sprites[1].pos = setVector(15.5, 15.5);
+  s_sprites.sprites[1].texture = 9;
+  s_sprites.sprites[2].pos = setVector(5.5, 5.5);
+  s_sprites.sprites[2].texture = 8;
+  s_sprites.num_sprites = 3;
+  s_sprites.sprite_order = malloc(sizeof(int) * s_sprites.num_sprites);
+  s_sprites.sprite_dist = malloc(sizeof(double) * s_sprites.num_sprites);
 
   // Set the map and player for the scene
   scene->map = map;
   scene->player = createPlayer();
-  scene->num_s_sprites = 3;
-  scene->s_sprite_order = malloc(sizeof(int) * scene->num_s_sprites);
-  scene->s_sprite_dist = malloc(sizeof(int) * scene->num_s_sprites);
   scene->s_sprites = s_sprites;
   scene->textures = textures;
 
@@ -227,20 +228,22 @@ void rendererSprites(Scene scene)
   Uint32 *pixel_data = (Uint32 *)pixels;
   Uint32 color;
 
-  for (int i = 0; i < scene.num_s_sprites; i++)
-  {
-    scene.s_sprite_order[i] = i;
-    scene.s_sprite_dist[i] = ((player_pos.x - scene.s_sprites[i].pos.x) *
-                                  (player_pos.x - scene.s_sprites[i].pos.x) +
-                              (player_pos.y - scene.s_sprites[i].pos.y) *
-                                  (player_pos.y - scene.s_sprites[i].pos.y));
-  }
-  sortSprites(scene.s_sprite_order, scene.s_sprite_dist, scene.num_s_sprites);
+  SceneStaticSprites s_sprites = scene.s_sprites;
 
-  for (int i = 0; i < scene.num_s_sprites; i++)
+  for (int i = 0; i < s_sprites.num_sprites; i++)
   {
-    Vector rel_sprite_pos = setVector(scene.s_sprites[scene.s_sprite_order[i]].pos.x - player_pos.x,
-                                      scene.s_sprites[scene.s_sprite_order[i]].pos.y - player_pos.y);
+    s_sprites.sprite_order[i] = i;
+    s_sprites.sprite_dist[i] = ((player_pos.x - s_sprites.sprites[i].pos.x) *
+                                    (player_pos.x - s_sprites.sprites[i].pos.x) +
+                                (player_pos.y - s_sprites.sprites[i].pos.y) *
+                                    (player_pos.y - s_sprites.sprites[i].pos.y));
+  }
+  sortSprites(s_sprites.sprite_order, s_sprites.sprite_dist, s_sprites.num_sprites);
+
+  for (int i = 0; i < s_sprites.num_sprites; i++)
+  {
+    Vector rel_sprite_pos = setVector(s_sprites.sprites[s_sprites.sprite_order[i]].pos.x - player_pos.x,
+                                      s_sprites.sprites[s_sprites.sprite_order[i]].pos.y - player_pos.y);
 
     double inv_det = 1.0 / (scene.player.plane.x * scene.player.actor.dir.y - scene.player.actor.dir.x * scene.player.plane.y);
     Vector transform = setVector(inv_det * (scene.player.actor.dir.y * rel_sprite_pos.x - scene.player.actor.dir.x * rel_sprite_pos.y),
@@ -274,7 +277,7 @@ void rendererSprites(Scene scene)
         {
           int d = (y) * 256 - WIN_HEIGHT * 128 + sprite_height * 128;
           int tex_y = ((d * TEX_HEIGHT) / sprite_height) / 256;
-          color = scene.textures[scene.s_sprites[scene.s_sprite_order[i]].texture].pixels[TEX_WIDTH * tex_y + tex_x];
+          color = scene.textures[s_sprites.sprites[s_sprites.sprite_order[i]].texture].pixels[TEX_WIDTH * tex_y + tex_x];
 
           if ((color & 0xFF) == 0xFF)
             pixel_data[(y * (pitch / 4)) + stripe] = color;

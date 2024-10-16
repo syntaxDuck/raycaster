@@ -1,4 +1,4 @@
-#include "Defines.h"
+#include "Config.h"
 #include "Debug.h"
 #include "Game.h"
 #include "Scene.h"

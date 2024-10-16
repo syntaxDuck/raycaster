@@ -4,7 +4,7 @@
 #include <SDL.h>
 #include <stdint.h>
 
-#include "Defines.h"
+#include "Config.h"
 
 typedef struct
 {

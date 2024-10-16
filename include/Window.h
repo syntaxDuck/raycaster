@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "Defines.h"
+#include "Config.h"
 
 typedef struct
 {

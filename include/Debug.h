@@ -9,7 +9,7 @@
 #define NK_INCLUDE_DEFAULT_FONT
 #include "nuklear.h"
 #include "nuklear_sdl_renderer.h"
-#include "Defines.h"
+#include "Config.h"
 #include "Window.h"
 
 typedef struct

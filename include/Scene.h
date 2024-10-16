@@ -7,7 +7,7 @@
 #include <math.h>
 #include <stdbool.h>
 
-#include "Defines.h"
+#include "Config.h"
 #include "Window.h"
 #include "Texture.h"
 #include "Vector.h"

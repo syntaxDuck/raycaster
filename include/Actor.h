@@ -5,7 +5,7 @@
 #include <SDL_surface.h>
 #include <stdbool.h>
 
-#include "Defines.h"
+#include "Config.h"
 #include "Map.h"
 #include "Vector.h"
 

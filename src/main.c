@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
   debug_ctx.state.key_pressed = false;
 #endif
 
-  game_ctx.scene = createScene("./assets/maps/map.txt", game_window);
+  game_ctx.scene = createScene("./assets/maps/map.txt");
 
   SDL_Event event;
   while (!game_window->state.quit)

@@ -30,13 +30,7 @@ typedef struct
     Texture *textures;
 } Scene;
 
-Scene *createScene(char *map_path, WindowCtx *win);
-void setSceneWindow(SDL_Window *window);
-void setSceneRenderer(SDL_Renderer *renderer);
-
-// void setSceneRenderer(SDL_Renderer *renderer);
-// void set2dSceneRenderer();
-// void setFpSceneRenderer();
+Scene *createScene(char *map_path);
 
 void renderScene(Scene scene, void (*render)(Scene));
 void render2dScene(Scene scene);

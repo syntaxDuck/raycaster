@@ -108,7 +108,7 @@ void updateFrameCounter(WindowCtx *window_data)
     }
 }
 
-void freeWindowData(WindowCtx *window_data)
+void freeWindowCtx(WindowCtx *window_data)
 {
     SDL_DestroyRenderer(window_data->renderer);
     SDL_DestroyWindow(window_data->window);

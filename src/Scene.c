@@ -87,14 +87,14 @@ void setSceneWindow(SDL_Window *win)
   scene_window = win;
 }
 
-void renderScene(SDL_Renderer *renderer,
-                 Scene scene,
-                 void (*render)(Scene))
+void renderScene(
+    Scene scene,
+    void (*render)(Scene))
 {
 
   // Clear the screen
-  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-  SDL_RenderClear(renderer);
+  SDL_SetRenderDrawColor(scene_renderer, 0, 0, 0, 255);
+  SDL_RenderClear(scene_renderer);
 
   // Here you would draw your scene
   render(scene);
@@ -102,7 +102,7 @@ void renderScene(SDL_Renderer *renderer,
   // Present the rendered frame to the screen
 }
 
-void render2dScene(Scene scene, SDL_Renderer *rend)
+void render2dScene(Scene scene)
 {
   render2dMap(scene);
   render2dPlayer(scene.player);

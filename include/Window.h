@@ -28,5 +28,5 @@ typedef struct
 WindowCtx *createWindow(char *title, int x, int y, int width, int height);
 void handleWindowEvents(WindowState *state, SDL_Event event);
 void updateFrameCounter(WindowCtx *window_data);
-void freeWindowData(WindowCtx *window_data);
+void freeWindowCtx(WindowCtx *window_data);
 #endif

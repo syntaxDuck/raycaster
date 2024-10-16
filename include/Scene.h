@@ -8,6 +8,7 @@
 #include <stdbool.h>
 
 #include "Config.h"
+#include "Global.h"
 #include "Window.h"
 #include "Texture.h"
 #include "Vector.h"
@@ -33,12 +34,12 @@ Scene *createScene(char *map_path, WindowCtx *win);
 void setSceneWindow(SDL_Window *window);
 void setSceneRenderer(SDL_Renderer *renderer);
 
-void setSceneRenderer(SDL_Renderer *renderer);
-void set2dSceneRenderer(SDL_Renderer *rend);
-void setFpSceneRenderer(SDL_Renderer *rend);
+// void setSceneRenderer(SDL_Renderer *renderer);
+// void set2dSceneRenderer();
+// void setFpSceneRenderer();
 
-void renderScene(SDL_Renderer *renderer, Scene scene, void (*render)(Scene));
-void render2dScene(Scene scene, SDL_Renderer *rend);
+void renderScene(Scene scene, void (*render)(Scene));
+void render2dScene(Scene scene);
 void renderFpScene(Scene scene);
 void rendererSprites(Scene scene);
 void render2dMap(Scene Scene);

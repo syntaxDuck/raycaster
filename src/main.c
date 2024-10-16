@@ -1,4 +1,6 @@
 #include "Config.h"
+#include "Global.h"
+
 #include "Debug.h"
 #include "Game.h"
 #include "Scene.h"
@@ -41,27 +43,27 @@ int main(int argc, char *argv[])
     return 1;   // or handle the error appropriately
   }
 
-  WindowCtx *window_main = createWindow("Main Viewport",
-                                        SDL_WINDOWPOS_CENTERED,
-                                        SDL_WINDOWPOS_CENTERED,
-                                        WIN_WIDTH, WIN_HEIGHT);
+  game_window = createWindow("Main Viewport",
+                             SDL_WINDOWPOS_CENTERED,
+                             SDL_WINDOWPOS_CENTERED,
+                             WIN_WIDTH, WIN_HEIGHT);
   DebugCtx debug_ctx;
   GameCtx game_ctx;
 #ifdef DEBUG
-  debug_ctx.menu_ctx = setupMenu(window_main);
+  debug_ctx.menu_ctx = setupMenu(game_window);
   debug_ctx.state.show_2d = false;
   debug_ctx.state.focused = false;
   debug_ctx.state.key_pressed = false;
 #endif
 
-  game_ctx.scene = createScene("./assets/maps/map.txt", window_main);
+  game_ctx.scene = createScene("./assets/maps/map.txt", game_window);
 
   SDL_Event event;
-  while (!window_main->state.quit)
+  while (!game_window->state.quit)
   {
     if (SDL_PollEvent(&event) != 0)
     {
-      handleWindowEvents(&window_main->state, event);
+      handleWindowEvents(&game_window->state, event);
 
 #ifdef DEBUG
       nk_input_begin(debug_ctx.menu_ctx);
@@ -71,18 +73,18 @@ int main(int argc, char *argv[])
 #endif
     }
 
-    renderScene(window_main->renderer, *game_ctx.scene, renderFpScene);
+    renderScene(*game_ctx.scene, renderFpScene);
 
 #ifdef DEBUG
     render_nuklear(debug_ctx.menu_ctx,
-                   window_main->renderer);
+                   game_window->renderer);
 #endif
 
-    SDL_RenderPresent(window_main->renderer);
-    updateFrameCounter(window_main);
+    SDL_RenderPresent(game_window->renderer);
+    updateFrameCounter(game_window);
 
     processPlayerMotion(&game_ctx.scene->player,
-                        window_main->fps,
+                        game_window->fps,
                         game_ctx.scene->map);
   }
 
@@ -92,7 +94,7 @@ int main(int argc, char *argv[])
 #endif
 
   freeScene(game_ctx.scene);
-  freeWindowData(window_main);
+  freeWindowCtx(game_window);
   IMG_Quit();
   SDL_Quit();
   return 0;

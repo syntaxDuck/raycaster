@@ -3,13 +3,13 @@
 WindowCtx *createWindow(char *title, int x, int y, int width, int height)
 {
     // Create the window
-    WindowCtx *window = malloc(sizeof(WindowCtx));
-    window->window = SDL_CreateWindow(title,
-                                      x, y,
-                                      width, height,
-                                      SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    WindowCtx *ctx = malloc(sizeof(WindowCtx));
+    ctx->window = SDL_CreateWindow(title,
+                                   x, y,
+                                   width, height,
+                                   SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
-    if (window->window == NULL)
+    if (ctx->window == NULL)
     {
         fprintf(stderr,
                 "Window could not be created! SDL_Error: %s\n",
@@ -19,60 +19,59 @@ WindowCtx *createWindow(char *title, int x, int y, int width, int height)
     }
 
     // Create the renderer
-    window->renderer = SDL_CreateRenderer(window->window,
-                                          -1,
-                                          SDL_RENDERER_ACCELERATED |
-                                              SDL_RENDERER_PRESENTVSYNC);
-    if (window->renderer == NULL)
+    ctx->renderer = SDL_CreateRenderer(ctx->window,
+                                       -1,
+                                       SDL_RENDERER_ACCELERATED |
+                                           SDL_RENDERER_PRESENTVSYNC);
+    if (ctx->renderer == NULL)
     {
         fprintf(stderr,
                 "Renderer could not be created! SDL_Error: %s\n",
                 SDL_GetError());
-        SDL_DestroyWindow(window->window);
+        SDL_DestroyWindow(ctx->window);
         SDL_Quit();
         return false;
     }
 
     // Set the renderer color (optional)
-    SDL_SetRenderDrawBlendMode(window->renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(window->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+    SDL_SetRenderDrawBlendMode(ctx->renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(ctx->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 
     // Initialize frame count and copy title
-    window->title = malloc(strlen(title) + 1); // +1 for null terminator
-    if (window->title == NULL)
+    ctx->title = malloc(strlen(title) + 1); // +1 for null terminator
+    if (ctx->title == NULL)
     {
         fprintf(stderr, "Memory allocation for window title failed!\n");
-        SDL_DestroyRenderer(window->renderer);
-        SDL_DestroyWindow(window->window);
+        SDL_DestroyRenderer(ctx->renderer);
+        SDL_DestroyWindow(ctx->window);
         SDL_Quit();
         return false;
     }
-    strcpy(window->title, title);
+    strcpy(ctx->title, title);
 
-    window->frame_count = 0;
-    window->fps = MAX_FPS;
-    window->last_time = SDL_GetTicks();
-    window->state.quit = false;
+    ctx->frame_count = 0;
+    ctx->fps = MAX_FPS;
+    ctx->last_time = SDL_GetTicks();
+    ctx->state.quit = false;
+    ctx->width = WIN_WIDTH;
+    ctx->height = WIN_HEIGHT;
 
-    return window;
+    return ctx;
 }
 
-void handleWindowEvents(WindowState *state, SDL_Event event)
+void handleWindowEvents(WindowCtx *ctx, SDL_Event event)
 {
     if (event.type == SDL_QUIT)
     {
-        state->quit = true;
+        ctx->state.quit = true;
     }
 
     if (event.type == SDL_WINDOWEVENT)
     {
-        // if (event.window.event == SDL_WINDOWEVENT_RESIZED)
-        // {
-        //     game_ctx->game_vp.w = event.window.data1 - game_ctx->game_vp.x;
-        //     game_ctx->game_vp.h = event.window.data2 - game_ctx->game_vp.y;
-
-        //     editor_ctx->menu_vp.h = event.window.data2;
-        // }
+        if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+        {
+            SDL_GetWindowSizeInPixels(ctx->window, &ctx->width, &ctx->height);
+        }
     }
 }
 

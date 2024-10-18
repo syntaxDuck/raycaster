@@ -7,14 +7,17 @@ void castPlayerRays(Player *player, Map map)
     Vector pos = setVector(player->actor.pos.x / MAP_UNIT_SIZE,
                            player->actor.pos.y / MAP_UNIT_SIZE);
 
-    double rad_per_col = player->actor.field_of_view / WIN_WIDTH; // Radians per pixel
+    double rad_per_col = player->actor.field_of_view / game_window->width; // Radians per pixel
     double offset = -player->actor.field_of_view / 2;
     double camera_x;
 
-    for (int x = 0; x < WIN_WIDTH; x++)
+    free(player->intersects);
+    player->intersects = malloc(sizeof(WallIntersect) * game_window->width);
+
+    for (int x = 0; x < game_window->width; x++)
     {
         // Calculate x-coordinate in camera space
-        camera_x = 2 * x / (double)WIN_WIDTH - 1; // Normalized coordinate in camera space
+        camera_x = 2 * x / (double)game_window->width - 1; // Normalized coordinate in camera space
         Vector ray_dir = setVector(dir.x + plane.x * camera_x,
                                    dir.y + plane.y * camera_x);
         player->intersects[x] = getWallIntersect(pos, ray_dir, map);
@@ -104,19 +107,19 @@ Player createPlayer()
     player.actor.field_of_view = PLAYER_FOV * DEG_TO_RAD;
 
     // Allocate memory for the player's view cone
-    player.actor.view_cone = malloc(sizeof(Vector) * WIN_WIDTH);
+    player.actor.view_cone = malloc(sizeof(Vector) * game_window->width);
     player.actor.max_vel = PLAYER_MAX_SPEED;
     player.actor.accel = PLAYER_ACCEL;
 
     // Initialize player's position and velocity
-    player.actor.pos = setVector(2 * (double)WIN_WIDTH / 3 - 1,
-                                 2 * (double)WIN_HEIGHT / 3 - 1);
+    player.actor.pos = setVector(2 * (double)game_window->width / 3 - 1,
+                                 2 * (double)game_window->height / 3 - 1);
     player.actor.velocity = setVector(0, 0);
     player.actor.dir = setVector(-1, 0);
 
     // Calculate the player's plane (used for field of view in 3D rendering)
     player.plane = setVector(0, player.actor.dir.x * tan(player.actor.field_of_view / 2));
-    player.intersects = malloc(sizeof(WallIntersect) * WIN_WIDTH);
+    player.intersects = malloc(sizeof(WallIntersect) * game_window->width);
 
     return player;
 }

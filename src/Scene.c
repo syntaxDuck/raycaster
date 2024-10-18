@@ -183,7 +183,7 @@ void renderActorViewRays(Actor actor)
 void renderPlayerViewRays(Player player)
 {
   SDL_SetRenderDrawColor(game_window->renderer, 255, 0, 255, 75);
-  for (int i = 0; i < WIN_WIDTH; i++)
+  for (int i = 0; i < game_window->width; i++)
   {
     Vector ray = player.intersects[i].vect;
     SDL_RenderDrawLine(game_window->renderer,
@@ -193,14 +193,6 @@ void renderPlayerViewRays(Player player)
                        ray.y * MAP_UNIT_SIZE);
   }
 }
-
-// void drawVectorFromActor(Actor actor, Vector vect, int scale, long color)
-// {
-//   SDL_SetRenderDrawColor(renderer_2d, color >> 24, color >> 16 & 0xFF, 255 >> 8 & 0xFF, color & 0xFF);
-//   scaleVector(&vect, scale);
-//   vect = transposeVector(actor.pos, vect);
-//   SDL_RenderDrawLine(renderer_2d, actor.pos.x, actor.pos.y, vect.x, vect.y);
-// }
 
 void renderFpScene(Scene scene)
 {
@@ -218,13 +210,13 @@ void rendererSprites(Scene scene)
   SDL_Texture *texture = SDL_CreateTexture(game_window->renderer,
                                            SDL_PIXELFORMAT_RGBA8888,
                                            SDL_TEXTUREACCESS_STREAMING,
-                                           WIN_WIDTH,
-                                           WIN_HEIGHT);
+                                           game_window->width,
+                                           game_window->height);
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
   void *pixels;
   int pitch;
   SDL_LockTexture(texture, NULL, &pixels, &pitch);
-  memset(pixels, 0xFFFFFF00, pitch * WIN_HEIGHT);
+  memset(pixels, 0xFFFFFF00, pitch * game_window->height);
   Uint32 *pixel_data = (Uint32 *)pixels;
   Uint32 color;
 
@@ -248,34 +240,34 @@ void rendererSprites(Scene scene)
     double inv_det = 1.0 / (scene.player.plane.x * scene.player.actor.dir.y - scene.player.actor.dir.x * scene.player.plane.y);
     Vector transform = setVector(inv_det * (scene.player.actor.dir.y * rel_sprite_pos.x - scene.player.actor.dir.x * rel_sprite_pos.y),
                                  inv_det * (-scene.player.plane.y * rel_sprite_pos.x + scene.player.plane.x * rel_sprite_pos.y));
-    int sprite_screen_x = (int)((WIN_WIDTH / 2) * (1 + transform.x / transform.y));
-    int sprite_height = abs((int)(WIN_HEIGHT / transform.y));
+    int sprite_screen_x = (int)((game_window->width / 2) * (1 + transform.x / transform.y));
+    int sprite_height = abs((int)(game_window->height / transform.y));
 
-    int draw_start_y = -sprite_height / 2 + WIN_HEIGHT / 2;
+    int draw_start_y = -sprite_height / 2 + game_window->height / 2;
     if (draw_start_y < 0)
       draw_start_y = 0;
 
-    int draw_end_y = sprite_height / 2 + WIN_HEIGHT / 2;
-    if (draw_end_y >= WIN_HEIGHT)
-      draw_end_y = WIN_HEIGHT - 1;
+    int draw_end_y = sprite_height / 2 + game_window->height / 2;
+    if (draw_end_y >= game_window->height)
+      draw_end_y = game_window->height - 1;
 
-    int sprite_width = abs((int)(WIN_HEIGHT / transform.y));
+    int sprite_width = abs((int)(game_window->height / transform.y));
     int draw_start_x = -sprite_width / 2 + sprite_screen_x;
     if (draw_start_x < 0)
       draw_start_x = 0;
 
     int draw_end_x = sprite_width / 2 + sprite_screen_x;
-    if (draw_end_x >= WIN_WIDTH)
-      draw_end_x = WIN_WIDTH - 1;
+    if (draw_end_x >= game_window->width)
+      draw_end_x = game_window->width - 1;
 
     for (int stripe = draw_start_x; stripe < draw_end_x; stripe++)
     {
       int tex_x = (int)(256 * (stripe - (-sprite_width / 2 + sprite_screen_x)) * TEX_WIDTH / sprite_width) / 256;
-      if (transform.y > 0 && stripe > 0 && stripe < WIN_WIDTH && transform.y < scene.player.intersects[stripe].perp_wall_distance)
+      if (transform.y > 0 && stripe > 0 && stripe < game_window->width && transform.y < scene.player.intersects[stripe].perp_wall_distance)
       {
         for (int y = draw_start_y; y < draw_end_y; y++)
         {
-          int d = (y) * 256 - WIN_HEIGHT * 128 + sprite_height * 128;
+          int d = (y) * 256 - game_window->height * 128 + sprite_height * 128;
           int tex_y = ((d * TEX_HEIGHT) / sprite_height) / 256;
           color = scene.textures[s_sprites.sprites[s_sprites.sprite_order[i]].texture].pixels[TEX_WIDTH * tex_y + tex_x];
 
@@ -295,12 +287,12 @@ void renderFloorAndCeil(Scene scene)
   SDL_Texture *texture = SDL_CreateTexture(game_window->renderer,
                                            SDL_PIXELFORMAT_RGBA8888,
                                            SDL_TEXTUREACCESS_STREAMING,
-                                           WIN_WIDTH,
-                                           WIN_HEIGHT);
+                                           game_window->width,
+                                           game_window->height);
   void *pixels;
   int pitch;
   SDL_LockTexture(texture, NULL, &pixels, &pitch);
-  memset(pixels, 0xFFFFFF00, pitch * WIN_HEIGHT);
+  memset(pixels, 0xFFFFFF00, pitch * game_window->height);
   Uint32 *pixel_data = (Uint32 *)pixels;
   Uint32 color;
 
@@ -359,7 +351,7 @@ void renderFloorAndCeil(Scene scene)
       int cellX = (int)(floorX);
       int cellY = (int)(floorY);
 
-      // if (x % 2 && y == WIN_HEIGHT / 2 + 1)
+      // if (x % 2 && y == game_window->height / 2 + 1)
       //   printf("y: %d, x: %d, floorX: %f, floorY: %f, floorStepX: %f, floorStepY: %f, cellX: %d, cellY: %d\n", y, x, floorX, floorY, floorStepX, floorStepY, cellX, cellY);
 
       // get the textures coordinate from the fractional part
@@ -406,13 +398,13 @@ void renderWalls(Scene scene)
   SDL_Texture *texture = SDL_CreateTexture(game_window->renderer,
                                            SDL_PIXELFORMAT_RGBA8888,
                                            SDL_TEXTUREACCESS_STREAMING,
-                                           WIN_WIDTH,
-                                           WIN_HEIGHT);
+                                           game_window->width,
+                                           game_window->height);
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
   void *pixels;
   int pitch;
   SDL_LockTexture(texture, NULL, &pixels, &pitch);
-  memset(pixels, 0, pitch * WIN_HEIGHT);
+  memset(pixels, 0, pitch * game_window->height);
   Uint32 *pixel_data = (Uint32 *)pixels;
   Uint32 color;
 
@@ -456,7 +448,7 @@ void renderWalls(Scene scene)
     for (int y = draw_start; y <= draw_end; y++)
     {
       // Calculate the corresponding y position on the texture
-      int tex_y = (((y * 2 - WIN_HEIGHT + line_height) * TEX_HEIGHT) / line_height) / 2;
+      int tex_y = (((y * 2 - game_window->height + line_height) * TEX_HEIGHT) / line_height) / 2;
 
       // Get the color from the texture
       if (tex_num >= 0)

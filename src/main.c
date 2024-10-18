@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
   {
     if (SDL_PollEvent(&event) != 0)
     {
-      handleWindowEvents(&game_window->state, event);
+      handleWindowEvents(game_window, event);
 
 #ifdef DEBUG
       nk_input_begin(debug_ctx.menu_ctx);

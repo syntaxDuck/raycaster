@@ -10,6 +10,7 @@
 #include "nuklear.h"
 #include "nuklear_sdl_renderer.h"
 #include "Config.h"
+#include "Global.h"
 #include "Window.h"
 
 typedef struct
@@ -30,5 +31,5 @@ void handleDebugEvents(DebugState *state, SDL_Event event);
 // Function declarations
 void render_nuklear(struct nk_context *ctx, SDL_Renderer *renderer);
 
-struct nk_context *setupMenu(WindowCtx *win);
+struct nk_context *setupMenu(WindowCtx *ctx);
 #endif

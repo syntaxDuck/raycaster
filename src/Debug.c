@@ -4,7 +4,7 @@
 void render_nuklear(struct nk_context *ctx,
                     SDL_Renderer *renderer)
 {
-    struct nk_rect vp = nk_rect(5, 5, WIN_WIDTH / 4, WIN_HEIGHT / 2);
+    struct nk_rect vp = nk_rect(5, 5, game_window->width / 4, game_window->height / 2);
     if (nk_begin(ctx, "Editor Menu", vp,
                  NK_WINDOW_BORDER |
                      NK_WINDOW_SCALABLE |
@@ -75,12 +75,12 @@ void handleDebugEvents(DebugState *state, SDL_Event event)
     //     event_ctx->key_pressed = false;
     // }
 
-    // if (event.type == SDL_MOUSEMOTION && event.motion.x < WIN_WIDTH / 2)
+    // if (event.type == SDL_MOUSEMOTION && event.motion.x < game_window->width / 2)
     // {
     //     event_ctx->game_focused = false;
     // }
 
-    // if (event.type == SDL_MOUSEMOTION && event.motion.x >= WIN_WIDTH / 2)
+    // if (event.type == SDL_MOUSEMOTION && event.motion.x >= game_window->width / 2)
     // {
     //     event_ctx->game_focused = true;
     // }

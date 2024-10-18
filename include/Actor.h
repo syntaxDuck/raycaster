@@ -5,8 +5,8 @@
 #include <SDL_surface.h>
 #include <stdbool.h>
 
-#include "Config.h"
-#include "Map.h"
+#include "config.h"
+#include "map.h"
 #include "Vector.h"
 
 typedef struct

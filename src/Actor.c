@@ -2,7 +2,7 @@
 
 void processActorMotion(Actor *actor, float frame_time, Map map)
 {
-  float movement_speed = 5 * MAP_UNIT_SIZE * frame_time;
+  float movement_speed = 5 * map.unit_size * frame_time;
 
   const Uint8 *state = SDL_GetKeyboardState(NULL);
 
@@ -27,18 +27,18 @@ void processActorMotion(Actor *actor, float frame_time, Map map)
     {
       Vector new_pos = setVector(actor->pos.x + actor->dir.x * movement_speed,
                                  actor->pos.y + actor->dir.y * movement_speed);
-      if (map.walls[(int)actor->pos.y / MAP_UNIT_SIZE][(int)new_pos.x / MAP_UNIT_SIZE] == false)
+      if (map.walls[(int)actor->pos.y / map.unit_size][(int)new_pos.x / map.unit_size] == false)
         actor->pos.x = new_pos.x;
-      if (map.walls[(int)new_pos.y / MAP_UNIT_SIZE][(int)actor->pos.x / MAP_UNIT_SIZE] == false)
+      if (map.walls[(int)new_pos.y / map.unit_size][(int)actor->pos.x / map.unit_size] == false)
         actor->pos.y = new_pos.y;
     }
     else
     {
       Vector new_pos = setVector(actor->pos.x - actor->dir.x * movement_speed,
                                  actor->pos.y - actor->dir.y * movement_speed);
-      if (map.walls[(int)actor->pos.y / MAP_UNIT_SIZE][(int)new_pos.x / MAP_UNIT_SIZE] == false)
+      if (map.walls[(int)actor->pos.y / map.unit_size][(int)new_pos.x / map.unit_size] == false)
         actor->pos.x = new_pos.x;
-      if (map.walls[(int)new_pos.y / MAP_UNIT_SIZE][(int)actor->pos.x / MAP_UNIT_SIZE] == false)
+      if (map.walls[(int)new_pos.y / map.unit_size][(int)actor->pos.x / map.unit_size] == false)
         actor->pos.y = new_pos.y;
       return;
     }
@@ -52,7 +52,7 @@ Vector getRayRowIntersect(Vector origin, Vector ray, Map map)
   int row_index, col_index;
 
   double ray_cot = 1 / tan(ray.angle);
-  int row_offset = origin.y - (int)origin.y % MAP_UNIT_SIZE;
+  int row_offset = origin.y - (int)origin.y % map.unit_size;
   while (true)
   {
     if (ray.angle == 0 || ray.angle == M_PI)
@@ -74,12 +74,12 @@ Vector getRayRowIntersect(Vector origin, Vector ray, Map map)
         x = (origin.y - row_offset) * ray_cot;
         y = row_offset - origin.y;
 
-        row_offset -= MAP_UNIT_SIZE;
+        row_offset -= map.unit_size;
         row_index = -1;
       }
       else
       {
-        row_offset += MAP_UNIT_SIZE;
+        row_offset += map.unit_size;
         x = -(row_offset - origin.y) * ray_cot;
         y = row_offset - origin.y;
         row_index = 0;
@@ -90,8 +90,8 @@ Vector getRayRowIntersect(Vector origin, Vector ray, Map map)
       casted_ray.mag = sqrt(x * x + y * y);
       casted_ray.angle = ray.angle;
 
-      row_index += casted_ray.y / MAP_UNIT_SIZE;
-      col_index = casted_ray.x / MAP_UNIT_SIZE;
+      row_index += casted_ray.y / map.unit_size;
+      col_index = casted_ray.x / map.unit_size;
 
       if (row_index < 0)
         row_index = 0;
@@ -102,7 +102,7 @@ Vector getRayRowIntersect(Vector origin, Vector ray, Map map)
       if (casted_ray.x < 0)
         break;
 
-      if (casted_ray.x > map.width * MAP_UNIT_SIZE)
+      if (casted_ray.x > map.width * map.unit_size)
         break;
 
       if (map.walls[row_index][col_index] > 0)
@@ -121,7 +121,7 @@ Vector getRayColIntersect(Vector origin, Vector ray, Map map)
   int row_index, col_index;
 
   double ray_tan = tan(ray.angle);
-  int col_offset = origin.x - (int)origin.x % MAP_UNIT_SIZE;
+  int col_offset = origin.x - (int)origin.x % map.unit_size;
   while (true)
   {
     if (ray.angle == M_PI_2 ||
@@ -147,12 +147,12 @@ Vector getRayColIntersect(Vector origin, Vector ray, Map map)
         x = col_offset - origin.x;
         y = (origin.x - col_offset) * ray_tan;
 
-        col_offset -= MAP_UNIT_SIZE;
+        col_offset -= map.unit_size;
         col_index = -1;
       }
       else
       {
-        col_offset += MAP_UNIT_SIZE;
+        col_offset += map.unit_size;
         x = col_offset - origin.x;
         y = -(col_offset - origin.x) * ray_tan;
         col_index = 0;
@@ -163,8 +163,8 @@ Vector getRayColIntersect(Vector origin, Vector ray, Map map)
       casted_ray.mag = sqrt(x * x + y * y);
       casted_ray.angle = ray.angle;
 
-      row_index = casted_ray.y / MAP_UNIT_SIZE;
-      col_index += casted_ray.x / MAP_UNIT_SIZE;
+      row_index = casted_ray.y / map.unit_size;
+      col_index += casted_ray.x / map.unit_size;
 
       if (col_index < 0)
         col_index = 0;
@@ -175,7 +175,7 @@ Vector getRayColIntersect(Vector origin, Vector ray, Map map)
       if (casted_ray.y < 0)
         break;
 
-      if (casted_ray.y > map.height * MAP_UNIT_SIZE)
+      if (casted_ray.y > map.height * map.unit_size)
         break;
 
       if (map.walls[row_index][col_index] > 0)

@@ -3,10 +3,8 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
-#include <stdint.h>
 #include <stdbool.h>
-
-#include "Config.h"
+#include <stdint.h>
 
 typedef struct
 {
@@ -23,11 +21,12 @@ typedef struct
     Uint32 last_time;
     int frame_count;
     float fps;
-    int width, height;
+    int width;
+    int height;
 } WindowCtx;
 
-WindowCtx *createWindow(char *title, int x, int y, int width, int height);
+WindowCtx *windowInit(char *title, int x, int y, int width, int height, int target_fps);
 void handleWindowEvents(WindowCtx *ctx, SDL_Event event);
-void updateFrameCounter(WindowCtx *window_data);
-void freeWindowCtx(WindowCtx *window_data);
+void updateFrameCounter(WindowCtx *ctx);
+void freeWindowCtx(WindowCtx *ctx);
 #endif

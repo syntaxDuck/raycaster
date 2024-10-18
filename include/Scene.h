@@ -7,15 +7,15 @@
 #include <math.h>
 #include <stdbool.h>
 
-#include "Config.h"
-#include "Global.h"
-#include "Window.h"
+#include "config.h"
+#include "global.h"
+#include "window.h"
 #include "Texture.h"
 #include "Vector.h"
 #include "Player.h"
 #include "Actor.h"
 #include "Sprite.h"
-#include "Map.h"
+#include "map.h"
 
 typedef struct
 {

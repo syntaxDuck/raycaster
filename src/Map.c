@@ -1,4 +1,4 @@
-#include "Map.h"
+#include "map.h"
 
 // Function to print the map values to the console
 void printMap(Map map)

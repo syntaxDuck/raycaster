@@ -56,8 +56,8 @@ void renderScene(
 {
 
   // Clear the screen
-  SDL_SetRenderDrawColor(game_window->renderer, 0, 0, 0, 255);
-  SDL_RenderClear(game_window->renderer);
+  SDL_SetRenderDrawColor(win_ctx->renderer, 0, 0, 0, 255);
+  SDL_RenderClear(win_ctx->renderer);
 
   // Here you would draw your scene
   render(scene);
@@ -77,8 +77,8 @@ void render2dMap(Scene scene)
   int y_offset;
 
   // Set the background color (white)
-  SDL_SetRenderDrawColor(game_window->renderer, 255, 255, 255, 255);
-  SDL_RenderClear(game_window->renderer);
+  SDL_SetRenderDrawColor(win_ctx->renderer, 255, 255, 255, 255);
+  SDL_RenderClear(win_ctx->renderer);
 
   // Loop through the map and draw rectangles
   for (int y = 0; y < scene.map.height; y++)
@@ -92,11 +92,11 @@ void render2dMap(Scene scene)
       // Set the color depending on the grid value
       if (scene.map.walls[y][x])
       {
-        SDL_SetRenderDrawColor(game_window->renderer, 255, 0, 0, 255); // Red for filled cells
+        SDL_SetRenderDrawColor(win_ctx->renderer, 255, 0, 0, 255); // Red for filled cells
       }
       else
       {
-        SDL_SetRenderDrawColor(game_window->renderer, 0, 0, 0, 255); // Black for empty cells
+        SDL_SetRenderDrawColor(win_ctx->renderer, 0, 0, 0, 255); // Black for empty cells
       }
 
       // Define the rectangle for each cell in the map
@@ -105,7 +105,7 @@ void render2dMap(Scene scene)
                             scene.map.unit_size - y_offset};
 
       // Draw the rectangle onto the texture
-      SDL_RenderFillRect(game_window->renderer, &rectangle);
+      SDL_RenderFillRect(win_ctx->renderer, &rectangle);
     }
   }
 }
@@ -124,10 +124,10 @@ void render2dPlayer(Player player)
 
 void renderPlayerPlane(Player player)
 {
-  SDL_SetRenderDrawColor(game_window->renderer, 0, 0, 0, 255);
+  SDL_SetRenderDrawColor(win_ctx->renderer, 0, 0, 0, 255);
   setVectorMagnitude(&player.actor.dir, 10);
   setVectorMagnitude(&player.plane, 5);
-  SDL_RenderDrawLine(game_window->renderer,
+  SDL_RenderDrawLine(win_ctx->renderer,
                      player.actor.pos.x + player.actor.dir.x - player.plane.x,
                      player.actor.pos.y + player.actor.dir.y - player.plane.y,
                      player.actor.pos.x + player.actor.dir.x + player.plane.x,
@@ -136,18 +136,18 @@ void renderPlayerPlane(Player player)
 
 void renderActorBody(Actor actor)
 {
-  SDL_SetRenderDrawColor(game_window->renderer, 0, 255, 0, 255);
+  SDL_SetRenderDrawColor(win_ctx->renderer, 0, 255, 0, 255);
   SDL_Rect rect = {actor.pos.x - (actor.size >> 1),
                    actor.pos.y - (actor.size >> 1), actor.size, actor.size};
-  SDL_RenderFillRect(game_window->renderer, &rect);
+  SDL_RenderFillRect(win_ctx->renderer, &rect);
 }
 
 void renderActorViewDir(Actor actor)
 {
-  SDL_SetRenderDrawColor(game_window->renderer, 0, 0, 0, 255);
+  SDL_SetRenderDrawColor(win_ctx->renderer, 0, 0, 0, 255);
   setVectorMagnitude(&actor.dir, 10);
   translateVector(&actor.dir, actor.pos);
-  SDL_RenderDrawLine(game_window->renderer,
+  SDL_RenderDrawLine(win_ctx->renderer,
                      actor.pos.x,
                      actor.pos.y,
                      actor.dir.x,
@@ -156,10 +156,10 @@ void renderActorViewDir(Actor actor)
 
 void renderActorVelDir(Actor actor)
 {
-  SDL_SetRenderDrawColor(game_window->renderer, 255, 255, 255, 255);
+  SDL_SetRenderDrawColor(win_ctx->renderer, 255, 255, 255, 255);
   setVectorMagnitude(&actor.velocity, 10);
   translateVector(&actor.pos, actor.velocity);
-  SDL_RenderDrawLine(game_window->renderer,
+  SDL_RenderDrawLine(win_ctx->renderer,
                      actor.pos.x,
                      actor.pos.y,
                      actor.velocity.x,
@@ -168,11 +168,11 @@ void renderActorVelDir(Actor actor)
 
 void renderActorViewRays(Actor actor)
 {
-  SDL_SetRenderDrawColor(game_window->renderer, 255, 0, 255, 75);
+  SDL_SetRenderDrawColor(win_ctx->renderer, 255, 0, 255, 75);
   for (int i = 0; i < NUM_RAYS; i++)
   {
     Vector ray = actor.view_cone[i];
-    SDL_RenderDrawLine(game_window->renderer,
+    SDL_RenderDrawLine(win_ctx->renderer,
                        actor.pos.x,
                        actor.pos.y,
                        ray.x,
@@ -182,11 +182,11 @@ void renderActorViewRays(Actor actor)
 
 void renderPlayerViewRays(Player player)
 {
-  SDL_SetRenderDrawColor(game_window->renderer, 255, 0, 255, 75);
-  for (int i = 0; i < game_window->width; i++)
+  SDL_SetRenderDrawColor(win_ctx->renderer, 255, 0, 255, 75);
+  for (int i = 0; i < win_ctx->width; i++)
   {
     Vector ray = player.intersects[i].vect;
-    SDL_RenderDrawLine(game_window->renderer,
+    SDL_RenderDrawLine(win_ctx->renderer,
                        player.actor.pos.x,
                        player.actor.pos.y,
                        ray.x * MAP_UNIT_SIZE,
@@ -207,16 +207,16 @@ void rendererSprites(Scene scene)
   player_pos.x /= MAP_UNIT_SIZE;
   player_pos.y /= MAP_UNIT_SIZE;
 
-  SDL_Texture *texture = SDL_CreateTexture(game_window->renderer,
+  SDL_Texture *texture = SDL_CreateTexture(win_ctx->renderer,
                                            SDL_PIXELFORMAT_RGBA8888,
                                            SDL_TEXTUREACCESS_STREAMING,
-                                           game_window->width,
-                                           game_window->height);
+                                           win_ctx->width,
+                                           win_ctx->height);
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
   void *pixels;
   int pitch;
   SDL_LockTexture(texture, NULL, &pixels, &pitch);
-  memset(pixels, 0xFFFFFF00, pitch * game_window->height);
+  memset(pixels, 0xFFFFFF00, pitch * win_ctx->height);
   Uint32 *pixel_data = (Uint32 *)pixels;
   Uint32 color;
 
@@ -240,34 +240,34 @@ void rendererSprites(Scene scene)
     double inv_det = 1.0 / (scene.player.plane.x * scene.player.actor.dir.y - scene.player.actor.dir.x * scene.player.plane.y);
     Vector transform = setVector(inv_det * (scene.player.actor.dir.y * rel_sprite_pos.x - scene.player.actor.dir.x * rel_sprite_pos.y),
                                  inv_det * (-scene.player.plane.y * rel_sprite_pos.x + scene.player.plane.x * rel_sprite_pos.y));
-    int sprite_screen_x = (int)((game_window->width / 2) * (1 + transform.x / transform.y));
-    int sprite_height = abs((int)(game_window->height / transform.y));
+    int sprite_screen_x = (int)((win_ctx->width / 2) * (1 + transform.x / transform.y));
+    int sprite_height = abs((int)(win_ctx->height / transform.y));
 
-    int draw_start_y = -sprite_height / 2 + game_window->height / 2;
+    int draw_start_y = -sprite_height / 2 + win_ctx->height / 2;
     if (draw_start_y < 0)
       draw_start_y = 0;
 
-    int draw_end_y = sprite_height / 2 + game_window->height / 2;
-    if (draw_end_y >= game_window->height)
-      draw_end_y = game_window->height - 1;
+    int draw_end_y = sprite_height / 2 + win_ctx->height / 2;
+    if (draw_end_y >= win_ctx->height)
+      draw_end_y = win_ctx->height - 1;
 
-    int sprite_width = abs((int)(game_window->height / transform.y));
+    int sprite_width = abs((int)(win_ctx->height / transform.y));
     int draw_start_x = -sprite_width / 2 + sprite_screen_x;
     if (draw_start_x < 0)
       draw_start_x = 0;
 
     int draw_end_x = sprite_width / 2 + sprite_screen_x;
-    if (draw_end_x >= game_window->width)
-      draw_end_x = game_window->width - 1;
+    if (draw_end_x >= win_ctx->width)
+      draw_end_x = win_ctx->width - 1;
 
     for (int stripe = draw_start_x; stripe < draw_end_x; stripe++)
     {
       int tex_x = (int)(256 * (stripe - (-sprite_width / 2 + sprite_screen_x)) * TEX_WIDTH / sprite_width) / 256;
-      if (transform.y > 0 && stripe > 0 && stripe < game_window->width && transform.y < scene.player.intersects[stripe].perp_wall_distance)
+      if (transform.y > 0 && stripe > 0 && stripe < win_ctx->width && transform.y < scene.player.intersects[stripe].perp_wall_distance)
       {
         for (int y = draw_start_y; y < draw_end_y; y++)
         {
-          int d = (y) * 256 - game_window->height * 128 + sprite_height * 128;
+          int d = (y) * 256 - win_ctx->height * 128 + sprite_height * 128;
           int tex_y = ((d * TEX_HEIGHT) / sprite_height) / 256;
           color = scene.textures[s_sprites.sprites[s_sprites.sprite_order[i]].texture].pixels[TEX_WIDTH * tex_y + tex_x];
 
@@ -278,26 +278,26 @@ void rendererSprites(Scene scene)
     }
   }
   SDL_UnlockTexture(texture);
-  SDL_RenderCopy(game_window->renderer, texture, NULL, NULL);
+  SDL_RenderCopy(win_ctx->renderer, texture, NULL, NULL);
   SDL_DestroyTexture(texture);
 }
 
 void renderFloorAndCeil(Scene scene)
 {
-  SDL_Texture *texture = SDL_CreateTexture(game_window->renderer,
+  SDL_Texture *texture = SDL_CreateTexture(win_ctx->renderer,
                                            SDL_PIXELFORMAT_RGBA8888,
                                            SDL_TEXTUREACCESS_STREAMING,
-                                           game_window->width,
-                                           game_window->height);
+                                           win_ctx->width,
+                                           win_ctx->height);
   void *pixels;
   int pitch;
   SDL_LockTexture(texture, NULL, &pixels, &pitch);
-  memset(pixels, 0xFFFFFF00, pitch * game_window->height);
+  memset(pixels, 0xFFFFFF00, pitch * win_ctx->height);
   Uint32 *pixel_data = (Uint32 *)pixels;
   Uint32 color;
 
   int w, h;
-  SDL_GetWindowSizeInPixels(game_window->window, &w, &h);
+  SDL_GetWindowSizeInPixels(win_ctx->window, &w, &h);
   for (int y = h / 2; y < h; ++y)
   {
     // rayDir for leftmost ray (x = 0) and rightmost ray (x = w)
@@ -351,7 +351,7 @@ void renderFloorAndCeil(Scene scene)
       int cellX = (int)(floorX);
       int cellY = (int)(floorY);
 
-      // if (x % 2 && y == game_window->height / 2 + 1)
+      // if (x % 2 && y == game_window.height / 2 + 1)
       //   printf("y: %d, x: %d, floorX: %f, floorY: %f, floorStepX: %f, floorStepY: %f, cellX: %d, cellY: %d\n", y, x, floorX, floorY, floorStepX, floorStepY, cellX, cellY);
 
       // get the textures coordinate from the fractional part
@@ -389,27 +389,27 @@ void renderFloorAndCeil(Scene scene)
     }
   }
   SDL_UnlockTexture(texture);
-  SDL_RenderCopy(game_window->renderer, texture, NULL, NULL);
+  SDL_RenderCopy(win_ctx->renderer, texture, NULL, NULL);
   SDL_DestroyTexture(texture);
 }
 
 void renderWalls(Scene scene)
 {
-  SDL_Texture *texture = SDL_CreateTexture(game_window->renderer,
+  SDL_Texture *texture = SDL_CreateTexture(win_ctx->renderer,
                                            SDL_PIXELFORMAT_RGBA8888,
                                            SDL_TEXTUREACCESS_STREAMING,
-                                           game_window->width,
-                                           game_window->height);
+                                           win_ctx->width,
+                                           win_ctx->height);
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
   void *pixels;
   int pitch;
   SDL_LockTexture(texture, NULL, &pixels, &pitch);
-  memset(pixels, 0, pitch * game_window->height);
+  memset(pixels, 0, pitch * win_ctx->height);
   Uint32 *pixel_data = (Uint32 *)pixels;
   Uint32 color;
 
   int w, h;
-  SDL_GetWindowSizeInPixels(game_window->window, &w, &h);
+  SDL_GetWindowSizeInPixels(win_ctx->window, &w, &h);
   for (int x = 0; x < w; x++)
   {
     WallIntersect intersect = scene.player.intersects[x];
@@ -448,7 +448,7 @@ void renderWalls(Scene scene)
     for (int y = draw_start; y <= draw_end; y++)
     {
       // Calculate the corresponding y position on the texture
-      int tex_y = (((y * 2 - game_window->height + line_height) * TEX_HEIGHT) / line_height) / 2;
+      int tex_y = (((y * 2 - win_ctx->height + line_height) * TEX_HEIGHT) / line_height) / 2;
 
       // Get the color from the texture
       if (tex_num >= 0)
@@ -465,7 +465,7 @@ void renderWalls(Scene scene)
     }
   }
   SDL_UnlockTexture(texture);
-  SDL_RenderCopy(game_window->renderer, texture, NULL, NULL);
+  SDL_RenderCopy(win_ctx->renderer, texture, NULL, NULL);
   SDL_DestroyTexture(texture);
 }
 

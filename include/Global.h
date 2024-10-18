@@ -1,7 +1,7 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-#include "Window.h"
-WindowCtx *game_window;
+#include "window.h"
+WindowCtx *win_ctx;
 
 #endif

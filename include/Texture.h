@@ -5,7 +5,7 @@
 #include <SDL_image.h>
 #include <stdint.h>
 #include <dirent.h>
-#include "Config.h"
+#include "config.h"
 
 typedef struct
 {

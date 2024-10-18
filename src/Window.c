@@ -1,6 +1,7 @@
-#include "Window.h"
+#include "window.h"
 
-WindowCtx *createWindow(char *title, int x, int y, int width, int height)
+WindowCtx *windowInit(char *title, int x, int y,
+                      int width, int height, int target_fps)
 {
     // Create the window
     WindowCtx *ctx = malloc(sizeof(WindowCtx));
@@ -15,7 +16,7 @@ WindowCtx *createWindow(char *title, int x, int y, int width, int height)
                 "Window could not be created! SDL_Error: %s\n",
                 SDL_GetError());
         SDL_Quit();
-        return false;
+        return NULL;
     }
 
     // Create the renderer
@@ -30,7 +31,7 @@ WindowCtx *createWindow(char *title, int x, int y, int width, int height)
                 SDL_GetError());
         SDL_DestroyWindow(ctx->window);
         SDL_Quit();
-        return false;
+        return NULL;
     }
 
     // Set the renderer color (optional)
@@ -45,16 +46,16 @@ WindowCtx *createWindow(char *title, int x, int y, int width, int height)
         SDL_DestroyRenderer(ctx->renderer);
         SDL_DestroyWindow(ctx->window);
         SDL_Quit();
-        return false;
+        return NULL;
     }
     strcpy(ctx->title, title);
 
     ctx->frame_count = 0;
-    ctx->fps = MAX_FPS;
+    ctx->fps = target_fps;
     ctx->last_time = SDL_GetTicks();
     ctx->state.quit = false;
-    ctx->width = WIN_WIDTH;
-    ctx->height = WIN_HEIGHT;
+    ctx->width = width;
+    ctx->height = height;
 
     return ctx;
 }
@@ -107,10 +108,11 @@ void updateFrameCounter(WindowCtx *window_data)
     }
 }
 
-void freeWindowCtx(WindowCtx *window_data)
+void freeWindowCtx(WindowCtx *ctx)
 {
-    SDL_DestroyRenderer(window_data->renderer);
-    SDL_DestroyWindow(window_data->window);
-    free(window_data->title);
-    free(window_data);
+    if (ctx->renderer)
+        SDL_DestroyRenderer(ctx->renderer);
+    if (ctx->window)
+        SDL_DestroyWindow(ctx->window);
+    free(ctx->title);
 }

@@ -4,16 +4,13 @@
 #include <SDL.h>
 #include <stdint.h>
 
-#include "config.h"
-
-typedef struct
-{
-    Uint8 **walls;
-    Uint8 **ceil;
-    Uint8 **floor;
-    int unit_size;
-    int width;
-    int height;
+typedef struct {
+  Uint8 **walls;
+  Uint8 **ceil;
+  Uint8 **floor;
+  int unit_size;
+  int width;
+  int height;
 } Map;
 
 Map loadMap(char *filename);

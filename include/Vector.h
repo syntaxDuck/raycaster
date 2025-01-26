@@ -1,8 +1,8 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#include <stdio.h>
 #include <math.h>
+#include <stdio.h>
 
 // Define a constant for 2*PI
 #ifndef M_2PI
@@ -11,12 +11,11 @@
 
 // Structure representing a 2D vector or point with x and y components,
 // magnitude (mag), and angle (angle) in radians.
-typedef struct
-{
-    double x;     // X-coordinate
-    double y;     // Y-coordinate
-    double mag;   // Magnitude of the vector
-    double angle; // Angle of the vector in radians
+typedef struct {
+  double x;     // X-coordinate
+  double y;     // Y-coordinate
+  double mag;   // Magnitude of the vector
+  double angle; // Angle of the vector in radians
 } Vector;
 
 /**
@@ -35,13 +34,15 @@ Vector setVector(double x, double y);
  *
  * @param x X-coordinate of the point
  * @param y Y-coordinate of the point
- * @return Vector Initialized point with x, y coordinates, and NAN magnitude and angle.
+ * @return Vector Initialized point with x, y coordinates, and NAN magnitude and
+ * angle.
  */
 Vector setPoint(double x, double y);
 
 /**
- * @brief Sets the magnitude of the vector and updates its x and y components accordingly.
- *        If magnitude is zero, x and y are set to zero and angle is set to NAN.
+ * @brief Sets the magnitude of the vector and updates its x and y components
+ * accordingly. If magnitude is zero, x and y are set to zero and angle is set
+ * to NAN.
  *
  * @param vector Pointer to the vector whose magnitude is being set.
  * @param mag The new magnitude to set.
@@ -49,7 +50,8 @@ Vector setPoint(double x, double y);
 void setVectorMagnitude(Vector *vect, double mag);
 
 /**
- * @brief Calculates the magnitude of the given vector based on its x and y components.
+ * @brief Calculates the magnitude of the given vector based on its x and y
+ * components.
  *
  * @param vector Pointer to the vector whose magnitude is being calculated.
  */
@@ -72,7 +74,8 @@ void printVector(Vector vect);
 
 /**
  * @brief Rotates the given vector by the specified angle (in radians).
- *        The x and y components are updated, and the angle is normalized to [0, 2π).
+ *        The x and y components are updated, and the angle is normalized to [0,
+ * 2π).
  *
  * @param vector Pointer to the vector to be rotated.
  * @param angle The angle (in radians) by which to rotate the vector.
@@ -80,8 +83,9 @@ void printVector(Vector vect);
 void rotateVector(Vector *vect, double angle);
 
 /**
- * @brief Translates a vector that is relative to the origin to be relative to a given origin.
- *        The translation is performed by adding the origin's coordinates to the vector's coordinates.
+ * @brief Translates a vector that is relative to the origin to be relative to a
+ * given origin. The translation is performed by adding the origin's coordinates
+ * to the vector's coordinates.
  *
  * @param vect The vector to be translated.
  * @param origin The vector or point representing the new origin.
@@ -90,8 +94,9 @@ void rotateVector(Vector *vect, double angle);
 void translateVector(Vector *vect, Vector origin);
 
 /**
- * @brief Normalizes the given vector to a unit vector (magnitude = 1) if its magnitude is not zero.
- *        If the magnitude is zero, x, y are set to zero and angle to NAN.
+ * @brief Normalizes the given vector to a unit vector (magnitude = 1) if its
+ * magnitude is not zero. If the magnitude is zero, x, y are set to zero and
+ * angle to NAN.
  *
  * @param vector The vector to normalize.
  * @return Vector The normalized vector.

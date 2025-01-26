@@ -3,7 +3,6 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
-#include <math.h>
 #include <stdlib.h>
 
 #include "Vector.h"

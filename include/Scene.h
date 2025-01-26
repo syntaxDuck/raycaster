@@ -4,43 +4,35 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
 #include <SDL_image.h>
-#include <math.h>
 #include <stdbool.h>
 
-#include "config.h"
-#include "global.h"
-#include "window.h"
-#include "Texture.h"
-#include "Vector.h"
-#include "Player.h"
 #include "Actor.h"
+#include "Player.h"
 #include "Sprite.h"
+#include "Texture.h"
 #include "map.h"
 
-typedef struct
-{
-    int num_sprites;
-    int *sprite_order;
-    double *sprite_dist;
-    StaticSprite *sprites;
+typedef struct {
+  int num_sprites;
+  int *sprite_order;
+  double *sprite_dist;
+  StaticSprite *sprites;
 } SceneStaticSprites;
 
-typedef struct
-{
-    int num_sprites;
-    int *sprite_order;
-    double *sprite_dist;
-    DynamicSprite *sprites;
+typedef struct {
+  int num_sprites;
+  int *sprite_order;
+  double *sprite_dist;
+  DynamicSprite *sprites;
 } SceneDynamicSprites;
 
-typedef struct
-{
-    Map map;
-    Player player;
-    SceneStaticSprites s_sprites;
-    SceneDynamicSprites d_sprites;
+typedef struct {
+  Map map;
+  Player player;
+  SceneStaticSprites s_sprites;
+  SceneDynamicSprites d_sprites;
 
-    Texture *textures;
+  Texture *textures;
 } Scene;
 
 Scene *createScene(char *map_path);

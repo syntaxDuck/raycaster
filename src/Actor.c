@@ -1,62 +1,55 @@
 #include "Actor.h"
+#include "config.h"
 
-void processActorMotion(Actor *actor, float frame_time, Map map)
-{
+void processActorMotion(Actor *actor, float frame_time, Map map) {
   float movement_speed = 5 * map.unit_size * frame_time;
 
   const Uint8 *state = SDL_GetKeyboardState(NULL);
 
   // Rotation Function
-  if (state[SDL_SCANCODE_D] ^ state[SDL_SCANCODE_A])
-  {
-    if (state[SDL_SCANCODE_A])
-    {
+  if (state[SDL_SCANCODE_D] ^ state[SDL_SCANCODE_A]) {
+    if (state[SDL_SCANCODE_A]) {
       rotateVector(&actor->dir, -PLAYER_TURN_SPEED);
-    }
-    else
-    {
+    } else {
       rotateVector(&actor->dir, PLAYER_TURN_SPEED);
     }
     actor->velocity.angle = actor->dir.angle;
   }
 
   // Velocity Vector Function
-  if (state[SDL_SCANCODE_W] ^ state[SDL_SCANCODE_S])
-  {
-    if (state[SDL_SCANCODE_W])
-    {
+  if (state[SDL_SCANCODE_W] ^ state[SDL_SCANCODE_S]) {
+    if (state[SDL_SCANCODE_W]) {
       Vector new_pos = setVector(actor->pos.x + actor->dir.x * movement_speed,
                                  actor->pos.y + actor->dir.y * movement_speed);
-      if (map.walls[(int)actor->pos.y / map.unit_size][(int)new_pos.x / map.unit_size] == false)
+      if (map.walls[(int)actor->pos.y / map.unit_size]
+                   [(int)new_pos.x / map.unit_size] == false)
         actor->pos.x = new_pos.x;
-      if (map.walls[(int)new_pos.y / map.unit_size][(int)actor->pos.x / map.unit_size] == false)
+      if (map.walls[(int)new_pos.y / map.unit_size]
+                   [(int)actor->pos.x / map.unit_size] == false)
         actor->pos.y = new_pos.y;
-    }
-    else
-    {
+    } else {
       Vector new_pos = setVector(actor->pos.x - actor->dir.x * movement_speed,
                                  actor->pos.y - actor->dir.y * movement_speed);
-      if (map.walls[(int)actor->pos.y / map.unit_size][(int)new_pos.x / map.unit_size] == false)
+      if (map.walls[(int)actor->pos.y / map.unit_size]
+                   [(int)new_pos.x / map.unit_size] == false)
         actor->pos.x = new_pos.x;
-      if (map.walls[(int)new_pos.y / map.unit_size][(int)actor->pos.x / map.unit_size] == false)
+      if (map.walls[(int)new_pos.y / map.unit_size]
+                   [(int)actor->pos.x / map.unit_size] == false)
         actor->pos.y = new_pos.y;
       return;
     }
   }
 }
 
-Vector getRayRowIntersect(Vector origin, Vector ray, Map map)
-{
+Vector getRayRowIntersect(Vector origin, Vector ray, Map map) {
   Vector casted_ray;
   double x, y;
   int row_index, col_index;
 
   double ray_cot = 1 / tan(ray.angle);
   int row_offset = origin.y - (int)origin.y % map.unit_size;
-  while (true)
-  {
-    if (ray.angle == 0 || ray.angle == M_PI)
-    {
+  while (true) {
+    if (ray.angle == 0 || ray.angle == M_PI) {
       x = ray.angle == 0 ? 1e30 : -1e30;
       y = 0;
 
@@ -67,18 +60,14 @@ Vector getRayRowIntersect(Vector origin, Vector ray, Map map)
       break;
     }
 
-    else
-    {
-      if (ray.angle > 0 && ray.angle < M_PI)
-      {
+    else {
+      if (ray.angle > 0 && ray.angle < M_PI) {
         x = (origin.y - row_offset) * ray_cot;
         y = row_offset - origin.y;
 
         row_offset -= map.unit_size;
         row_index = -1;
-      }
-      else
-      {
+      } else {
         row_offset += map.unit_size;
         x = -(row_offset - origin.y) * ray_cot;
         y = row_offset - origin.y;
@@ -105,8 +94,7 @@ Vector getRayRowIntersect(Vector origin, Vector ray, Map map)
       if (casted_ray.x > map.width * map.unit_size)
         break;
 
-      if (map.walls[row_index][col_index] > 0)
-      {
+      if (map.walls[row_index][col_index] > 0) {
         break;
       }
     }
@@ -114,19 +102,15 @@ Vector getRayRowIntersect(Vector origin, Vector ray, Map map)
   return casted_ray;
 }
 
-Vector getRayColIntersect(Vector origin, Vector ray, Map map)
-{
+Vector getRayColIntersect(Vector origin, Vector ray, Map map) {
   Vector casted_ray;
   double x, y;
   int row_index, col_index;
 
   double ray_tan = tan(ray.angle);
   int col_offset = origin.x - (int)origin.x % map.unit_size;
-  while (true)
-  {
-    if (ray.angle == M_PI_2 ||
-        ray.angle == M_PI_3_2)
-    {
+  while (true) {
+    if (ray.angle == M_PI_2 || ray.angle == M_PI_3_2) {
 
       y = ray.angle == M_PI_2 ? 1e30 : -1e30;
       x = 0;
@@ -138,20 +122,15 @@ Vector getRayColIntersect(Vector origin, Vector ray, Map map)
       break;
     }
 
-    else
-    {
+    else {
 
-      if (ray.angle < M_PI_2 ||
-          ray.angle > M_PI_3_2)
-      {
+      if (ray.angle < M_PI_2 || ray.angle > M_PI_3_2) {
         x = col_offset - origin.x;
         y = (origin.x - col_offset) * ray_tan;
 
         col_offset -= map.unit_size;
         col_index = -1;
-      }
-      else
-      {
+      } else {
         col_offset += map.unit_size;
         x = col_offset - origin.x;
         y = -(col_offset - origin.x) * ray_tan;
@@ -178,8 +157,7 @@ Vector getRayColIntersect(Vector origin, Vector ray, Map map)
       if (casted_ray.y > map.height * map.unit_size)
         break;
 
-      if (map.walls[row_index][col_index] > 0)
-      {
+      if (map.walls[row_index][col_index] > 0) {
         break;
       }
     }
@@ -187,18 +165,16 @@ Vector getRayColIntersect(Vector origin, Vector ray, Map map)
   return casted_ray;
 }
 
-void castActorRays(Actor *actor, Map map)
-{
+void castActorRays(Actor *actor, Map map) {
   double increment_rad = actor->field_of_view / NUM_RAYS;
   double starting_angle = -actor->field_of_view / 2 + increment_rad;
-  for (int i = 0; i < NUM_RAYS; i++)
-  {
+  for (int i = 0; i < NUM_RAYS; i++) {
     Vector new_vect = actor->dir;
-    rotateVector(&new_vect,
-                 starting_angle + i * increment_rad);
+    rotateVector(&new_vect, starting_angle + i * increment_rad);
 
     Vector row_intersect = getRayRowIntersect(actor->pos, new_vect, map);
     Vector col_intersect = getRayColIntersect(actor->pos, new_vect, map);
-    actor->view_cone[i] = row_intersect.mag < col_intersect.mag ? row_intersect : col_intersect;
+    actor->view_cone[i] =
+        row_intersect.mag < col_intersect.mag ? row_intersect : col_intersect;
   }
 }

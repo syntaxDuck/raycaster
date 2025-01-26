@@ -1,12 +1,11 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include <SDL.h>
 #include "Scene.h"
+#include <SDL.h>
 
-typedef struct
-{
-    Scene *scene;
+typedef struct {
+  Scene *scene;
 } GameCtx;
 
 #endif

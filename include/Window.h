@@ -6,26 +6,25 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef struct
-{
-    bool quit;
-    bool key_pressed;
+typedef struct {
+  bool quit;
+  bool key_pressed;
 } WindowState;
 
-typedef struct
-{
-    char *title;
-    SDL_Window *window;
-    SDL_Renderer *renderer;
-    WindowState state;
-    Uint32 last_time;
-    int frame_count;
-    float fps;
-    int width;
-    int height;
+typedef struct {
+  char *title;
+  SDL_Window *window;
+  SDL_Renderer *renderer;
+  WindowState state;
+  Uint32 last_time;
+  int frame_count;
+  float fps;
+  int width;
+  int height;
 } WindowCtx;
 
-WindowCtx *windowInit(char *title, int x, int y, int width, int height, int target_fps);
+WindowCtx *windowInit(char *title, int x, int y, int width, int height,
+                      int target_fps);
 void handleWindowEvents(WindowCtx *ctx, SDL_Event event);
 void updateFrameCounter(WindowCtx *ctx);
 void freeWindowCtx(WindowCtx *ctx);

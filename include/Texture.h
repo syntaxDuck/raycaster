@@ -3,15 +3,13 @@
 
 #include <SDL.h>
 #include <SDL_image.h>
-#include <stdint.h>
 #include <dirent.h>
-#include "config.h"
+#include <stdint.h>
 
-typedef struct
-{
-    int *pixels;
-    int height;
-    int width;
+typedef struct {
+  int *pixels;
+  int height;
+  int width;
 } Texture;
 
 Texture *createTextures();

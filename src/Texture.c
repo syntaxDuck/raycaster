@@ -1,7 +1,7 @@
 #include "texture.h"
 #include "config.h"
 
-Uint32 *loadImageData(const char *filePath, int *width, int *height) {
+Uint32 *load_image_data(const char *filePath, int *width, int *height) {
   // Load the image into an SDL_Surface
   SDL_Surface *surface = IMG_Load(filePath);
   if (!surface) {
@@ -52,31 +52,33 @@ Uint32 *loadImageData(const char *filePath, int *width, int *height) {
 }
 
 // TODO: have some issues rendering textures with alpha channels
-Texture *createTextures() {
+Texture *create_textures() {
   // int textures[8][TEX_HEIGHT * TEX_WIDTH];
   Texture *textures = malloc(sizeof(Texture) * 11);
   int width, height;
 
   // Static Textures
   Uint32 *t0 =
-      loadImageData("../assets/textures/bluestone.png", &width, &height);
+      load_image_data("../assets/textures/bluestone.png", &width, &height);
   Uint32 *t1 =
-      loadImageData("../assets/textures/colorstone.png", &width, &height);
-  Uint32 *t2 = loadImageData("../assets/textures/eagle.png", &width, &height);
+      load_image_data("../assets/textures/colorstone.png", &width, &height);
+  Uint32 *t2 = load_image_data("../assets/textures/eagle.png", &width, &height);
   Uint32 *t3 =
-      loadImageData("../assets/textures/greystone.png", &width, &height);
-  Uint32 *t4 = loadImageData("../assets/textures/mossy.png", &width, &height);
+      load_image_data("../assets/textures/greystone.png", &width, &height);
+  Uint32 *t4 = load_image_data("../assets/textures/mossy.png", &width, &height);
   Uint32 *t5 =
-      loadImageData("../assets/textures/purplestone.png", &width, &height);
+      load_image_data("../assets/textures/purplestone.png", &width, &height);
   Uint32 *t6 =
-      loadImageData("../assets/textures/redbrick.png", &width, &height);
-  Uint32 *t7 = loadImageData("../assets/textures/wood.png", &width, &height);
+      load_image_data("../assets/textures/redbrick.png", &width, &height);
+  Uint32 *t7 = load_image_data("../assets/textures/wood.png", &width, &height);
 
   // Sprit textures
-  Uint32 *t8 = loadImageData("../assets/textures/barrel.png", &width, &height);
-  Uint32 *t9 = loadImageData("../assets/textures/pillar.png", &width, &height);
+  Uint32 *t8 =
+      load_image_data("../assets/textures/barrel.png", &width, &height);
+  Uint32 *t9 =
+      load_image_data("../assets/textures/pillar.png", &width, &height);
   Uint32 *t10 =
-      loadImageData("../assets/textures/greenlight.png", &width, &height);
+      load_image_data("../assets/textures/greenlight.png", &width, &height);
 
   textures[0].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
   textures[1].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
@@ -148,7 +150,7 @@ Texture *createProgrammaticTextures() {
   return textures;
 }
 
-void freeTexture(Texture *textures) {
+void free_texture(Texture *textures) {
   for (int i = 0; i < 11; i++) {
     free(textures[i].pixels);
   }

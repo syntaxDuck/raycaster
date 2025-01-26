@@ -19,9 +19,9 @@ typedef struct {
   WallIntersect *intersects;
 } Player;
 
-Player createPlayer();
-void freePlayer(Player *player);
-void castPlayerRays(Player *player, Map map);
-void processPlayerMotion(Player *player, float fps, Map map);
-WallIntersect getWallIntersect(Vector origin, Vector ray, Map map);
+Player create_player();
+void free_player(Player *player);
+void cast_player_rays(Player *player, Map map);
+void process_player_motion(Player *player, float fps, Map map);
+WallIntersect get_wall_intersect(Vector origin, Vector ray, Map map);
 #endif

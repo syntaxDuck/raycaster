@@ -23,8 +23,8 @@ int initSDL() {
 
 int main(int argc, char *argv[]) {
   initSDL();
-  win_ctx = windowInit("Main Viewport", SDL_WINDOWPOS_CENTERED,
-                       SDL_WINDOWPOS_CENTERED, WIN_WIDTH, WIN_HEIGHT, MAX_FPS);
+  win_ctx = window_init("Main Viewport", SDL_WINDOWPOS_CENTERED,
+                        SDL_WINDOWPOS_CENTERED, WIN_WIDTH, WIN_HEIGHT, MAX_FPS);
 
   GameCtx game_ctx;
 
@@ -33,18 +33,18 @@ int main(int argc, char *argv[]) {
   SDL_Event event;
   while (!win_ctx->state.quit) {
     if (SDL_PollEvent(&event) != 0) {
-      handleWindowEvents(win_ctx, event);
+      handle_window_events(win_ctx, event);
     }
 
-    renderScene(*game_ctx.scene, renderFpScene);
+    render_scene(*game_ctx.scene, render_fp_scene);
     SDL_RenderPresent(win_ctx->renderer);
-    updateFrameCounter(win_ctx);
-    processPlayerMotion(&game_ctx.scene->player, win_ctx->fps,
-                        game_ctx.scene->map);
+    update_frame_counter(win_ctx);
+    process_player_motion(&game_ctx.scene->player, win_ctx->fps,
+                          game_ctx.scene->map);
   }
 
   freeScene(game_ctx.scene);
-  freeWindowCtx(win_ctx);
+  free_window_ctx(win_ctx);
   IMG_Quit();
   SDL_Quit();
   return 0;

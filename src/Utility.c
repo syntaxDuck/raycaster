@@ -2,7 +2,7 @@
 
 // Function to generate points along the circumference of a circle using Bézier
 // curves Vector *
-Vector *generateCirclePoints(Vector center, double radius, int numPoints) {
+Vector *generate_circle_points(Vector center, double radius, int numPoints) {
 
   Vector *points = malloc(numPoints * sizeof(Vector));
   double step = 2 * M_PI / numPoints;
@@ -15,12 +15,12 @@ Vector *generateCirclePoints(Vector center, double radius, int numPoints) {
   return points;
 }
 
-void generateFilledCircle(SDL_Renderer *renderer, Vector center, double radius,
-                          int numPoints) {
+void generate_filled_circle(SDL_Renderer *renderer, Vector center,
+                            double radius, int numPoints) {
   Vector *points;
   for (double r = radius; r > 0; r = r - 1) {
     SDL_SetRenderDrawColor(renderer, 0, 255 - r * 10, 0, 255);
-    points = generateCirclePoints(center, r, numPoints);
+    points = generate_circle_points(center, r, numPoints);
     for (int x = 0; x < numPoints; x++) {
       SDL_RenderDrawPoint(renderer, points[x].x, points[x].y);
     }
@@ -28,8 +28,8 @@ void generateFilledCircle(SDL_Renderer *renderer, Vector center, double radius,
   }
 }
 
-SDL_Texture *drawFilledCircle(SDL_Renderer *renderer, Vector center_vect,
-                              int radius) {
+SDL_Texture *draw_filled_circle(SDL_Renderer *renderer, Vector center_vect,
+                                int radius) {
 
   int diameter = 2 * radius;
 

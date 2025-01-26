@@ -13,9 +13,9 @@ typedef struct {
   int height;
 } Map;
 
-Map loadMap(char *filename);
-void printMap(Map map);
-void loadMapGridFromFile(const char *filename, Map *map);
-void freeMap(Map map);
+Map load_map(char *filename);
+void print_map(Map map);
+void load_map_grid_from_file(const char *filename, Map *map);
+void free_map(Map map);
 
 #endif

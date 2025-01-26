@@ -2,12 +2,12 @@
 #include "config.h"
 #include "global.h"
 
-void castPlayerRays(Player *player, Map map) {
+void cast_player_rays(Player *player, Map map) {
   Vector dir = player->actor.dir; // Player's direction vector
   Vector plane =
       player->plane; // Player's plane vector (perpendicular to direction)
-  Vector pos = setVector(player->actor.pos.x / map.unit_size,
-                         player->actor.pos.y / map.unit_size);
+  Vector pos = set_vector(player->actor.pos.x / map.unit_size,
+                          player->actor.pos.y / map.unit_size);
 
   double rad_per_col =
       player->actor.field_of_view / win_ctx->width; // Radians per pixel
@@ -22,17 +22,17 @@ void castPlayerRays(Player *player, Map map) {
     camera_x = 2 * x / (double)win_ctx->width -
                1; // Normalized coordinate in camera space
     Vector ray_dir =
-        setVector(dir.x + plane.x * camera_x, dir.y + plane.y * camera_x);
-    player->intersects[x] = getWallIntersect(pos, ray_dir, map);
+        set_vector(dir.x + plane.x * camera_x, dir.y + plane.y * camera_x);
+    player->intersects[x] = get_wall_intersect(pos, ray_dir, map);
     player->actor.view_cone[x] = player->intersects[x].vect;
   }
 }
 
-WallIntersect getWallIntersect(Vector origin, Vector ray_dir, Map map) {
-  Vector map_pos = setVector((int)origin.x, (int)origin.y);
+WallIntersect get_wall_intersect(Vector origin, Vector ray_dir, Map map) {
+  Vector map_pos = set_vector((int)origin.x, (int)origin.y);
   Vector side_dist;
-  Vector delta_dist = setVector(ray_dir.x == 0 ? 1e30 : fabs(1 / ray_dir.x),
-                                ray_dir.y == 0 ? 1e30 : fabs(1 / ray_dir.y));
+  Vector delta_dist = set_vector(ray_dir.x == 0 ? 1e30 : fabs(1 / ray_dir.x),
+                                 ray_dir.y == 0 ? 1e30 : fabs(1 / ray_dir.y));
   double perp_wall_dist;
   Vector step;
   int hit = 0;
@@ -73,8 +73,8 @@ WallIntersect getWallIntersect(Vector origin, Vector ray_dir, Map map) {
     perp_wall_dist = side_dist.y - delta_dist.y;
 
   WallIntersect intersect;
-  intersect.vect = setVector(origin.x + ray_dir.x * perp_wall_dist,
-                             origin.y + ray_dir.y * perp_wall_dist);
+  intersect.vect = set_vector(origin.x + ray_dir.x * perp_wall_dist,
+                              origin.y + ray_dir.y * perp_wall_dist);
   intersect.perp_wall_distance = perp_wall_dist;
   intersect.side = side;
   intersect.map_x = map_pos.x;
@@ -83,14 +83,14 @@ WallIntersect getWallIntersect(Vector origin, Vector ray_dir, Map map) {
   return intersect;
 }
 
-void processPlayerMotion(Player *player, float fps, Map map) {
-  processActorMotion(&player->actor, 1 / fps, map);
-  rotateVector(&player->plane,
-               player->actor.dir.angle - player->plane.angle + M_PI_2);
-  castPlayerRays(player, map);
+void process_player_motion(Player *player, float fps, Map map) {
+  process_actor_motion(&player->actor, 1 / fps, map);
+  rotate_vector(&player->plane,
+                player->actor.dir.angle - player->plane.angle + M_PI_2);
+  cast_player_rays(player, map);
 }
 
-Player createPlayer() {
+Player create_player() {
   Player player;
 
   player.actor.size = PLAYER_SIZE;
@@ -102,20 +102,20 @@ Player createPlayer() {
   player.actor.accel = PLAYER_ACCEL;
 
   // Initialize player's position and velocity
-  player.actor.pos = setVector(2 * (double)win_ctx->width / 3 - 1,
-                               2 * (double)win_ctx->height / 3 - 1);
-  player.actor.velocity = setVector(0, 0);
-  player.actor.dir = setVector(-1, 0);
+  player.actor.pos = set_vector(2 * (double)win_ctx->width / 3 - 1,
+                                2 * (double)win_ctx->height / 3 - 1);
+  player.actor.velocity = set_vector(0, 0);
+  player.actor.dir = set_vector(-1, 0);
 
   // Calculate the player's plane (used for field of view in 3D rendering)
   player.plane =
-      setVector(0, player.actor.dir.x * tan(player.actor.field_of_view / 2));
+      set_vector(0, player.actor.dir.x * tan(player.actor.field_of_view / 2));
   player.intersects = malloc(sizeof(WallIntersect) * win_ctx->width);
 
   return player;
 }
 
-void freePlayer(Player *player) {
+void free_player(Player *player) {
   free(player->actor.view_cone);
   free(player->intersects);
 }

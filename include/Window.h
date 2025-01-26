@@ -23,9 +23,9 @@ typedef struct {
   int height;
 } WindowCtx;
 
-WindowCtx *windowInit(char *title, int x, int y, int width, int height,
-                      int target_fps);
-void handleWindowEvents(WindowCtx *ctx, SDL_Event event);
-void updateFrameCounter(WindowCtx *ctx);
-void freeWindowCtx(WindowCtx *ctx);
+WindowCtx *window_init(char *title, int x, int y, int width, int height,
+                       int target_fps);
+void handle_window_events(WindowCtx *ctx, SDL_Event event);
+void update_frame_counter(WindowCtx *ctx);
+void free_window_ctx(WindowCtx *ctx);
 #endif

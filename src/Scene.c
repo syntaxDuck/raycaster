@@ -10,13 +10,13 @@ Scene *createScene(char *map_path) {
   }
 
   // Initialize map
-  Map map = loadMap(map_path);
+  Map map = load_map(map_path);
   if (map.walls == NULL || map.ceil == NULL || map.floor == NULL) {
     fprintf(stderr, "Failed to load map from file\n");
     exit(1);
   }
 
-  Texture *textures = createTextures();
+  Texture *textures = create_textures();
   if (textures == NULL) {
     fprintf(stderr, "Failed to load textures\n");
     exit(1);
@@ -28,11 +28,11 @@ Scene *createScene(char *map_path) {
     fprintf(stderr, "Failed to allocate memory for static sprits\n");
     exit(1);
   }
-  s_sprites.sprites[0].pos = setVector(10.5, 10.5);
+  s_sprites.sprites[0].pos = set_vector(10.5, 10.5);
   s_sprites.sprites[0].texture = 10;
-  s_sprites.sprites[1].pos = setVector(15.5, 15.5);
+  s_sprites.sprites[1].pos = set_vector(15.5, 15.5);
   s_sprites.sprites[1].texture = 9;
-  s_sprites.sprites[2].pos = setVector(5.5, 5.5);
+  s_sprites.sprites[2].pos = set_vector(5.5, 5.5);
   s_sprites.sprites[2].texture = 8;
   s_sprites.num_sprites = 3;
   s_sprites.sprite_order = malloc(sizeof(int) * s_sprites.num_sprites);
@@ -40,14 +40,14 @@ Scene *createScene(char *map_path) {
 
   // Set the map and player for the scene
   scene->map = map;
-  scene->player = createPlayer();
+  scene->player = create_player();
   scene->s_sprites = s_sprites;
   scene->textures = textures;
 
   return scene;
 }
 
-void renderScene(Scene scene, void (*render)(Scene)) {
+void render_scene(Scene scene, void (*render)(Scene)) {
 
   // Clear the screen
   SDL_SetRenderDrawColor(win_ctx->renderer, 0, 0, 0, 255);
@@ -59,12 +59,12 @@ void renderScene(Scene scene, void (*render)(Scene)) {
   // Present the rendered frame to the screen
 }
 
-void render2dScene(Scene scene) {
-  render2dMap(scene);
-  render2dPlayer(scene.player);
+void render_2d_scene(Scene scene) {
+  render_2d_map(scene);
+  render_2d_player(scene.player);
 }
 
-void render2dMap(Scene scene) {
+void render_2d_map(Scene scene) {
   int x_offset;
   int y_offset;
 
@@ -99,21 +99,21 @@ void render2dMap(Scene scene) {
   }
 }
 
-void render2dPlayer(Player player) {
-  renderActorBody(player.actor);
+void render_2d_player(Player player) {
+  render_actor_body(player.actor);
 
 #ifdef DEBUG
-  renderPlayerViewRays(player);
-  renderActorViewDir(player.actor);
-  renderActorVelDir(player.actor);
-  renderPlayerPlane(player);
+  render_player_view_rays(player);
+  render_actor_view_dir(player.actor);
+  render_actor_vel_dir(player.actor);
+  render_player_plane(player);
 #endif
 }
 
-void renderPlayerPlane(Player player) {
+void render_player_plane(Player player) {
   SDL_SetRenderDrawColor(win_ctx->renderer, 0, 0, 0, 255);
-  setVectorMagnitude(&player.actor.dir, 10);
-  setVectorMagnitude(&player.plane, 5);
+  set_vector_magnitude(&player.actor.dir, 10);
+  set_vector_magnitude(&player.plane, 5);
   SDL_RenderDrawLine(win_ctx->renderer,
                      player.actor.pos.x + player.actor.dir.x - player.plane.x,
                      player.actor.pos.y + player.actor.dir.y - player.plane.y,
@@ -121,30 +121,30 @@ void renderPlayerPlane(Player player) {
                      player.actor.pos.y + player.actor.dir.y + player.plane.y);
 }
 
-void renderActorBody(Actor actor) {
+void render_actor_body(Actor actor) {
   SDL_SetRenderDrawColor(win_ctx->renderer, 0, 255, 0, 255);
   SDL_Rect rect = {actor.pos.x - (actor.size >> 1),
                    actor.pos.y - (actor.size >> 1), actor.size, actor.size};
   SDL_RenderFillRect(win_ctx->renderer, &rect);
 }
 
-void renderActorViewDir(Actor actor) {
+void render_actor_view_dir(Actor actor) {
   SDL_SetRenderDrawColor(win_ctx->renderer, 0, 0, 0, 255);
-  setVectorMagnitude(&actor.dir, 10);
-  translateVector(&actor.dir, actor.pos);
+  set_vector_magnitude(&actor.dir, 10);
+  translate_vector(&actor.dir, actor.pos);
   SDL_RenderDrawLine(win_ctx->renderer, actor.pos.x, actor.pos.y, actor.dir.x,
                      actor.dir.y);
 }
 
-void renderActorVelDir(Actor actor) {
+void render_actor_vel_dir(Actor actor) {
   SDL_SetRenderDrawColor(win_ctx->renderer, 255, 255, 255, 255);
-  setVectorMagnitude(&actor.velocity, 10);
-  translateVector(&actor.pos, actor.velocity);
+  set_vector_magnitude(&actor.velocity, 10);
+  translate_vector(&actor.pos, actor.velocity);
   SDL_RenderDrawLine(win_ctx->renderer, actor.pos.x, actor.pos.y,
                      actor.velocity.x, actor.velocity.y);
 }
 
-void renderActorViewRays(Actor actor) {
+void render_actor_view_rays(Actor actor) {
   SDL_SetRenderDrawColor(win_ctx->renderer, 255, 0, 255, 75);
   for (int i = 0; i < NUM_RAYS; i++) {
     Vector ray = actor.view_cone[i];
@@ -153,7 +153,7 @@ void renderActorViewRays(Actor actor) {
   }
 }
 
-void renderPlayerViewRays(Player player) {
+void render_player_view_rays(Player player) {
   SDL_SetRenderDrawColor(win_ctx->renderer, 255, 0, 255, 75);
   for (int i = 0; i < win_ctx->width; i++) {
     Vector ray = player.intersects[i].vect;
@@ -163,13 +163,13 @@ void renderPlayerViewRays(Player player) {
   }
 }
 
-void renderFpScene(Scene scene) {
-  renderFloorAndCeil(scene);
-  renderWalls(scene);
-  rendererSprites(scene);
+void render_fp_scene(Scene scene) {
+  render_floor_and_ceil(scene);
+  render_walls(scene);
+  renderer_sprites(scene);
 }
 
-void rendererSprites(Scene scene) {
+void renderer_sprites(Scene scene) {
   Vector player_pos = scene.player.actor.pos;
   player_pos.x /= MAP_UNIT_SIZE;
   player_pos.y /= MAP_UNIT_SIZE;
@@ -195,21 +195,21 @@ void rendererSprites(Scene scene) {
          (player_pos.y - s_sprites.sprites[i].pos.y) *
              (player_pos.y - s_sprites.sprites[i].pos.y));
   }
-  sortSprites(s_sprites.sprite_order, s_sprites.sprite_dist,
-              s_sprites.num_sprites);
+  sort_sprites(s_sprites.sprite_order, s_sprites.sprite_dist,
+               s_sprites.num_sprites);
 
   for (int i = 0; i < s_sprites.num_sprites; i++) {
-    Vector rel_sprite_pos = setVector(
+    Vector rel_sprite_pos = set_vector(
         s_sprites.sprites[s_sprites.sprite_order[i]].pos.x - player_pos.x,
         s_sprites.sprites[s_sprites.sprite_order[i]].pos.y - player_pos.y);
 
     double inv_det = 1.0 / (scene.player.plane.x * scene.player.actor.dir.y -
                             scene.player.actor.dir.x * scene.player.plane.y);
     Vector transform =
-        setVector(inv_det * (scene.player.actor.dir.y * rel_sprite_pos.x -
-                             scene.player.actor.dir.x * rel_sprite_pos.y),
-                  inv_det * (-scene.player.plane.y * rel_sprite_pos.x +
-                             scene.player.plane.x * rel_sprite_pos.y));
+        set_vector(inv_det * (scene.player.actor.dir.y * rel_sprite_pos.x -
+                              scene.player.actor.dir.x * rel_sprite_pos.y),
+                   inv_det * (-scene.player.plane.y * rel_sprite_pos.x +
+                              scene.player.plane.x * rel_sprite_pos.y));
     int sprite_screen_x =
         (int)((win_ctx->width / 2.0) * (1 + transform.x / transform.y));
     int sprite_height = abs((int)(win_ctx->height / transform.y));
@@ -256,7 +256,7 @@ void rendererSprites(Scene scene) {
   SDL_DestroyTexture(texture);
 }
 
-void renderFloorAndCeil(Scene scene) {
+void render_floor_and_ceil(Scene scene) {
   SDL_Texture *texture = SDL_CreateTexture(
       win_ctx->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,
       win_ctx->width, win_ctx->height);
@@ -368,7 +368,7 @@ void renderFloorAndCeil(Scene scene) {
   SDL_DestroyTexture(texture);
 }
 
-void renderWalls(Scene scene) {
+void render_walls(Scene scene) {
   SDL_Texture *texture = SDL_CreateTexture(
       win_ctx->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,
       win_ctx->width, win_ctx->height);
@@ -442,7 +442,7 @@ void renderWalls(Scene scene) {
 }
 
 void freeScene(Scene *scene) {
-  freePlayer(&scene->player);
-  freeMap(scene->map);
+  free_player(&scene->player);
+  free_map(scene->map);
   free(scene);
 }

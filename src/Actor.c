@@ -1,7 +1,7 @@
 #include "actor.h"
 #include "config.h"
 
-void processActorMotion(Actor *actor, float frame_time, Map map) {
+void process_actor_motion(Actor *actor, float frame_time, Map map) {
   float movement_speed = 5 * map.unit_size * frame_time;
 
   const Uint8 *state = SDL_GetKeyboardState(NULL);
@@ -9,9 +9,9 @@ void processActorMotion(Actor *actor, float frame_time, Map map) {
   // Rotation Function
   if (state[SDL_SCANCODE_D] ^ state[SDL_SCANCODE_A]) {
     if (state[SDL_SCANCODE_A]) {
-      rotateVector(&actor->dir, -PLAYER_TURN_SPEED);
+      rotate_vector(&actor->dir, -PLAYER_TURN_SPEED);
     } else {
-      rotateVector(&actor->dir, PLAYER_TURN_SPEED);
+      rotate_vector(&actor->dir, PLAYER_TURN_SPEED);
     }
     actor->velocity.angle = actor->dir.angle;
   }
@@ -19,8 +19,8 @@ void processActorMotion(Actor *actor, float frame_time, Map map) {
   // Velocity Vector Function
   if (state[SDL_SCANCODE_W] ^ state[SDL_SCANCODE_S]) {
     if (state[SDL_SCANCODE_W]) {
-      Vector new_pos = setVector(actor->pos.x + actor->dir.x * movement_speed,
-                                 actor->pos.y + actor->dir.y * movement_speed);
+      Vector new_pos = set_vector(actor->pos.x + actor->dir.x * movement_speed,
+                                  actor->pos.y + actor->dir.y * movement_speed);
       if (map.walls[(int)actor->pos.y / map.unit_size]
                    [(int)new_pos.x / map.unit_size] == false)
         actor->pos.x = new_pos.x;
@@ -28,8 +28,8 @@ void processActorMotion(Actor *actor, float frame_time, Map map) {
                    [(int)actor->pos.x / map.unit_size] == false)
         actor->pos.y = new_pos.y;
     } else {
-      Vector new_pos = setVector(actor->pos.x - actor->dir.x * movement_speed,
-                                 actor->pos.y - actor->dir.y * movement_speed);
+      Vector new_pos = set_vector(actor->pos.x - actor->dir.x * movement_speed,
+                                  actor->pos.y - actor->dir.y * movement_speed);
       if (map.walls[(int)actor->pos.y / map.unit_size]
                    [(int)new_pos.x / map.unit_size] == false)
         actor->pos.x = new_pos.x;
@@ -41,7 +41,7 @@ void processActorMotion(Actor *actor, float frame_time, Map map) {
   }
 }
 
-Vector getRayRowIntersect(Vector origin, Vector ray, Map map) {
+Vector get_ray_row_intersectect(Vector origin, Vector ray, Map map) {
   Vector casted_ray;
   double x, y;
   int row_index, col_index;
@@ -102,7 +102,7 @@ Vector getRayRowIntersect(Vector origin, Vector ray, Map map) {
   return casted_ray;
 }
 
-Vector getRayColIntersect(Vector origin, Vector ray, Map map) {
+Vector get_ray_col_intersect(Vector origin, Vector ray, Map map) {
   Vector casted_ray;
   double x, y;
   int row_index, col_index;
@@ -165,15 +165,15 @@ Vector getRayColIntersect(Vector origin, Vector ray, Map map) {
   return casted_ray;
 }
 
-void castActorRays(Actor *actor, Map map) {
+void cast_actor_rays(Actor *actor, Map map) {
   double increment_rad = actor->field_of_view / NUM_RAYS;
   double starting_angle = -actor->field_of_view / 2 + increment_rad;
   for (int i = 0; i < NUM_RAYS; i++) {
     Vector new_vect = actor->dir;
-    rotateVector(&new_vect, starting_angle + i * increment_rad);
+    rotate_vector(&new_vect, starting_angle + i * increment_rad);
 
-    Vector row_intersect = getRayRowIntersect(actor->pos, new_vect, map);
-    Vector col_intersect = getRayColIntersect(actor->pos, new_vect, map);
+    Vector row_intersect = get_ray_row_intersectect(actor->pos, new_vect, map);
+    Vector col_intersect = get_ray_col_intersect(actor->pos, new_vect, map);
     actor->view_cone[i] =
         row_intersect.mag < col_intersect.mag ? row_intersect : col_intersect;
   }

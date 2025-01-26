@@ -26,7 +26,7 @@ typedef struct {
  * @param y Y-coordinate of the vector
  * @return Vector Initialized vector with x, y, magnitude, and angle.
  */
-Vector setVector(double x, double y);
+Vector set_vector(double x, double y);
 
 /**
  * @brief Initializes a point with the given x and y coordinates. Since this is
@@ -37,7 +37,7 @@ Vector setVector(double x, double y);
  * @return Vector Initialized point with x, y coordinates, and NAN magnitude and
  * angle.
  */
-Vector setPoint(double x, double y);
+Vector set_point(double x, double y);
 
 /**
  * @brief Sets the magnitude of the vector and updates its x and y components
@@ -47,7 +47,7 @@ Vector setPoint(double x, double y);
  * @param vector Pointer to the vector whose magnitude is being set.
  * @param mag The new magnitude to set.
  */
-void setVectorMagnitude(Vector *vect, double mag);
+void set_vector_magnitude(Vector *vect, double mag);
 
 /**
  * @brief Calculates the magnitude of the given vector based on its x and y
@@ -55,7 +55,7 @@ void setVectorMagnitude(Vector *vect, double mag);
  *
  * @param vector Pointer to the vector whose magnitude is being calculated.
  */
-void calculateVectorMag(Vector *vect);
+void calculate_vector_mag(Vector *vect);
 
 /**
  * @brief Calculates the angle of the vector based on its x and y components.
@@ -63,14 +63,14 @@ void calculateVectorMag(Vector *vect);
  *
  * @param vector Pointer to the vector whose angle is being calculated.
  */
-void calculateVectorAngle(Vector *vect);
+void calculate_vector_angle(Vector *vect);
 
 /**
  * @brief Prints the vector's x, y components, magnitude, and angle.
  *
  * @param vector The vector to be printed.
  */
-void printVector(Vector vect);
+void print_vector(Vector vect);
 
 /**
  * @brief Rotates the given vector by the specified angle (in radians).
@@ -80,7 +80,7 @@ void printVector(Vector vect);
  * @param vector Pointer to the vector to be rotated.
  * @param angle The angle (in radians) by which to rotate the vector.
  */
-void rotateVector(Vector *vect, double angle);
+void rotate_vector(Vector *vect, double angle);
 
 /**
  * @brief Translates a vector that is relative to the origin to be relative to a
@@ -91,7 +91,7 @@ void rotateVector(Vector *vect, double angle);
  * @param origin The vector or point representing the new origin.
  * @return Vector The translated vector.
  */
-void translateVector(Vector *vect, Vector origin);
+void translate_vector(Vector *vect, Vector origin);
 
 /**
  * @brief Normalizes the given vector to a unit vector (magnitude = 1) if its
@@ -101,6 +101,6 @@ void translateVector(Vector *vect, Vector origin);
  * @param vector The vector to normalize.
  * @return Vector The normalized vector.
  */
-void normalizeVector(Vector *vect);
+void normalize_vector(Vector *vect);
 
 #endif // VECTOR_H

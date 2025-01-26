@@ -1,6 +1,7 @@
 #include "sprite.h"
 
-void sortSprites(int *s_sprite_order, double *s_sprit_dist, int num_s_sprites) {
+void sort_sprites(int *s_sprite_order, double *s_sprit_dist,
+                  int num_s_sprites) {
   for (int i = 0; i < num_s_sprites - 1; i++) {
     for (int j = 0; j < num_s_sprites - i - 1; j++) {
       // Compare distances of adjacent sprites

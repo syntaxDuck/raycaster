@@ -7,10 +7,10 @@
 
 #include "vector.h"
 
-Vector *generateCirclePoints(Vector center, double radius, int numPoints);
-void generateFilledCircle(SDL_Renderer *renderer, Vector center, double radius,
-                          int numPoints);
+Vector *generate_circle_points(Vector center, double radius, int numPoints);
+void generate_filled_circle(SDL_Renderer *renderer, Vector center,
+                            double radius, int numPoints);
 
-SDL_Texture *drawFilledCircle(SDL_Renderer *renderer, Vector center_vect,
-                              int radius);
+SDL_Texture *draw_filled_circle(SDL_Renderer *renderer, Vector center_vect,
+                                int radius);
 #endif

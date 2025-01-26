@@ -37,20 +37,20 @@ typedef struct {
 
 Scene *createScene(char *map_path);
 
-void renderScene(Scene scene, void (*render)(Scene));
-void render2dScene(Scene scene);
-void renderFpScene(Scene scene);
-void rendererSprites(Scene scene);
-void render2dMap(Scene Scene);
-void render2dPlayer(Player player);
-void renderPlayerPlane(Player player);
-void renderPlayerViewRays(Player player);
-void renderActorBody(Actor actor);
-void renderActorVelDir(Actor actor);
-void renderActorViewDir(Actor actor);
-void renderActorViewRays(Actor actor);
-void renderWalls(Scene scene);
-void renderFloorAndCeil(Scene scene);
+void render_scene(Scene scene, void (*render)(Scene));
+void render_2d_scene(Scene scene);
+void render_fp_scene(Scene scene);
+void renderer_sprites(Scene scene);
+void render_2d_map(Scene Scene);
+void render_2d_player(Player player);
+void render_player_plane(Player player);
+void render_player_view_rays(Player player);
+void render_actor_body(Actor actor);
+void render_actor_vel_dir(Actor actor);
+void render_actor_view_dir(Actor actor);
+void render_actor_view_rays(Actor actor);
+void render_walls(Scene scene);
+void render_floor_and_ceil(Scene scene);
 
 void freeScene(Scene *scene);
 #endif

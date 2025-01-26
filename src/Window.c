@@ -1,7 +1,7 @@
 #include "window.h"
 
-WindowCtx *windowInit(char *title, int x, int y, int width, int height,
-                      int target_fps) {
+WindowCtx *window_init(char *title, int x, int y, int width, int height,
+                       int target_fps) {
   // Create the window
   WindowCtx *ctx = malloc(sizeof(WindowCtx));
   ctx->window = SDL_CreateWindow(title, x, y, width, height,
@@ -50,7 +50,7 @@ WindowCtx *windowInit(char *title, int x, int y, int width, int height,
   return ctx;
 }
 
-void handleWindowEvents(WindowCtx *ctx, SDL_Event event) {
+void handle_window_events(WindowCtx *ctx, SDL_Event event) {
   if (event.type == SDL_QUIT) {
     ctx->state.quit = true;
   }
@@ -62,7 +62,7 @@ void handleWindowEvents(WindowCtx *ctx, SDL_Event event) {
   }
 }
 
-void updateFrameCounter(WindowCtx *window_data) {
+void update_frame_counter(WindowCtx *window_data) {
   // Increment the frame count
   window_data->frame_count++;
 
@@ -90,7 +90,7 @@ void updateFrameCounter(WindowCtx *window_data) {
   }
 }
 
-void freeWindowCtx(WindowCtx *ctx) {
+void free_window_ctx(WindowCtx *ctx) {
   if (ctx->renderer)
     SDL_DestroyRenderer(ctx->renderer);
   if (ctx->window)

@@ -2,7 +2,7 @@
 #include "config.h"
 
 // Function to print the map values to the console
-void printMap(Map map) {
+void print_map(Map map) {
   printf("Walls:\n");
   for (int i = 0; i < map.height; i++) {
     for (int j = 0; j < map.width; j++) {
@@ -28,14 +28,14 @@ void printMap(Map map) {
   }
 }
 
-Map loadMap(char *filename) {
+Map load_map(char *filename) {
   Map map;
   map.unit_size = MAP_UNIT_SIZE;
-  loadMapGridFromFile(filename, &map);
+  load_map_grid_from_file(filename, &map);
   return map;
 }
 
-void loadMapGridFromFile(const char *filename, Map *map) {
+void load_map_grid_from_file(const char *filename, Map *map) {
   // Open the file
   FILE *file = fopen(filename, "r");
   if (!file) {
@@ -118,7 +118,7 @@ void loadMapGridFromFile(const char *filename, Map *map) {
 }
 
 // Function to free the dynamically allocated map memory
-void freeMap(Map map) {
+void free_map(Map map) {
   for (int i = 0; i < map.height; i++) {
     free(map.walls[i]);
     free(map.ceil[i]);

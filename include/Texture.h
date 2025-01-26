@@ -12,8 +12,8 @@ typedef struct {
   int width;
 } Texture;
 
-Texture *createTextures();
-Uint32 *loadImageData(const char *filePath, int *width, int *height);
-void freeTexture(Texture *texture);
+Texture *create_textures();
+Uint32 *load_image_data(const char *filePath, int *width, int *height);
+void free_texture(Texture *texture);
 
 #endif

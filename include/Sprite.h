@@ -14,5 +14,5 @@ typedef struct {
   int texture;
 } DynamicSprite;
 
-void sortSprites(int *s_sprite_order, double *s_sprit_dist, int num_s_sprites);
+void sort_sprites(int *s_sprite_order, double *s_sprit_dist, int num_s_sprites);
 #endif

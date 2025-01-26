@@ -24,12 +24,12 @@ typedef struct {
 typedef struct Node {
   struct Node *next;
   Actor actor;
-} Actor_List_Node;
+} ActorListNode;
 
-void castActorRays(Actor *actor, Map map);
-void processActorMotion(Actor *actor, float fps, Map map);
+void cast_actor_rays(Actor *actor, Map map);
+void process_actor_motion(Actor *actor, float fps, Map map);
 
 // DDA algo
-Vector getRayRowIntersect(Vector origin, Vector ray, Map map);
-Vector getRayColIntersect(Vector origin, Vector ray, Map map);
+Vector get_ray_row_intersect(Vector origin, Vector ray, Map map);
+Vector get_ray_col_intersect(Vector origin, Vector ray, Map map);
 #endif

@@ -5,7 +5,7 @@
 #include <SDL2/SDL_render.h>
 #include <stdlib.h>
 
-#include "Vector.h"
+#include "vector.h"
 
 Vector *generateCirclePoints(Vector center, double radius, int numPoints);
 void generateFilledCircle(SDL_Renderer *renderer, Vector center, double radius,

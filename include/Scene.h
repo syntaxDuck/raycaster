@@ -6,11 +6,11 @@
 #include <SDL_image.h>
 #include <stdbool.h>
 
-#include "Actor.h"
-#include "Player.h"
-#include "Sprite.h"
-#include "Texture.h"
+#include "actor.h"
 #include "map.h"
+#include "player.h"
+#include "sprite.h"
+#include "texture.h"
 
 typedef struct {
   int num_sprites;

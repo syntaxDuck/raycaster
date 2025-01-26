@@ -1,18 +1,9 @@
 #include "config.h"
 #include "global.h"
 
-#include "Game.h"
-#include "Scene.h"
+#include "game.h"
+#include "scene.h"
 #include "window.h"
-
-SDL_Rect createRect(int x, int y, int w, int h) {
-  SDL_Rect rect;
-  rect.x = x;
-  rect.y = y;
-  rect.w = w;
-  rect.h = h;
-  return rect;
-}
 
 int initSDL() {
   // Initialize SDL

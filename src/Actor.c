@@ -1,4 +1,4 @@
-#include "Actor.h"
+#include "actor.h"
 #include "config.h"
 
 void processActorMotion(Actor *actor, float frame_time, Map map) {

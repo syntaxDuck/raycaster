@@ -5,8 +5,8 @@
 #include <SDL_surface.h>
 #include <stdbool.h>
 
-#include "Vector.h"
 #include "map.h"
+#include "vector.h"
 
 typedef struct {
   int size;

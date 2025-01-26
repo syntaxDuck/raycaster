@@ -1,8 +1,8 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "Actor.h"
-#include "Vector.h"
+#include "actor.h"
+#include "vector.h"
 
 typedef struct {
   double perp_wall_distance;

@@ -1,4 +1,4 @@
-#include "Utility.h"
+#include "utility.h"
 
 // Function to generate points along the circumference of a circle using Bézier
 // curves Vector *

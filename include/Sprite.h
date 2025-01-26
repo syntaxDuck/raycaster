@@ -1,8 +1,8 @@
 #ifndef SPRITE_H
 #define SPRITE_H
 
-#include "Actor.h"
-#include "Vector.h"
+#include "actor.h"
+#include "vector.h"
 
 typedef struct {
   Vector pos;

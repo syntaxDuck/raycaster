@@ -1,4 +1,4 @@
-#include "Texture.h"
+#include "texture.h"
 #include "config.h"
 
 Uint32 *loadImageData(const char *filePath, int *width, int *height) {

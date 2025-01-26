@@ -1,4 +1,4 @@
-#include "Scene.h"
+#include "scene.h"
 #include "config.h"
 #include "global.h"
 

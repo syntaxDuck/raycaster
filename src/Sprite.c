@@ -1,4 +1,4 @@
-#include "Sprite.h"
+#include "sprite.h"
 
 void sortSprites(int *s_sprite_order, double *s_sprit_dist, int num_s_sprites) {
   for (int i = 0; i < num_s_sprites - 1; i++) {

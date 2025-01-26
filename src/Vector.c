@@ -1,4 +1,4 @@
-#include "Vector.h"
+#include "vector.h"
 
 // Creates and returns a vector with the given x and y coordinates.
 // It calculates the vector's angle and magnitude.

@@ -10,6 +10,10 @@ set(CMAKE_C_COMPILER clang)
 # Generate a compile commands file for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Setup debug
+set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_C_FLAGS_DEBUG "-g")
+
 # Find SDL2 package
 find_package(SDL2 REQUIRED)
 
@@ -36,4 +40,4 @@ link_directories(/opt/homebrew/lib)
 add_executable(main ${SOURCES})
 
 # Link libraries
-target_link_libraries(main ${SDL2_LIBRARIES} /opt/homebrew/Cellar/sdl2_image/2.8.2_2/lib/libSDL2_image.dylib m)
+target_link_libraries(main ${SDL2_LIBRARIES} /opt/homebrew/Cellar/sdl2_image/2.8.4/lib/libSDL2_image.dylib m)

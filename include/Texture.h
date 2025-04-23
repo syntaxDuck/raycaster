@@ -3,10 +3,11 @@
 
 #include <SDL.h>
 #include <SDL_image.h>
-#include <dirent.h>
+// #include <dirent.h>
 #include <stdint.h>
 
-typedef struct {
+typedef struct
+{
   int *pixels;
   int height;
   int width;

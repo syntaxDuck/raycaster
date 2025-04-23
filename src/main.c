@@ -4,16 +4,20 @@
 #include "game.h"
 #include "scene.h"
 #include "window.h"
+#include <stdio.h>
 
-int initSDL() {
+int initSDL()
+{
   // Initialize SDL
-  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+  if (SDL_Init(SDL_INIT_VIDEO) < 0)
+  {
     fprintf(stderr, "SDL could not initialize! SDL_Error: %s\n",
             SDL_GetError());
     return 1;
   }
 
-  if (IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG) == 0) {
+  if (IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG) == 0)
+  {
     fprintf(stderr, "IMG_Init Error: %s\n", IMG_GetError());
     SDL_Quit(); // Clean up SDL
     return 1;   // or handle the error appropriately
@@ -21,18 +25,21 @@ int initSDL() {
   return 0;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
   initSDL();
   win_ctx = window_init("Main Viewport", SDL_WINDOWPOS_CENTERED,
                         SDL_WINDOWPOS_CENTERED, WIN_WIDTH, WIN_HEIGHT, MAX_FPS);
 
   GameCtx game_ctx;
 
-  game_ctx.scene = createScene("./assets/maps/map.txt");
+  game_ctx.scene = createScene("assets/maps/map.txt");
 
   SDL_Event event;
-  while (!win_ctx->state.quit) {
-    if (SDL_PollEvent(&event) != 0) {
+  while (!win_ctx->state.quit)
+  {
+    if (SDL_PollEvent(&event) != 0)
+    {
       handle_window_events(win_ctx, event);
     }
 

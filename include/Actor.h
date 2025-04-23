@@ -1,14 +1,11 @@
 #ifndef ACTOR_H
 #define ACTOR_H
 
-#include <SDL.h>
-#include <SDL_surface.h>
-#include <stdbool.h>
-
 #include "map.h"
 #include "vector.h"
 
-typedef struct {
+typedef struct
+{
   int size;
   double field_of_view;
 
@@ -21,7 +18,8 @@ typedef struct {
   Vector *view_cone;
 } Actor;
 
-typedef struct Node {
+typedef struct Node
+{
   struct Node *next;
   Actor actor;
 } ActorListNode;

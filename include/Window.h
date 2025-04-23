@@ -1,17 +1,19 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_render.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <SDL_render.h>
+#include <SDL.h>
 
-typedef struct {
+typedef struct
+{
   bool quit;
   bool key_pressed;
 } WindowState;
 
-typedef struct {
+typedef struct
+{
   char *title;
   SDL_Window *window;
   SDL_Renderer *renderer;

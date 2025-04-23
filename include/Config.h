@@ -16,8 +16,11 @@
 #define TEXTURES_PNG true
 
 // Generic
+#ifndef M_PI_3_2
+#define M_PI_3_2 4.71238898038468985769
+#endif
+
 #define DEG_TO_RAD M_PI / 180
-#define M_PI_3_2 M_PI + M_PI_2
 
 // Player defines
 #define PLAYER_SIZE 7

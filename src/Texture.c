@@ -1,10 +1,13 @@
 #include "texture.h"
 #include "config.h"
+#include <stdio.h>
 
-Uint32 *load_image_data(const char *filePath, int *width, int *height) {
+Uint32 *load_image_data(const char *filePath, int *width, int *height)
+{
   // Load the image into an SDL_Surface
   SDL_Surface *surface = IMG_Load(filePath);
-  if (!surface) {
+  if (!surface)
+  {
     fprintf(stderr, "Could not load image: %s\n", IMG_GetError());
     return NULL;
   }
@@ -17,7 +20,8 @@ Uint32 *load_image_data(const char *filePath, int *width, int *height) {
   SDL_Surface *converted_surface =
       SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA8888, 0);
   SDL_FreeSurface(surface); // Free the original surface
-  if (!converted_surface) {
+  if (!converted_surface)
+  {
     fprintf(stderr, "Could not convert surface to RGBA8888: %s\n",
             SDL_GetError());
     return NULL;
@@ -29,7 +33,8 @@ Uint32 *load_image_data(const char *filePath, int *width, int *height) {
   // Allocate an array to hold the pixel data
   Uint32 *pixelData =
       malloc(converted_surface->w * converted_surface->h * sizeof(Uint32));
-  if (!pixelData) {
+  if (!pixelData)
+  {
     fprintf(stderr, "Could not allocate memory for pixel data\n");
     SDL_FreeSurface(converted_surface);
     return NULL;
@@ -37,8 +42,10 @@ Uint32 *load_image_data(const char *filePath, int *width, int *height) {
 
   // Copy the pixel data from the surface to the array
   Uint32 *pixels = (Uint32 *)converted_surface->pixels;
-  for (int y = 0; y < converted_surface->h; y++) {
-    for (int x = 0; x < converted_surface->w; x++) {
+  for (int y = 0; y < converted_surface->h; y++)
+  {
+    for (int x = 0; x < converted_surface->w; x++)
+    {
       // Get the pixel value and store it in the array
       Uint32 pixel = pixels[y * converted_surface->w + x];
       pixelData[y * converted_surface->w + x] = pixel;
@@ -52,33 +59,34 @@ Uint32 *load_image_data(const char *filePath, int *width, int *height) {
 }
 
 // TODO: have some issues rendering textures with alpha channels
-Texture *create_textures() {
+Texture *create_textures()
+{
   // int textures[8][TEX_HEIGHT * TEX_WIDTH];
   Texture *textures = malloc(sizeof(Texture) * 11);
   int width, height;
 
   // Static Textures
   Uint32 *t0 =
-      load_image_data("../assets/textures/bluestone.png", &width, &height);
+      load_image_data("assets/textures/bluestone.png", &width, &height);
   Uint32 *t1 =
-      load_image_data("../assets/textures/colorstone.png", &width, &height);
-  Uint32 *t2 = load_image_data("../assets/textures/eagle.png", &width, &height);
+      load_image_data("assets/textures/colorstone.png", &width, &height);
+  Uint32 *t2 = load_image_data("assets/textures/eagle.png", &width, &height);
   Uint32 *t3 =
-      load_image_data("../assets/textures/greystone.png", &width, &height);
-  Uint32 *t4 = load_image_data("../assets/textures/mossy.png", &width, &height);
+      load_image_data("assets/textures/greystone.png", &width, &height);
+  Uint32 *t4 = load_image_data("assets/textures/mossy.png", &width, &height);
   Uint32 *t5 =
-      load_image_data("../assets/textures/purplestone.png", &width, &height);
+      load_image_data("assets/textures/purplestone.png", &width, &height);
   Uint32 *t6 =
-      load_image_data("../assets/textures/redbrick.png", &width, &height);
-  Uint32 *t7 = load_image_data("../assets/textures/wood.png", &width, &height);
+      load_image_data("assets/textures/redbrick.png", &width, &height);
+  Uint32 *t7 = load_image_data("assets/textures/wood.png", &width, &height);
 
   // Sprit textures
   Uint32 *t8 =
-      load_image_data("../assets/textures/barrel.png", &width, &height);
+      load_image_data("assets/textures/barrel.png", &width, &height);
   Uint32 *t9 =
-      load_image_data("../assets/textures/pillar.png", &width, &height);
+      load_image_data("assets/textures/pillar.png", &width, &height);
   Uint32 *t10 =
-      load_image_data("../assets/textures/greenlight.png", &width, &height);
+      load_image_data("assets/textures/greenlight.png", &width, &height);
 
   textures[0].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
   textures[1].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
@@ -92,8 +100,10 @@ Texture *create_textures() {
   textures[9].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
   textures[10].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
 
-  for (int x = 0; x < TEX_WIDTH; x++) {
-    for (int y = 0; y < TEX_HEIGHT; y++) {
+  for (int x = 0; x < TEX_WIDTH; x++)
+  {
+    for (int y = 0; y < TEX_HEIGHT; y++)
+    {
       textures[0].pixels[TEX_WIDTH * y + x] = t0[TEX_HEIGHT * y + x];
       textures[1].pixels[TEX_WIDTH * y + x] = t1[TEX_HEIGHT * y + x];
       textures[2].pixels[TEX_WIDTH * y + x] = t2[TEX_HEIGHT * y + x];
@@ -111,7 +121,8 @@ Texture *create_textures() {
   return textures;
 }
 
-Texture *createProgrammaticTextures() {
+Texture *createProgrammaticTextures()
+{
   Texture *textures = malloc(sizeof(Texture) * 11);
   textures[0].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
   textures[1].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
@@ -124,8 +135,10 @@ Texture *createProgrammaticTextures() {
   textures[8].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
   textures[9].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
   textures[10].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
-  for (int x = 0; x < TEX_WIDTH; x++) {
-    for (int y = 0; y < TEX_HEIGHT; y++) {
+  for (int x = 0; x < TEX_WIDTH; x++)
+  {
+    for (int y = 0; y < TEX_HEIGHT; y++)
+    {
       int xorcolor = (x * 256 / TEX_WIDTH) ^ (y * 256 / TEX_HEIGHT);
       int xcolor = x * 256 / TEX_WIDTH;
       int ycolor = y * 256 / TEX_HEIGHT;
@@ -150,8 +163,10 @@ Texture *createProgrammaticTextures() {
   return textures;
 }
 
-void free_texture(Texture *textures) {
-  for (int i = 0; i < 11; i++) {
+void free_texture(Texture *textures)
+{
+  for (int i = 0; i < 11; i++)
+  {
     free(textures[i].pixels);
   }
   free(textures);

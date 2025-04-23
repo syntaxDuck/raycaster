@@ -1,8 +1,8 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_render.h>
+#include <SDL.h>
+#include <SDL_render.h>
 #include <SDL_image.h>
 #include <stdbool.h>
 
@@ -12,21 +12,24 @@
 #include "sprite.h"
 #include "texture.h"
 
-typedef struct {
+typedef struct
+{
   int num_sprites;
   int *sprite_order;
   double *sprite_dist;
   StaticSprite *sprites;
 } SceneStaticSprites;
 
-typedef struct {
+typedef struct
+{
   int num_sprites;
   int *sprite_order;
   double *sprite_dist;
   DynamicSprite *sprites;
 } SceneDynamicSprites;
 
-typedef struct {
+typedef struct
+{
   Map map;
   Player player;
   SceneStaticSprites s_sprites;

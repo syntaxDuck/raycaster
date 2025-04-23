@@ -1,17 +1,10 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#include <math.h>
-#include <stdio.h>
-
-// Define a constant for 2*PI
-#ifndef M_2PI
-#define M_2PI (2.0 * M_PI)
-#endif
-
 // Structure representing a 2D vector or point with x and y components,
 // magnitude (mag), and angle (angle) in radians.
-typedef struct {
+typedef struct
+{
   double x;     // X-coordinate
   double y;     // Y-coordinate
   double mag;   // Magnitude of the vector

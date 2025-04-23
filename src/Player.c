@@ -2,7 +2,12 @@
 #include "config.h"
 #include "global.h"
 
-void cast_player_rays(Player *player, Map map) {
+#ifndef M_PI_2
+#define M_PI_2 1.57079632679489661923
+#endif
+
+void cast_player_rays(Player *player, Map map)
+{
   Vector dir = player->actor.dir; // Player's direction vector
   Vector plane =
       player->plane; // Player's plane vector (perpendicular to direction)
@@ -17,7 +22,8 @@ void cast_player_rays(Player *player, Map map) {
   free(player->intersects);
   player->intersects = malloc(sizeof(WallIntersect) * win_ctx->width);
 
-  for (int x = 0; x < win_ctx->width; x++) {
+  for (int x = 0; x < win_ctx->width; x++)
+  {
     // Calculate x-coordinate in camera space
     camera_x = 2 * x / (double)win_ctx->width -
                1; // Normalized coordinate in camera space
@@ -28,7 +34,8 @@ void cast_player_rays(Player *player, Map map) {
   }
 }
 
-WallIntersect get_wall_intersect(Vector origin, Vector ray_dir, Map map) {
+WallIntersect get_wall_intersect(Vector origin, Vector ray_dir, Map map)
+{
   Vector map_pos = set_vector((int)origin.x, (int)origin.y);
   Vector side_dist;
   Vector delta_dist = set_vector(ray_dir.x == 0 ? 1e30 : fabs(1 / ray_dir.x),
@@ -37,28 +44,38 @@ WallIntersect get_wall_intersect(Vector origin, Vector ray_dir, Map map) {
   Vector step;
   int hit = 0;
   int side;
-  if (ray_dir.x < 0) {
+  if (ray_dir.x < 0)
+  {
     step.x = -1;
     side_dist.x = (origin.x - map_pos.x) * delta_dist.x;
-  } else {
+  }
+  else
+  {
     step.x = 1;
     side_dist.x = (map_pos.x + 1.0 - origin.x) * delta_dist.x;
   }
 
-  if (ray_dir.y < 0) {
+  if (ray_dir.y < 0)
+  {
     step.y = -1;
     side_dist.y = (origin.y - map_pos.y) * delta_dist.y;
-  } else {
+  }
+  else
+  {
     step.y = 1;
     side_dist.y = (map_pos.y + 1.0 - origin.y) * delta_dist.y;
   }
 
-  while (hit == 0) {
-    if (side_dist.x < side_dist.y) {
+  while (hit == 0)
+  {
+    if (side_dist.x < side_dist.y)
+    {
       side_dist.x += delta_dist.x;
       map_pos.x += step.x;
       side = 0;
-    } else {
+    }
+    else
+    {
       side_dist.y += delta_dist.y;
       map_pos.y += step.y;
       side = 1;
@@ -83,14 +100,16 @@ WallIntersect get_wall_intersect(Vector origin, Vector ray_dir, Map map) {
   return intersect;
 }
 
-void process_player_motion(Player *player, float fps, Map map) {
+void process_player_motion(Player *player, float fps, Map map)
+{
   process_actor_motion(&player->actor, 1 / fps, map);
   rotate_vector(&player->plane,
                 player->actor.dir.angle - player->plane.angle + M_PI_2);
   cast_player_rays(player, map);
 }
 
-Player create_player() {
+Player create_player()
+{
   Player player;
 
   player.actor.size = PLAYER_SIZE;
@@ -115,7 +134,8 @@ Player create_player() {
   return player;
 }
 
-void free_player(Player *player) {
+void free_player(Player *player)
+{
   free(player->actor.view_cone);
   free(player->intersects);
 }

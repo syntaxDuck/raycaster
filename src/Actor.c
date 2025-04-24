@@ -19,11 +19,11 @@ void process_actor_motion(Actor *actor, float frame_time, Map map)
   {
     if (state[SDL_SCANCODE_A])
     {
-      rotate_vector(&actor->dir, -PLAYER_TURN_SPEED);
+      rotate_vector(&actor->dir, -actor->turn_speed);
     }
     else
     {
-      rotate_vector(&actor->dir, PLAYER_TURN_SPEED);
+      rotate_vector(&actor->dir, actor->turn_speed);
     }
     actor->velocity.angle = actor->dir.angle;
   }
@@ -136,7 +136,7 @@ Vector get_ray_col_intersect(Vector origin, Vector ray, Map map)
   int col_offset = origin.x - (int)origin.x % map.unit_size;
   while (true)
   {
-    if (ray.angle == M_PI_2 || ray.angle == M_PI_3_2)
+    if (ray.angle == M_PI_2 || ray.angle == 3 * M_PI_2)
     {
 
       y = ray.angle == M_PI_2 ? 1e30 : -1e30;
@@ -152,7 +152,7 @@ Vector get_ray_col_intersect(Vector origin, Vector ray, Map map)
     else
     {
 
-      if (ray.angle < M_PI_2 || ray.angle > M_PI_3_2)
+      if (ray.angle < M_PI_2 || ray.angle > 3 * M_PI_2)
       {
         x = col_offset - origin.x;
         y = (origin.x - col_offset) * ray_tan;

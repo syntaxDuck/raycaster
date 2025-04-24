@@ -8,6 +8,7 @@ typedef struct
 {
   int size;
   double field_of_view;
+  float turn_speed;
 
   double max_vel;
   double accel;

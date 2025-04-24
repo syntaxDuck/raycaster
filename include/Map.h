@@ -4,7 +4,8 @@
 #include <SDL.h>
 #include <stdint.h>
 
-typedef struct {
+typedef struct
+{
   Uint8 **walls;
   Uint8 **ceil;
   Uint8 **floor;

@@ -1,12 +1,14 @@
 #include "window.h"
+#include "config.h"
 #include <stdio.h>
 
-WindowCtx *window_init(char *title, int x, int y, int width, int height,
-                       int target_fps)
+WindowCtx *init_window(WindowConfig config)
 {
   // Create the window
   WindowCtx *ctx = malloc(sizeof(WindowCtx));
-  ctx->window = SDL_CreateWindow(title, x, y, width, height,
+  ctx->config = config;
+  ctx->window = SDL_CreateWindow(config.title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                                 config.width, config.height,
                                  SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
   if (ctx->window == NULL)
@@ -33,30 +35,17 @@ WindowCtx *window_init(char *title, int x, int y, int width, int height,
   SDL_SetRenderDrawBlendMode(ctx->renderer, SDL_BLENDMODE_BLEND);
   SDL_SetRenderDrawColor(ctx->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 
-  // Initialize frame count and copy title
-  ctx->title = malloc(strlen(title) + 1); // +1 for null terminator
-  if (ctx->title == NULL)
-  {
-    fprintf(stderr, "Memory allocation for window title failed!\n");
-    SDL_DestroyRenderer(ctx->renderer);
-    SDL_DestroyWindow(ctx->window);
-    SDL_Quit();
-    return NULL;
-  }
-  strcpy(ctx->title, title);
-
-  ctx->frame_count = 0;
-  ctx->fps = target_fps;
-  ctx->last_time = SDL_GetTicks();
+  ctx->state.frame_count = 0;
+  ctx->state.fps = config.max_fps;
+  ctx->state.last_time = SDL_GetTicks();
   ctx->state.quit = false;
-  ctx->width = width;
-  ctx->height = height;
 
   return ctx;
 }
 
 void handle_window_events(WindowCtx *ctx, SDL_Event event)
 {
+  WindowConfig config = ctx->config;
   if (event.type == SDL_QUIT)
   {
     ctx->state.quit = true;
@@ -66,38 +55,38 @@ void handle_window_events(WindowCtx *ctx, SDL_Event event)
   {
     if (event.window.event == SDL_WINDOWEVENT_RESIZED)
     {
-      SDL_GetWindowSizeInPixels(ctx->window, &ctx->width, &ctx->height);
+      SDL_GetWindowSizeInPixels(ctx->window, &config.width, &config.height);
     }
   }
 }
 
-void update_frame_counter(WindowCtx *window_data)
+void update_frame_counter(WindowCtx *ctx)
 {
   // Increment the frame count
-  window_data->frame_count++;
+  ctx->state.frame_count++;
 
   // Calculate time elapsed since the last FPS update
   Uint32 currentTime = SDL_GetTicks();
-  Uint32 timeElapsed = currentTime - window_data->last_time; // In milliseconds
+  Uint32 timeElapsed = currentTime - ctx->state.last_time; // In milliseconds
 
   // Update FPS once per second (1000 milliseconds)
   if (timeElapsed >= 1000)
   {
     // Calculate the frames per second (FPS)
-    window_data->fps =
-        (float)window_data->frame_count / (timeElapsed / 1000.0f);
+    ctx->state.fps =
+        (float)ctx->state.frame_count / (timeElapsed / 1000.0f);
 
     // Reset frame count and lastTime for the next FPS calculation
-    window_data->frame_count = 0;
-    window_data->last_time = currentTime;
+    ctx->state.frame_count = 0;
+    ctx->state.last_time = currentTime;
 
     // Create a new title string that includes the FPS count
     char title[256];
-    snprintf(title, sizeof(title), "%s - FPS: %.2f", window_data->title,
-             window_data->fps);
+    snprintf(title, sizeof(title), "%s - FPS: %.2f", ctx->config.title,
+             ctx->state.fps);
 
     // Set the new window title with the FPS
-    SDL_SetWindowTitle(window_data->window, title);
+    SDL_SetWindowTitle(ctx->window, title);
   }
 }
 
@@ -107,5 +96,5 @@ void free_window_ctx(WindowCtx *ctx)
     SDL_DestroyRenderer(ctx->renderer);
   if (ctx->window)
     SDL_DestroyWindow(ctx->window);
-  free(ctx->title);
+  free(ctx->config.title);
 }

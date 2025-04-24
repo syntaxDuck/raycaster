@@ -6,6 +6,7 @@
 #include <SDL_image.h>
 #include <stdbool.h>
 
+#include "window.h"
 #include "actor.h"
 #include "map.h"
 #include "player.h"
@@ -34,8 +35,8 @@ typedef struct
   Player player;
   SceneStaticSprites s_sprites;
   SceneDynamicSprites d_sprites;
-
   Texture *textures;
+  WindowCtx *win_ctx;
 } Scene;
 
 Scene *createScene(char *map_path);

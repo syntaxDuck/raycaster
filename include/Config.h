@@ -29,7 +29,7 @@
 
 typedef struct
 {
-    WindowConfig window_config;
+    WindowConfig *window_config;
     // PlayerConfig player_config;
 } Config;
 

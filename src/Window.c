@@ -2,13 +2,13 @@
 #include "config.h"
 #include <stdio.h>
 
-WindowCtx *init_window(WindowConfig config)
+WindowCtx *init_window(WindowConfig *config)
 {
   // Create the window
   WindowCtx *ctx = malloc(sizeof(WindowCtx));
   ctx->config = config;
-  ctx->window = SDL_CreateWindow(config.title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                 config.width, config.height,
+  ctx->window = SDL_CreateWindow(config->title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                                 config->width, config->height,
                                  SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
   if (ctx->window == NULL)
@@ -36,7 +36,7 @@ WindowCtx *init_window(WindowConfig config)
   SDL_SetRenderDrawColor(ctx->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 
   ctx->state.frame_count = 0;
-  ctx->state.fps = config.max_fps;
+  ctx->state.fps = config->max_fps;
   ctx->state.last_time = SDL_GetTicks();
   ctx->state.quit = false;
 
@@ -45,7 +45,7 @@ WindowCtx *init_window(WindowConfig config)
 
 void handle_window_events(WindowCtx *ctx, SDL_Event event)
 {
-  WindowConfig config = ctx->config;
+  WindowConfig *config = ctx->config;
   if (event.type == SDL_QUIT)
   {
     ctx->state.quit = true;
@@ -55,7 +55,7 @@ void handle_window_events(WindowCtx *ctx, SDL_Event event)
   {
     if (event.window.event == SDL_WINDOWEVENT_RESIZED)
     {
-      SDL_GetWindowSizeInPixels(ctx->window, &config.width, &config.height);
+      SDL_GetWindowSizeInPixels(ctx->window, &config->width, &config->height);
     }
   }
 }
@@ -82,7 +82,7 @@ void update_frame_counter(WindowCtx *ctx)
 
     // Create a new title string that includes the FPS count
     char title[256];
-    snprintf(title, sizeof(title), "%s - FPS: %.2f", ctx->config.title,
+    snprintf(title, sizeof(title), "%s - FPS: %.2f", ctx->config->title,
              ctx->state.fps);
 
     // Set the new window title with the FPS
@@ -96,5 +96,5 @@ void free_window_ctx(WindowCtx *ctx)
     SDL_DestroyRenderer(ctx->renderer);
   if (ctx->window)
     SDL_DestroyWindow(ctx->window);
-  free(ctx->config.title);
+  free(ctx->config->title);
 }

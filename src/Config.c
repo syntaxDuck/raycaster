@@ -36,8 +36,8 @@ static Config *read_config()
 {
     FILE *file = open_config();
     Config *config = malloc(sizeof(Config));
+    config->window_config = malloc(sizeof(WindowConfig));
 
-    WindowConfig win_config;
     char line[256];
     while (fgets(line, sizeof(line), file))
     {
@@ -47,16 +47,15 @@ static Config *read_config()
         if (key && value)
         {
             if (strcmp(key, "win_title") == 0)
-                win_config.title = strdup(value);
+                config->window_config->title = strdup(value);
             else if (strcmp(key, "win_width") == 0)
-                win_config.width = atoi(value);
+                config->window_config->width = atoi(value);
             else if (strcmp(key, "win_height") == 0)
-                win_config.height = atoi(value);
+                config->window_config->height = atoi(value);
             else if (strcmp(key, "win_max_fps") == 0)
-                win_config.max_fps = atoi(value);
+                config->window_config->max_fps = atoi(value);
         }
     }
-    config->window_config = win_config;
     return config;
 }
 

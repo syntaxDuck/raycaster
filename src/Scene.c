@@ -179,7 +179,7 @@ void render_actor_view_rays(Actor actor)
 void render_player_view_rays(Player player)
 {
   SDL_SetRenderDrawColor(win_ctx->renderer, 255, 0, 255, 75);
-  for (int i = 0; i < win_ctx->config.width; i++)
+  for (int i = 0; i < win_ctx->config->width; i++)
   {
     Vector ray = player.intersects[i].vect;
     SDL_RenderDrawLine(win_ctx->renderer, player.actor.pos.x,
@@ -203,12 +203,12 @@ void renderer_sprites(Scene scene)
 
   SDL_Texture *texture = SDL_CreateTexture(
       win_ctx->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,
-      win_ctx->config.width, win_ctx->config.height);
+      win_ctx->config->width, win_ctx->config->height);
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
   void *pixels;
   int pitch;
   SDL_LockTexture(texture, NULL, &pixels, &pitch);
-  memset(pixels, 0xFFFFFF00, pitch * win_ctx->config.height);
+  memset(pixels, 0xFFFFFF00, pitch * win_ctx->config->height);
   Uint32 *pixel_data = (Uint32 *)pixels;
   Uint32 color;
 
@@ -240,37 +240,37 @@ void renderer_sprites(Scene scene)
                    inv_det * (-scene.player.plane.y * rel_sprite_pos.x +
                               scene.player.plane.x * rel_sprite_pos.y));
     int sprite_screen_x =
-        (int)((win_ctx->config.width / 2.0) * (1 + transform.x / transform.y));
-    int sprite_height = abs((int)(win_ctx->config.height / transform.y));
+        (int)((win_ctx->config->width / 2.0) * (1 + transform.x / transform.y));
+    int sprite_height = abs((int)(win_ctx->config->height / transform.y));
 
-    int draw_start_y = -sprite_height / 2 + win_ctx->config.height / 2;
+    int draw_start_y = -sprite_height / 2 + win_ctx->config->height / 2;
     if (draw_start_y < 0)
       draw_start_y = 0;
 
-    int draw_end_y = sprite_height / 2 + win_ctx->config.height / 2;
-    if (draw_end_y >= win_ctx->config.height)
-      draw_end_y = win_ctx->config.height - 1;
+    int draw_end_y = sprite_height / 2 + win_ctx->config->height / 2;
+    if (draw_end_y >= win_ctx->config->height)
+      draw_end_y = win_ctx->config->height - 1;
 
-    int sprite_width = abs((int)(win_ctx->config.height / transform.y));
+    int sprite_width = abs((int)(win_ctx->config->height / transform.y));
     int draw_start_x = -sprite_width / 2 + sprite_screen_x;
     if (draw_start_x < 0)
       draw_start_x = 0;
 
     int draw_end_x = sprite_width / 2 + sprite_screen_x;
-    if (draw_end_x >= win_ctx->config.width)
-      draw_end_x = win_ctx->config.width - 1;
+    if (draw_end_x >= win_ctx->config->width)
+      draw_end_x = win_ctx->config->width - 1;
 
     for (int stripe = draw_start_x; stripe < draw_end_x; stripe++)
     {
       int tex_x = (int)(256 * (stripe - (-sprite_width / 2 + sprite_screen_x)) *
                         TEX_WIDTH / sprite_width) /
                   256;
-      if (transform.y > 0 && stripe > 0 && stripe < win_ctx->config.width &&
+      if (transform.y > 0 && stripe > 0 && stripe < win_ctx->config->width &&
           transform.y < scene.player.intersects[stripe].perp_wall_distance)
       {
         for (int y = draw_start_y; y < draw_end_y; y++)
         {
-          int d = (y) * 256 - win_ctx->config.height * 128 + sprite_height * 128;
+          int d = (y) * 256 - win_ctx->config->height * 128 + sprite_height * 128;
           int tex_y = ((d * TEX_HEIGHT) / sprite_height) / 256;
           color = scene
                       .textures[s_sprites.sprites[s_sprites.sprite_order[i]]
@@ -292,11 +292,11 @@ void render_floor_and_ceil(Scene scene)
 {
   SDL_Texture *texture = SDL_CreateTexture(
       win_ctx->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,
-      win_ctx->config.width, win_ctx->config.height);
+      win_ctx->config->width, win_ctx->config->height);
   void *pixels;
   int pitch;
   SDL_LockTexture(texture, NULL, &pixels, &pitch);
-  memset(pixels, 0xFFFFFF00, pitch * win_ctx->config.height);
+  memset(pixels, 0xFFFFFF00, pitch * win_ctx->config->height);
   Uint32 *pixel_data = (Uint32 *)pixels;
   Uint32 color;
 
@@ -410,12 +410,12 @@ void render_walls(Scene scene)
 {
   SDL_Texture *texture = SDL_CreateTexture(
       win_ctx->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,
-      win_ctx->config.width, win_ctx->config.height);
+      win_ctx->config->width, win_ctx->config->height);
   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
   void *pixels;
   int pitch;
   SDL_LockTexture(texture, NULL, &pixels, &pitch);
-  memset(pixels, 0, pitch * win_ctx->config.height);
+  memset(pixels, 0, pitch * win_ctx->config->height);
   Uint32 *pixel_data = (Uint32 *)pixels;
   Uint32 color;
 
@@ -461,7 +461,7 @@ void render_walls(Scene scene)
     for (int y = draw_start; y <= draw_end; y++)
     {
       // Calculate the corresponding y position on the texture
-      int tex_y = (((y * 2 - win_ctx->config.height + line_height) * TEX_HEIGHT) /
+      int tex_y = (((y * 2 - win_ctx->config->height + line_height) * TEX_HEIGHT) /
                    line_height) /
                   2;
 

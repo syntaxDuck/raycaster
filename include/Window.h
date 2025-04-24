@@ -25,13 +25,13 @@ typedef struct
 
 typedef struct
 {
-  WindowConfig config;
+  WindowConfig *config;
   SDL_Window *window;
   SDL_Renderer *renderer;
   WindowState state;
 } WindowCtx;
 
-WindowCtx *init_window(WindowConfig config);
+WindowCtx *init_window(WindowConfig *config);
 void handle_window_events(WindowCtx *ctx, SDL_Event event);
 void update_frame_counter(WindowCtx *ctx);
 void free_window_ctx(WindowCtx *ctx);

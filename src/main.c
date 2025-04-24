@@ -1,8 +1,7 @@
-#include "config.h"
-
 #include "game.h"
 #include "scene.h"
 #include "window.h"
+#include "config.h"
 #include <stdio.h>
 
 int init_SDL()
@@ -28,10 +27,7 @@ int main(int argc, char *argv[])
 {
   init_SDL();
   Config *config = init_config();
-  print_config();
-
-  // win_ctx = init_window("Main Viewport", SDL_WINDOWPOS_CENTERED,
-  //                       SDL_WINDOWPOS_CENTERED, WIN_WIDTH, WIN_HEIGHT, MAX_FPS);
+  WindowCtx *win_ctx = init_window(config->window_config);
 
   // GameCtx game_ctx;
 
@@ -53,7 +49,7 @@ int main(int argc, char *argv[])
   // }
 
   // freeScene(game_ctx.scene);
-  // free_window_ctx(win_ctx);
+  free_window_ctx(win_ctx);
   IMG_Quit();
   SDL_Quit();
   return 0;

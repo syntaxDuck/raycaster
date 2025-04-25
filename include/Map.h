@@ -4,6 +4,10 @@
 #include <SDL.h>
 #include <stdint.h>
 
+#define DEFAULT_MAP_WIDTH 24
+#define DEFAULT_MAP_HEIGHT 24
+#define DEFAULT_MAP_UNIT_SIZE 20
+
 typedef struct
 {
   Uint8 **walls;

@@ -1,10 +1,10 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include <SDL.h>
-#include <SDL_image.h>
-// #include <dirent.h>
 #include <stdint.h>
+
+#define DEFAULT_TEXTURE_WIDTH 64
+#define DEFAULT_TEXTURE_HEIGHT 64
 
 typedef struct
 {
@@ -14,7 +14,7 @@ typedef struct
 } Texture;
 
 Texture *create_textures();
-Uint32 *load_image_data(const char *filePath, int *width, int *height);
+uint32_t *load_image_data(const char *file_path, int *ptr_width, int *ptr_height);
 void free_texture(Texture *texture);
 
 #endif

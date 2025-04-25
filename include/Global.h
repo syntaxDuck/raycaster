@@ -2,6 +2,6 @@
 #define GLOBAL_H
 
 #include "window.h"
-WindowCtx *win_ctx;
+WindowCtx *window_ctx;
 
 #endif

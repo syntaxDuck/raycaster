@@ -36,7 +36,7 @@ typedef struct
   Actor actor;
   Vector plane;
   WallIntersect *intersects;
-  WindowCtx *win_ctx;
+  WindowCtx *window_ctx;
 } Player;
 
 Player create_player();

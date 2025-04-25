@@ -20,20 +20,20 @@ typedef struct
   bool key_pressed;
   int frame_count;
   float fps;
-  Uint32 last_time;
+  uint32_t last_time;
 } WindowState;
 
 typedef struct
 {
-  WindowConfig *ptr_config;
-  SDL_Window *ptr_window;
-  SDL_Renderer *ptr_renderer;
+  WindowConfig *window_config;
+  SDL_Window *window;
+  SDL_Renderer *renderer;
   WindowState state;
 } WindowCtx;
 
-WindowCtx *init_window(WindowConfig *ptr_config);
-void handle_window_events(WindowCtx *ptr_ctx, SDL_Event event);
-void update_frame_counter(WindowCtx *ptr_ctx);
-void free_window_ctx(WindowCtx *ptr_ctx);
+WindowCtx *init_window(WindowConfig *config);
+void handle_window_events(WindowCtx *ctx, SDL_Event event);
+void update_frame_counter(WindowCtx *ctx);
+void free_window_ctx(WindowCtx *ctx);
 
 #endif

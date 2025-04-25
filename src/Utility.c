@@ -17,23 +17,23 @@ Vector *generate_circle_points(Vector center, double radius, int numPoints)
   return points;
 }
 
-void generate_filled_circle(SDL_Renderer *ptr_renderer, Vector center,
+void generate_filled_circle(SDL_Renderer *renderer, Vector center,
                             double radius, int numPoints)
 {
   Vector *points;
   for (double r = radius; r > 0; r = r - 1)
   {
-    SDL_SetRenderDrawColor(ptr_renderer, 0, 255 - r * 10, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 0, 255 - r * 10, 0, 255);
     points = generate_circle_points(center, r, numPoints);
     for (int x = 0; x < numPoints; x++)
     {
-      SDL_RenderDrawPoint(ptr_renderer, points[x].x, points[x].y);
+      SDL_RenderDrawPoint(renderer, points[x].x, points[x].y);
     }
     free(points);
   }
 }
 
-SDL_Texture *draw_filled_circle(SDL_Renderer *ptr_renderer, Vector center_vect,
+SDL_Texture *draw_filled_circle(SDL_Renderer *renderer, Vector center_vect,
                                 int radius)
 {
 
@@ -44,7 +44,7 @@ SDL_Texture *draw_filled_circle(SDL_Renderer *ptr_renderer, Vector center_vect,
 
   SDL_LockSurface(surface);
 
-  Uint32 *pixels = (Uint32 *)surface->pixels;
+  uint32_t *pixels = (uint32_t *)surface->pixels;
   for (int x = center_vect.x - radius; x <= center_vect.x + radius; x++)
   {
     for (int y = center_vect.y - radius; y <= center_vect.y + radius; y++)
@@ -61,7 +61,7 @@ SDL_Texture *draw_filled_circle(SDL_Renderer *ptr_renderer, Vector center_vect,
 
   SDL_UnlockSurface(surface);
 
-  SDL_Texture *texture = SDL_CreateTextureFromSurface(ptr_renderer, surface);
+  SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
   SDL_FreeSurface(surface);
 
   return texture;

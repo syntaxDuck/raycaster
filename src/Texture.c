@@ -1,120 +1,118 @@
 #include "texture.h"
-#include "config.h"
 #include <stdio.h>
+#include <SDL.h>
+#include <SDL_image.h>
 
-Uint32 *load_image_data(const char *filePath, int *width, int *height)
+uint32_t *load_image_data(const char *file_path, int *ptr_width, int *ptr_height)
 {
-  // Load the image into an SDL_Surface
-  SDL_Surface *surface = IMG_Load(filePath);
-  if (!surface)
+  SDL_Surface *texture_surface = IMG_Load(file_path);
+  if (!texture_surface)
   {
     fprintf(stderr, "Could not load image: %s\n", IMG_GetError());
     return NULL;
   }
 
-  // Store the width and height
-  *width = surface->w;
-  *height = surface->h;
+  *ptr_width = texture_surface->w;
+  *ptr_height = texture_surface->h;
 
   // Convert surface to RGBA8888 format
-  SDL_Surface *converted_surface =
-      SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA8888, 0);
-  SDL_FreeSurface(surface); // Free the original surface
-  if (!converted_surface)
+  SDL_Surface *formatted_surface = SDL_ConvertSurfaceFormat(
+      texture_surface, SDL_PIXELFORMAT_RGBA8888, 0);
+
+  SDL_FreeSurface(texture_surface);
+  if (!formatted_surface)
   {
     fprintf(stderr, "Could not convert surface to RGBA8888: %s\n",
             SDL_GetError());
     return NULL;
   }
 
-  printf("Loaded surface: %dx%d, format: %d\n", converted_surface->w,
-         converted_surface->h, converted_surface->format->format);
+  printf("Loaded surface: %dx%d, format: %d\n", formatted_surface->w,
+         formatted_surface->h, formatted_surface->format->format);
 
-  // Allocate an array to hold the pixel data
-  Uint32 *pixelData =
-      malloc(converted_surface->w * converted_surface->h * sizeof(Uint32));
-  if (!pixelData)
+  uint32_t *texture_pixels =
+      malloc(formatted_surface->w * formatted_surface->h * sizeof(uint32_t));
+  if (!texture_pixels)
   {
     fprintf(stderr, "Could not allocate memory for pixel data\n");
-    SDL_FreeSurface(converted_surface);
+    SDL_FreeSurface(formatted_surface);
     return NULL;
   }
 
   // Copy the pixel data from the surface to the array
-  Uint32 *pixels = (Uint32 *)converted_surface->pixels;
-  for (int y = 0; y < converted_surface->h; y++)
+  uint32_t *formatted_pixels = (uint32_t *)formatted_surface->pixels;
+  for (int current_row = 0; current_row < formatted_surface->h; current_row++)
   {
-    for (int x = 0; x < converted_surface->w; x++)
+    for (int current_col = 0; current_col < formatted_surface->w; current_col++)
     {
       // Get the pixel value and store it in the array
-      Uint32 pixel = pixels[y * converted_surface->w + x];
-      pixelData[y * converted_surface->w + x] = pixel;
+      uint32_t pixel = formatted_pixels[current_row * formatted_surface->w + current_col];
+      texture_pixels[current_row * formatted_surface->w + current_col] = pixel;
     }
   }
 
-  // Clean up the converted surface
-  SDL_FreeSurface(converted_surface);
+  SDL_FreeSurface(formatted_surface);
 
-  return pixelData;
+  return texture_pixels;
 }
 
 // TODO: have some issues rendering textures with alpha channels
 Texture *create_textures()
 {
-  // int textures[8][TEX_HEIGHT * TEX_WIDTH];
+  // int textures[8][DEFAULT_TEXTURE_HEIGHT * DEFAULT_TEXTURE_WIDTH];
   Texture *textures = malloc(sizeof(Texture) * 11);
   int width, height;
 
   // Static Textures
-  Uint32 *t0 =
+  uint32_t *t0 =
       load_image_data("assets/textures/bluestone.png", &width, &height);
-  Uint32 *t1 =
+  uint32_t *t1 =
       load_image_data("assets/textures/colorstone.png", &width, &height);
-  Uint32 *t2 = load_image_data("assets/textures/eagle.png", &width, &height);
-  Uint32 *t3 =
+  uint32_t *t2 = load_image_data("assets/textures/eagle.png", &width, &height);
+  uint32_t *t3 =
       load_image_data("assets/textures/greystone.png", &width, &height);
-  Uint32 *t4 = load_image_data("assets/textures/mossy.png", &width, &height);
-  Uint32 *t5 =
+  uint32_t *t4 = load_image_data("assets/textures/mossy.png", &width, &height);
+  uint32_t *t5 =
       load_image_data("assets/textures/purplestone.png", &width, &height);
-  Uint32 *t6 =
+  uint32_t *t6 =
       load_image_data("assets/textures/redbrick.png", &width, &height);
-  Uint32 *t7 = load_image_data("assets/textures/wood.png", &width, &height);
+  uint32_t *t7 = load_image_data("assets/textures/wood.png", &width, &height);
 
   // Sprit textures
-  Uint32 *t8 =
+  uint32_t *t8 =
       load_image_data("assets/textures/barrel.png", &width, &height);
-  Uint32 *t9 =
+  uint32_t *t9 =
       load_image_data("assets/textures/pillar.png", &width, &height);
-  Uint32 *t10 =
+  uint32_t *t10 =
       load_image_data("assets/textures/greenlight.png", &width, &height);
 
-  textures[0].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
-  textures[1].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
-  textures[2].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
-  textures[3].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
-  textures[4].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
-  textures[5].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
-  textures[6].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
-  textures[7].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
-  textures[8].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
-  textures[9].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
-  textures[10].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
+  textures[0].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
+  textures[1].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
+  textures[2].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
+  textures[3].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
+  textures[4].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
+  textures[5].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
+  textures[6].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
+  textures[7].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
+  textures[8].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
+  textures[9].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
+  textures[10].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
 
-  for (int x = 0; x < TEX_WIDTH; x++)
+  for (int current_col = 0; current_col < DEFAULT_TEXTURE_WIDTH; current_col++)
   {
-    for (int y = 0; y < TEX_HEIGHT; y++)
+    for (int current_row = 0; current_row < DEFAULT_TEXTURE_HEIGHT; current_row++)
     {
-      textures[0].pixels[TEX_WIDTH * y + x] = t0[TEX_HEIGHT * y + x];
-      textures[1].pixels[TEX_WIDTH * y + x] = t1[TEX_HEIGHT * y + x];
-      textures[2].pixels[TEX_WIDTH * y + x] = t2[TEX_HEIGHT * y + x];
-      textures[3].pixels[TEX_WIDTH * y + x] = t3[TEX_HEIGHT * y + x];
-      textures[4].pixels[TEX_WIDTH * y + x] = t4[TEX_HEIGHT * y + x];
-      textures[5].pixels[TEX_WIDTH * y + x] = t5[TEX_HEIGHT * y + x];
-      textures[6].pixels[TEX_WIDTH * y + x] = t6[TEX_HEIGHT * y + x];
-      textures[7].pixels[TEX_WIDTH * y + x] = t7[TEX_HEIGHT * y + x];
-      textures[8].pixels[TEX_WIDTH * y + x] = t8[TEX_HEIGHT * y + x];
-      textures[9].pixels[TEX_WIDTH * y + x] = t9[TEX_HEIGHT * y + x];
-      textures[10].pixels[TEX_WIDTH * y + x] = t10[TEX_HEIGHT * y + x];
+      textures[0].pixels[DEFAULT_TEXTURE_WIDTH * current_row + current_col] = t0[DEFAULT_TEXTURE_HEIGHT * current_row + current_col];
+      textures[1].pixels[DEFAULT_TEXTURE_WIDTH * current_row + current_col] = t1[DEFAULT_TEXTURE_HEIGHT * current_row + current_col];
+      textures[2].pixels[DEFAULT_TEXTURE_WIDTH * current_row + current_col] = t2[DEFAULT_TEXTURE_HEIGHT * current_row + current_col];
+      textures[3].pixels[DEFAULT_TEXTURE_WIDTH * current_row + current_col] = t3[DEFAULT_TEXTURE_HEIGHT * current_row + current_col];
+      textures[4].pixels[DEFAULT_TEXTURE_WIDTH * current_row + current_col] = t4[DEFAULT_TEXTURE_HEIGHT * current_row + current_col];
+      textures[5].pixels[DEFAULT_TEXTURE_WIDTH * current_row + current_col] = t5[DEFAULT_TEXTURE_HEIGHT * current_row + current_col];
+      textures[6].pixels[DEFAULT_TEXTURE_WIDTH * current_row + current_col] = t6[DEFAULT_TEXTURE_HEIGHT * current_row + current_col];
+      textures[7].pixels[DEFAULT_TEXTURE_WIDTH * current_row + current_col] = t7[DEFAULT_TEXTURE_HEIGHT * current_row + current_col];
+      textures[8].pixels[DEFAULT_TEXTURE_WIDTH * current_row + current_col] = t8[DEFAULT_TEXTURE_HEIGHT * current_row + current_col];
+      textures[9].pixels[DEFAULT_TEXTURE_WIDTH * current_row + current_col] = t9[DEFAULT_TEXTURE_HEIGHT * current_row + current_col];
+      textures[10].pixels[DEFAULT_TEXTURE_WIDTH * current_row + current_col] = t10[DEFAULT_TEXTURE_HEIGHT * current_row + current_col];
     }
   }
 
@@ -124,39 +122,39 @@ Texture *create_textures()
 Texture *createProgrammaticTextures()
 {
   Texture *textures = malloc(sizeof(Texture) * 11);
-  textures[0].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
-  textures[1].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
-  textures[2].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
-  textures[3].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
-  textures[4].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
-  textures[5].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
-  textures[6].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
-  textures[7].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
-  textures[8].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
-  textures[9].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
-  textures[10].pixels = malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT));
-  for (int x = 0; x < TEX_WIDTH; x++)
+  textures[0].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
+  textures[1].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
+  textures[2].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
+  textures[3].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
+  textures[4].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
+  textures[5].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
+  textures[6].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
+  textures[7].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
+  textures[8].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
+  textures[9].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
+  textures[10].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
+  for (int current_col = 0; current_col < DEFAULT_TEXTURE_WIDTH; current_col++)
   {
-    for (int y = 0; y < TEX_HEIGHT; y++)
+    for (int current_row = 0; current_row < DEFAULT_TEXTURE_HEIGHT; current_row++)
     {
-      int xorcolor = (x * 256 / TEX_WIDTH) ^ (y * 256 / TEX_HEIGHT);
-      int xcolor = x * 256 / TEX_WIDTH;
-      int ycolor = y * 256 / TEX_HEIGHT;
-      int xycolor = y * 128 / TEX_HEIGHT + x * 128 / TEX_WIDTH;
-      textures[0].pixels[TEX_WIDTH * y + x] =
+      int xorcolor = (current_col * 256 / DEFAULT_TEXTURE_WIDTH) ^ (current_row * 256 / DEFAULT_TEXTURE_HEIGHT);
+      int xcolor = current_col * 256 / DEFAULT_TEXTURE_WIDTH;
+      int ycolor = current_row * 256 / DEFAULT_TEXTURE_HEIGHT;
+      int xycolor = current_row * 128 / DEFAULT_TEXTURE_HEIGHT + current_col * 128 / DEFAULT_TEXTURE_WIDTH;
+      textures[0].pixels[DEFAULT_TEXTURE_WIDTH * current_row + current_col] =
           65536 * 254 *
-          (x != y && x != TEX_WIDTH - y); // flat red pixels with black cross
-      textures[1].pixels[TEX_WIDTH * y + x] =
+          (current_col != current_row && current_col != DEFAULT_TEXTURE_WIDTH - current_row); // flat red pixels with black cross
+      textures[1].pixels[DEFAULT_TEXTURE_WIDTH * current_row + current_col] =
           xycolor + 256 * xycolor + 65536 * xycolor; // sloped greyscale
-      textures[2].pixels[TEX_WIDTH * y + x] =
+      textures[2].pixels[DEFAULT_TEXTURE_WIDTH * current_row + current_col] =
           256 * xycolor + 65536 * xycolor; // sloped yellow gradient
-      textures[3].pixels[TEX_WIDTH * y + x] =
-          xorcolor + 256 * xorcolor + 65536 * xorcolor;       // xor greyscale
-      textures[4].pixels[TEX_WIDTH * y + x] = 256 * xorcolor; // xor green
-      textures[5].pixels[TEX_WIDTH * y + x] =
-          65536 * 192 * (x % 16 && y % 16);                   // red bricks
-      textures[6].pixels[TEX_WIDTH * y + x] = 65536 * ycolor; // red gradient
-      textures[7].pixels[TEX_WIDTH * y + x] =
+      textures[3].pixels[DEFAULT_TEXTURE_WIDTH * current_row + current_col] =
+          xorcolor + 256 * xorcolor + 65536 * xorcolor;                                       // xor greyscale
+      textures[4].pixels[DEFAULT_TEXTURE_WIDTH * current_row + current_col] = 256 * xorcolor; // xor green
+      textures[5].pixels[DEFAULT_TEXTURE_WIDTH * current_row + current_col] =
+          65536 * 192 * (current_col % 16 && current_row % 16);                               // red bricks
+      textures[6].pixels[DEFAULT_TEXTURE_WIDTH * current_row + current_col] = 65536 * ycolor; // red gradient
+      textures[7].pixels[DEFAULT_TEXTURE_WIDTH * current_row + current_col] =
           128 + 256 * 128 + 65536 * 128; // flat grey pixels
     }
   }

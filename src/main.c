@@ -26,30 +26,31 @@ int init_SDL()
 int main(int argc, char *argv[])
 {
   init_SDL();
-  Config *ptr_config = init_config();
-  WindowCtx *win_ctx = init_window(ptr_config->window_config);
+  Config *window_config = init_config();
+  WindowCtx *window_ctx = init_window(window_config->ptr_window_config);
+  Scene *scene = createScene("assets/maps/map.txt");
 
   // GameCtx game_ctx;
 
   // game_ctx.scene = createScene("assets/maps/map.txt");
 
   // SDL_Event event;
-  // while (!win_ctx->state.quit)
+  // while (!window_ctx->state.quit)
   // {
   //   if (SDL_PollEvent(&event) != 0)
   //   {
-  //     handle_window_events(win_ctx, event);
+  //     handle_window_events(window_ctx, event);
   //   }
 
   //   render_scene(*game_ctx.scene, render_fp_scene);
-  //   SDL_RenderPresent(win_ctx->ptr_renderer);
-  //   update_frame_counter(win_ctx);
-  //   process_player_motion(&game_ctx.scene->player, win_ctx->fps,
+  //   SDL_RenderPresent(window_ctx->renderer);
+  //   update_frame_counter(window_ctx);
+  //   process_player_motion(&game_ctx.scene->player, window_ctx->fps,
   //                         game_ctx.scene->map);
   // }
 
   // freeScene(game_ctx.scene);
-  free_window_ctx(win_ctx);
+  free_window_ctx(window_ctx);
   IMG_Quit();
   SDL_Quit();
   return 0;

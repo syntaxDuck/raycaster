@@ -39,7 +39,7 @@ void print_map(Map map)
 Map load_map(char *filename)
 {
   Map map;
-  map.unit_size = MAP_UNIT_SIZE;
+  map.unit_size = DEFAULT_MAP_UNIT_SIZE;
   load_map_grid_from_file(filename, &map);
   return map;
 }

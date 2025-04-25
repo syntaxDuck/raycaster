@@ -199,9 +199,9 @@ Vector get_ray_col_intersect(Vector origin, Vector ray, Map map)
 
 void cast_actor_rays(Actor *actor, Map map)
 {
-  double increment_rad = actor->field_of_view / NUM_RAYS;
+  double increment_rad = actor->field_of_view / DEFAULT_NUM_RAYS;
   double starting_angle = -actor->field_of_view / 2 + increment_rad;
-  for (int i = 0; i < NUM_RAYS; i++)
+  for (int i = 0; i < DEFAULT_NUM_RAYS; i++)
   {
     Vector new_vect = actor->dir;
     rotate_vector(&new_vect, starting_angle + i * increment_rad);

@@ -7,7 +7,7 @@
 
 void cast_player_rays(Player *player, Map map)
 {
-  WindowConfig *win_config = player->win_ctx->ptr_config;
+  WindowConfig *win_config = player->window_ctx->window_config;
   Vector dir = player->actor.dir; // Player's direction vector
   Vector plane =
       player->plane; // Player's plane vector (perpendicular to direction)
@@ -108,30 +108,30 @@ void process_player_motion(Player *player, float fps, Map map)
   cast_player_rays(player, map);
 }
 
-Player create_player(WindowCtx *win_ctx)
+Player create_player(WindowCtx *window_ctx)
 {
   Player player;
 
-  player.win_ctx = win_ctx;
+  player.window_ctx = window_ctx;
   player.actor.size = PLAYER_SIZE;
   player.actor.field_of_view = PLAYER_FOV * DEG_TO_RAD;
   player.actor.turn_speed = PLAYER_TURN_SPEED;
 
   // Allocate memory for the player's view cone
-  player.actor.view_cone = malloc(sizeof(Vector) * win_ctx->ptr_config->width);
+  player.actor.view_cone = malloc(sizeof(Vector) * window_ctx->window_config->width);
   player.actor.max_vel = PLAYER_MAX_SPEED;
   player.actor.accel = PLAYER_ACCEL;
 
   // Initialize player's position and velocity
-  player.actor.pos = set_vector(2 * (double)win_ctx->ptr_config->width / 3 - 1,
-                                2 * (double)win_ctx->ptr_config->height / 3 - 1);
+  player.actor.pos = set_vector(2 * (double)window_ctx->window_config->width / 3 - 1,
+                                2 * (double)window_ctx->window_config->height / 3 - 1);
   player.actor.velocity = set_vector(0, 0);
   player.actor.dir = set_vector(-1, 0);
 
   // Calculate the player's plane (used for field of view in 3D rendering)
   player.plane =
       set_vector(0, player.actor.dir.x * tan(player.actor.field_of_view / 2));
-  player.intersects = malloc(sizeof(WallIntersect) * win_ctx->ptr_config->width);
+  player.intersects = malloc(sizeof(WallIntersect) * window_ctx->window_config->width);
 
   return player;
 }

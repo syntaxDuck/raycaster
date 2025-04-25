@@ -8,7 +8,7 @@ static int create_config()
     FILE *file = fopen(CONFIG_PATH, "w+");
     if (!file)
     {
-        fprintf(stderr, "Could not create new config file: %s\n", CONFIG_PATH);
+        fprintf(stderr, "Could not create new ptr_config file: %s\n", CONFIG_PATH);
         return -1;
     }
     fprintf(file, "win_title=%s\n", DEFAULT_WIN_TITLE);
@@ -25,18 +25,18 @@ static FILE *open_config()
     FILE *file = fopen(CONFIG_PATH, "r+");
     if (!file)
     {
-        fprintf(stderr, "Could not open config file: %s\n", CONFIG_PATH);
+        fprintf(stderr, "Could not open ptr_config file: %s\n", CONFIG_PATH);
         return NULL;
     }
     return file;
 }
 
-// TODO: Create error handeling when config file is formatted wrong
+// TODO: Create error handeling when ptr_config file is formatted wrong
 static Config *read_config()
 {
     FILE *file = open_config();
-    Config *config = malloc(sizeof(Config));
-    config->window_config = malloc(sizeof(WindowConfig));
+    Config *ptr_config = malloc(sizeof(Config));
+    ptr_config->window_config = malloc(sizeof(WindowConfig));
 
     char line[256];
     while (fgets(line, sizeof(line), file))
@@ -47,16 +47,16 @@ static Config *read_config()
         if (key && value)
         {
             if (strcmp(key, "win_title") == 0)
-                config->window_config->title = strdup(value);
+                ptr_config->window_config->title = strdup(value);
             else if (strcmp(key, "win_width") == 0)
-                config->window_config->width = atoi(value);
+                ptr_config->window_config->width = atoi(value);
             else if (strcmp(key, "win_height") == 0)
-                config->window_config->height = atoi(value);
+                ptr_config->window_config->height = atoi(value);
             else if (strcmp(key, "win_max_fps") == 0)
-                config->window_config->max_fps = atoi(value);
+                ptr_config->window_config->max_fps = atoi(value);
         }
     }
-    return config;
+    return ptr_config;
 }
 
 Config *init_config()
@@ -69,9 +69,9 @@ Config *init_config()
             return NULL;
     }
 
-    Config *config = read_config(file);
+    Config *ptr_config = read_config(file);
     fclose(file);
-    return config;
+    return ptr_config;
 }
 
 void print_config()

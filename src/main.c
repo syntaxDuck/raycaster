@@ -26,8 +26,8 @@ int init_SDL()
 int main(int argc, char *argv[])
 {
   init_SDL();
-  Config *config = init_config();
-  WindowCtx *win_ctx = init_window(config->window_config);
+  Config *ptr_config = init_config();
+  WindowCtx *win_ctx = init_window(ptr_config->window_config);
 
   // GameCtx game_ctx;
 
@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
   //   }
 
   //   render_scene(*game_ctx.scene, render_fp_scene);
-  //   SDL_RenderPresent(win_ctx->renderer);
+  //   SDL_RenderPresent(win_ctx->ptr_renderer);
   //   update_frame_counter(win_ctx);
   //   process_player_motion(&game_ctx.scene->player, win_ctx->fps,
   //                         game_ctx.scene->map);

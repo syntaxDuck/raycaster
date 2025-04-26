@@ -4,6 +4,8 @@
 #include "map.h"
 #include "vector.h"
 
+#define DEFAULT_NUM_RAYS 200
+
 typedef struct
 {
   int size;

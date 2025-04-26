@@ -39,7 +39,7 @@ typedef struct
   WindowCtx *window_ctx;
 } Player;
 
-Player create_player();
+Player create_player(WindowCtx *window_ctx);
 void free_player(Player *player);
 void cast_player_rays(Player *player, Map map);
 void process_player_motion(Player *player, float fps, Map map);

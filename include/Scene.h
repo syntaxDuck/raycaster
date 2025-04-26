@@ -39,7 +39,7 @@ void set_current_scene(Scene *scene);
 Scene *get_current_scene();
 void freeScene(Scene *scene);
 
-void render_scene(void (*render)(Scene));
+void render_scene(void (*render)());
 void render_2d_scene();
 void render_fp_scene();
 void renderer_sprites();

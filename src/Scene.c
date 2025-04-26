@@ -70,7 +70,7 @@ Scene *create_scene(WindowCtx *window_ctx, char *map_path)
   return scene;
 }
 
-void render_scene(void (*render)(Scene))
+void render_scene(void (*render)())
 {
   SDL_SetRenderDrawColor(current_scene->window_ctx->renderer, 0, 0, 0, 255);
   SDL_RenderClear(current_scene->window_ctx->renderer);

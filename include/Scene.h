@@ -37,7 +37,7 @@ typedef struct
 Scene *create_scene(WindowCtx *window_ctx, char *map_path);
 void set_current_scene(Scene *scene);
 Scene *get_current_scene();
-void freeScene(Scene *scene);
+void free_scene(Scene *scene);
 
 void render_scene(void (*render)());
 void render_2d_scene();

@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <SDL_image.h>
 
-int init_SDL()
+int initialize_SDL()
 {
   // Initialize SDL
   if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -23,17 +23,20 @@ int init_SDL()
   return 0;
 }
 
+void release_SDL_resources()
+{
+  IMG_Quit();
+  SDL_Quit();
+}
+
 int main(int argc, char *argv[])
 {
-  init_SDL();
+  initialize_SDL();
   Config *config = init_config();
-  WindowCtx *window_ctx = init_window(config->ptr_window_config);
+  WindowCtx *window_ctx = create_window_ctx(config->ptr_window_config);
   Scene *scene = create_scene(window_ctx, "assets/maps/map.txt");
   set_current_scene(scene);
-
-  // GameCtx game_ctx;
-
-  // game_ctx.scene = createScene("assets/maps/map.txt");
+  window_ctx->render_function = render_fp_scene;
 
   SDL_Event event;
   while (!window_ctx->state.quit)
@@ -43,16 +46,17 @@ int main(int argc, char *argv[])
       handle_window_events(window_ctx, event);
     }
 
-    render_scene(render_fp_scene);
-    SDL_RenderPresent(window_ctx->renderer);
-    update_frame_counter(window_ctx);
+    render_window(window_ctx);
+
+    // Todo: this should probably be done in a handle window fuc
+    //  update_frame_counter(window_ctx);
+
     process_player_motion(&scene->player, window_ctx->state.fps,
                           scene->map);
   }
 
-  // freeScene(game_ctx.scene);
+  free_scene(scene);
   free_window_ctx(window_ctx);
-  IMG_Quit();
-  SDL_Quit();
+  release_SDL_resources();
   return 0;
 }

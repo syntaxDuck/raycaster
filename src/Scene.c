@@ -495,7 +495,7 @@ void render_walls()
   SDL_DestroyTexture(texture);
 }
 
-void freeScene(Scene *scene)
+void free_scene(Scene *scene)
 {
   free_player(&scene->player);
   free_map(scene->map);

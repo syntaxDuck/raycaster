@@ -29,11 +29,12 @@ typedef struct
   SDL_Window *window;
   SDL_Renderer *renderer;
   WindowState state;
+  void (*render_function)();
 } WindowCtx;
 
-WindowCtx *init_window(WindowConfig *config);
+WindowCtx *create_window_ctx(WindowConfig *config);
 void handle_window_events(WindowCtx *ctx, SDL_Event event);
-void update_frame_counter(WindowCtx *ctx);
+void render_window(WindowCtx *ctx);
 void free_window_ctx(WindowCtx *ctx);
 
 #endif

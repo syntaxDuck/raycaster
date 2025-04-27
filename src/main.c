@@ -48,9 +48,6 @@ int main(int argc, char *argv[])
 
     render_window(window_ctx);
 
-    // Todo: this should probably be done in a handle window fuc
-    //  update_frame_counter(window_ctx);
-
     process_player_motion(&scene->player, window_ctx->state.fps,
                           scene->map);
   }

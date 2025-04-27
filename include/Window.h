@@ -12,6 +12,7 @@ typedef struct
   int width;
   int height;
   int max_fps;
+  bool show_fps;
 } WindowConfig;
 
 typedef struct

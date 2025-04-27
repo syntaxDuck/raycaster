@@ -108,5 +108,7 @@ void free_window_ctx(WindowCtx *ctx)
 void render_window(WindowCtx *ctx)
 {
   ctx->render_function();
+  if (ctx->window_config->show_fps)
+    update_frame_counter(ctx);
   SDL_RenderPresent(ctx->renderer);
 }

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include "config.h"
@@ -15,6 +16,7 @@ static int create_config()
     fprintf(file, "win_width=%d\n", DEFAULT_WIN_WIDTH);
     fprintf(file, "win_height=%d\n", DEFAULT_WIN_HEIGHT);
     fprintf(file, "win_max_fps=%d\n", DEFAULT_WIN_MAX_FPS);
+    fprintf(file, "win_show_fps=%d\n", true);
 
     fclose(file);
     return 0;
@@ -54,6 +56,8 @@ static Config *read_config()
                 window_config->ptr_window_config->height = atoi(value);
             else if (strcmp(key, "win_max_fps") == 0)
                 window_config->ptr_window_config->max_fps = atoi(value);
+            else if (strcmp(key, "win_show_fps") == 0)
+                window_config->ptr_window_config->show_fps = atoi(value);
         }
     }
     return window_config;

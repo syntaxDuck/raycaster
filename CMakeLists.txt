@@ -8,39 +8,32 @@ project(raycaster VERSION 0.1 LANGUAGES C)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Define source files
-file(GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
+file(GLOB SOURCES
+  ${CMAKE_SOURCE_DIR}/src/*.c
+  ${CMAKE_SOURCE_DIR}/src/actors/*.c
+  ${CMAKE_SOURCE_DIR}/src/core/*.c
+  ${CMAKE_SOURCE_DIR}/src/render/*.c
+  ${CMAKE_SOURCE_DIR}/src/sim/*.c
+  ${CMAKE_SOURCE_DIR}/src/util/*.c
+)
 
 # Include directories
-include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(
+  ${CMAKE_SOURCE_DIR}/include
+  ${CMAKE_SOURCE_DIR}/include/actors
+  ${CMAKE_SOURCE_DIR}/include/core
+  ${CMAKE_SOURCE_DIR}/include/event
+  ${CMAKE_SOURCE_DIR}/include/input
+  ${CMAKE_SOURCE_DIR}/include/interface
+  ${CMAKE_SOURCE_DIR}/include/render
+  ${CMAKE_SOURCE_DIR}/include/sim
+  ${CMAKE_SOURCE_DIR}/include/util
+)
 
 # Add project executable
 add_executable(main ${SOURCES})
 
 if(WIN32)
-  # set(SDL2_INCLUDE_DIRS "C:/Packages/SDL2/include")
-  # set(SDL2_LIBRARIES "C:/Packages/SDL2/lib/x64/SDL2.lib" "C:/Packages/SDL2/lib/x64/SDL2main.lib")
-
-  # set(SDL2_IMAGE_LIBRARIES "C:/SDL2_image/lib/SDL2_image.lib")
-  # set(SDL2_IMAGE_INCLUDE_DIRS "C:/SDL2/include")
-
-  # SDL2 DLL paths
-  # set(SDL2_DLL "C:/Packages/SDL2/lib/x64/SDL2.dll")
-
-  # set(SDL2_IMAGE_DLL "C:/SDL2_image/lib/SDL2_image.dll")
-
-  # # Copy SDL2.dll to the build directory
-  # add_custom_command(
-  # TARGET main POST_BUILD
-  # COMMAND ${CMAKE_COMMAND} -E copy_if_different
-  # ${SDL2_DLL} $<TARGET_FILE_DIR:main>
-  # )
-
-  # # Copy SDL2_image.dll to the build directory
-  # add_custom_command(
-  # TARGET main POST_BUILD
-  # COMMAND ${CMAKE_COMMAND} -E copy_if_different
-  # ${SDL2_IMAGE_DLL} $<TARGET_FILE_DIR:main>
-  # )
   set(CMAKE_BUILD_TYPE Debug) # Ensure the Debug build type is used
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /DEBUG") # Enable debug symbols for MSVC
 

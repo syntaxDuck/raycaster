@@ -38,6 +38,7 @@ static int initialize_window_context(WindowCtx *ctx)
   ctx->state.fps = ctx->window_config->max_fps;
   ctx->state.last_time = SDL_GetTicks();
   ctx->state.quit = false;
+  return 0;
 }
 
 static void update_frame_counter(WindowCtx *ctx)

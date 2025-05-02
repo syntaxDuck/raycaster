@@ -37,7 +37,7 @@ Scene *create_scene(WindowCtx *window_ctx, char *map_path)
     exit(1);
   }
 
-  Texture *textures = create_textures();
+  TextureData *textures = create_textures();
   if (textures == NULL)
   {
     fprintf(stderr, "Failed to load textures\n");
@@ -72,9 +72,8 @@ Scene *create_scene(WindowCtx *window_ctx, char *map_path)
 
 void render_scene(void (*render)())
 {
-  SDL_SetRenderDrawColor(current_scene->window_ctx->renderer, 0, 0, 0, 255);
-  SDL_RenderClear(current_scene->window_ctx->renderer);
-
+  set_render_draw_color(current_scene->window_ctx->renderer, 0, 0, 0, 255);
+  clear_renderer(current_scene->window_ctx->renderer);
   render(*current_scene);
 }
 
@@ -90,8 +89,8 @@ void render_2d_map(Scene scene)
   int y_offset;
 
   // Set the background color (white)
-  SDL_SetRenderDrawColor(scene.window_ctx->renderer, 255, 255, 255, 255);
-  SDL_RenderClear(scene.window_ctx->renderer);
+  set_render_draw_color(scene.window_ctx->renderer, 255, 255, 255, 255);
+  clear_renderer(scene.window_ctx->renderer);
 
   // Loop through the map and draw rectangles
   for (int y = 0; y < scene.map.height; y++)
@@ -105,22 +104,20 @@ void render_2d_map(Scene scene)
       // Set the color depending on the grid value
       if (scene.map.walls[y][x])
       {
-        SDL_SetRenderDrawColor(scene.window_ctx->renderer, 255, 0, 0,
-                               255); // Red for filled cells
+        set_render_draw_color(scene.window_ctx->renderer, 255, 0, 0, 255); // Red for filled cells
       }
       else
       {
-        SDL_SetRenderDrawColor(scene.window_ctx->renderer, 0, 0, 0,
-                               255); // Black for empty cells
+        set_render_draw_color(scene.window_ctx->renderer, 0, 0, 0, 255); // Black for empty cells
       }
 
       // Define the rectangle for each cell in the map
-      SDL_Rect rectangle = {x * scene.map.unit_size, y * scene.map.unit_size,
-                            scene.map.unit_size - x_offset,
-                            scene.map.unit_size - y_offset};
+      Rect rectangle = {x * scene.map.unit_size, y * scene.map.unit_size,
+                        scene.map.unit_size - x_offset,
+                        scene.map.unit_size - y_offset};
 
       // Draw the rectangle onto the texture
-      SDL_RenderFillRect(scene.window_ctx->renderer, &rectangle);
+      render_fill_rect(scene.window_ctx->renderer, &rectangle);
     }
   }
 }
@@ -139,62 +136,62 @@ void render_2d_player(Player player)
 
 void render_player_plane(Player player)
 {
-  SDL_SetRenderDrawColor(current_scene->window_ctx->renderer, 0, 0, 0, 255);
+  set_render_draw_color(current_scene->window_ctx->renderer, 0, 0, 0, 255);
   set_vector_magnitude(&player.actor.dir, 10);
   set_vector_magnitude(&player.plane, 5);
-  SDL_RenderDrawLine(current_scene->window_ctx->renderer,
-                     player.actor.pos.x + player.actor.dir.x - player.plane.x,
-                     player.actor.pos.y + player.actor.dir.y - player.plane.y,
-                     player.actor.pos.x + player.actor.dir.x + player.plane.x,
-                     player.actor.pos.y + player.actor.dir.y + player.plane.y);
+  render_draw_line(current_scene->window_ctx->renderer,
+                   player.actor.pos.x + player.actor.dir.x - player.plane.x,
+                   player.actor.pos.y + player.actor.dir.y - player.plane.y,
+                   player.actor.pos.x + player.actor.dir.x + player.plane.x,
+                   player.actor.pos.y + player.actor.dir.y + player.plane.y);
 }
 
 void render_actor_body(Actor actor)
 {
-  SDL_SetRenderDrawColor(current_scene->window_ctx->renderer, 0, 255, 0, 255);
-  SDL_Rect rect = {actor.pos.x - (actor.size >> 1),
-                   actor.pos.y - (actor.size >> 1), actor.size, actor.size};
-  SDL_RenderFillRect(current_scene->window_ctx->renderer, &rect);
+  set_render_draw_color(current_scene->window_ctx->renderer, 0, 255, 0, 255);
+  Rect rect = {actor.pos.x - (actor.size >> 1),
+               actor.pos.y - (actor.size >> 1), actor.size, actor.size};
+  render_fill_rect(current_scene->window_ctx->renderer, &rect);
 }
 
 void render_actor_view_dir(Actor actor)
 {
-  SDL_SetRenderDrawColor(current_scene->window_ctx->renderer, 0, 0, 0, 255);
+  set_render_draw_color(current_scene->window_ctx->renderer, 0, 0, 0, 255);
   set_vector_magnitude(&actor.dir, 10);
   translate_vector(&actor.dir, actor.pos);
-  SDL_RenderDrawLine(current_scene->window_ctx->renderer, actor.pos.x, actor.pos.y, actor.dir.x,
-                     actor.dir.y);
+  render_draw_line(current_scene->window_ctx->renderer,
+                   actor.pos.x, actor.pos.y, actor.dir.x, actor.dir.y);
 }
 
 void render_actor_vel_dir(Actor actor)
 {
-  SDL_SetRenderDrawColor(current_scene->window_ctx->renderer, 255, 255, 255, 255);
+  set_render_draw_color(current_scene->window_ctx->renderer, 255, 255, 255, 255);
   set_vector_magnitude(&actor.velocity, 10);
   translate_vector(&actor.pos, actor.velocity);
-  SDL_RenderDrawLine(current_scene->window_ctx->renderer, actor.pos.x, actor.pos.y,
-                     actor.velocity.x, actor.velocity.y);
+  render_draw_line(current_scene->window_ctx->renderer,
+                   actor.pos.x, actor.pos.y, actor.velocity.x, actor.velocity.y);
 }
 
 void render_actor_view_rays(Actor actor)
 {
-  SDL_SetRenderDrawColor(current_scene->window_ctx->renderer, 255, 0, 255, 75);
+  set_render_draw_color(current_scene->window_ctx->renderer, 255, 0, 255, 75);
   for (int i = 0; i < DEFAULT_NUM_RAYS; i++)
   {
     Vector ray = actor.view_cone[i];
-    SDL_RenderDrawLine(current_scene->window_ctx->renderer, actor.pos.x, actor.pos.y, ray.x,
-                       ray.y);
+    render_draw_line(current_scene->window_ctx->renderer,
+                     actor.pos.x, actor.pos.y, ray.x, ray.y);
   }
 }
 
 void render_player_view_rays(Player player)
 {
-  SDL_SetRenderDrawColor(current_scene->window_ctx->renderer, 255, 0, 255, 75);
+  set_render_draw_color(current_scene->window_ctx->renderer, 255, 0, 255, 75);
   for (int i = 0; i < current_scene->window_ctx->window_config->width; i++)
   {
     Vector ray = player.intersects[i].vect;
-    SDL_RenderDrawLine(current_scene->window_ctx->renderer, player.actor.pos.x,
-                       player.actor.pos.y, ray.x * DEFAULT_MAP_UNIT_SIZE,
-                       ray.y * DEFAULT_MAP_UNIT_SIZE);
+    render_draw_line(current_scene->window_ctx->renderer,
+                     player.actor.pos.x, player.actor.pos.y,
+                     ray.x * DEFAULT_MAP_UNIT_SIZE, ray.y * DEFAULT_MAP_UNIT_SIZE);
   }
 }
 
@@ -211,14 +208,15 @@ void renderer_sprites()
   player_pos.x /= DEFAULT_MAP_UNIT_SIZE;
   player_pos.y /= DEFAULT_MAP_UNIT_SIZE;
 
-  SDL_Texture *texture = SDL_CreateTexture(
+  Texture *texture = create_texture(
       current_scene->window_ctx->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,
       current_scene->window_ctx->window_config->width,
       current_scene->window_ctx->window_config->height);
-  SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+  set_texture_blend_mode(texture, SDL_BLENDMODE_BLEND);
+
   void *pixels;
   int pitch;
-  SDL_LockTexture(texture, NULL, &pixels, &pitch);
+  lock_texture(texture, NULL, &pixels, &pitch);
   memset(pixels, 0xFFFFFF00, pitch * current_scene->window_ctx->window_config->height);
   uint32_t *pixel_data = (uint32_t *)pixels;
   uint32_t color;
@@ -294,25 +292,25 @@ void renderer_sprites()
       }
     }
   }
-  SDL_UnlockTexture(texture);
-  SDL_RenderCopy(current_scene->window_ctx->renderer, texture, NULL, NULL);
-  SDL_DestroyTexture(texture);
+  unlock_texture(texture);
+  render_copy(current_scene->window_ctx->renderer, texture, NULL, NULL);
+  destroy_texture(texture);
 }
 
 void render_floor_and_ceil()
 {
-  SDL_Texture *texture = SDL_CreateTexture(
+  Texture *texture = create_texture(
       current_scene->window_ctx->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,
       current_scene->window_ctx->window_config->width, current_scene->window_ctx->window_config->height);
   void *pixels;
   int pitch;
-  SDL_LockTexture(texture, NULL, &pixels, &pitch);
+  lock_texture(texture, NULL, &pixels, &pitch);
   memset(pixels, 0xFFFFFF00, pitch * current_scene->window_ctx->window_config->height);
   uint32_t *pixel_data = (uint32_t *)pixels;
   uint32_t color;
 
   int w, h;
-  SDL_GetWindowSizeInPixels(current_scene->window_ctx->window, &w, &h);
+  get_window_size_in_pixels(current_scene->window_ctx->window, &w, &h);
   for (int y = h / 2; y < h; ++y)
   {
     // rayDir for leftmost ray (x = 0) and rightmost ray (x = w)
@@ -412,26 +410,26 @@ void render_floor_and_ceil()
       }
     }
   }
-  SDL_UnlockTexture(texture);
-  SDL_RenderCopy(current_scene->window_ctx->renderer, texture, NULL, NULL);
-  SDL_DestroyTexture(texture);
+  unlock_texture(texture);
+  render_copy(current_scene->window_ctx->renderer, texture, NULL, NULL);
+  destroy_texture(texture);
 }
 
 void render_walls()
 {
-  SDL_Texture *texture = SDL_CreateTexture(
+  Texture *texture = create_texture(
       current_scene->window_ctx->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING,
       current_scene->window_ctx->window_config->width, current_scene->window_ctx->window_config->height);
-  SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+  set_texture_blend_mode(texture, SDL_BLENDMODE_BLEND);
   void *pixels;
   int pitch;
-  SDL_LockTexture(texture, NULL, &pixels, &pitch);
+  lock_texture(texture, NULL, &pixels, &pitch);
   memset(pixels, 0, pitch * current_scene->window_ctx->window_config->height);
   uint32_t *pixel_data = (uint32_t *)pixels;
   uint32_t color;
 
   int w, h;
-  SDL_GetWindowSizeInPixels(current_scene->window_ctx->window, &w, &h);
+  get_window_size_in_pixels(current_scene->window_ctx->window, &w, &h);
   for (int x = 0; x < w; x++)
   {
     WallIntersect intersect = current_scene->player.intersects[x];
@@ -490,9 +488,9 @@ void render_walls()
       pixel_data[(y * (pitch / 4)) + x] = color;
     }
   }
-  SDL_UnlockTexture(texture);
-  SDL_RenderCopy(current_scene->window_ctx->renderer, texture, NULL, NULL);
-  SDL_DestroyTexture(texture);
+  unlock_texture(texture);
+  render_copy(current_scene->window_ctx->renderer, texture, NULL, NULL);
+  destroy_texture(texture);
 }
 
 void free_scene(Scene *scene)

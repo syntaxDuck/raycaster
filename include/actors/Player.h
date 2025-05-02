@@ -1,7 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "window.h"
+#include "window_ctx.h"
 #include "actor.h"
 #include "vector.h"
 

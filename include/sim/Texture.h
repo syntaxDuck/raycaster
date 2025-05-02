@@ -11,10 +11,10 @@ typedef struct
   int *pixels;
   int height;
   int width;
-} Texture;
+} TextureData;
 
-Texture *create_textures();
+TextureData *create_textures();
 uint32_t *load_image_data(const char *file_path, int *ptr_width, int *ptr_height);
-void free_texture(Texture *texture);
+void free_texture(TextureData *texture);
 
 #endif

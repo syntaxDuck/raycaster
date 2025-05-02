@@ -57,10 +57,10 @@ uint32_t *load_image_data(const char *file_path, int *ptr_width, int *ptr_height
 }
 
 // TODO: have some issues rendering textures with alpha channels
-Texture *create_textures()
+TextureData *create_textures()
 {
   // int textures[8][DEFAULT_TEXTURE_HEIGHT * DEFAULT_TEXTURE_WIDTH];
-  Texture *textures = malloc(sizeof(Texture) * 11);
+  TextureData *textures = malloc(sizeof(TextureData) * 11);
   int width, height;
 
   // Static Textures
@@ -119,9 +119,9 @@ Texture *create_textures()
   return textures;
 }
 
-Texture *createProgrammaticTextures()
+TextureData *createProgrammaticTextures()
 {
-  Texture *textures = malloc(sizeof(Texture) * 11);
+  TextureData *textures = malloc(sizeof(TextureData) * 11);
   textures[0].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
   textures[1].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
   textures[2].pixels = malloc(sizeof(int) * (DEFAULT_TEXTURE_WIDTH * DEFAULT_TEXTURE_HEIGHT));
@@ -161,7 +161,7 @@ Texture *createProgrammaticTextures()
   return textures;
 }
 
-void free_texture(Texture *textures)
+void free_texture(TextureData *textures)
 {
   for (int i = 0; i < 11; i++)
   {

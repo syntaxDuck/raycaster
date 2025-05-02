@@ -12,22 +12,20 @@ file(GLOB SOURCES
   ${CMAKE_SOURCE_DIR}/src/*.c
   ${CMAKE_SOURCE_DIR}/src/actors/*.c
   ${CMAKE_SOURCE_DIR}/src/core/*.c
-  ${CMAKE_SOURCE_DIR}/src/render/*.c
   ${CMAKE_SOURCE_DIR}/src/sim/*.c
   ${CMAKE_SOURCE_DIR}/src/util/*.c
+  ${CMAKE_SOURCE_DIR}/src/interface/*.c
+  ${CMAKE_SOURCE_DIR}/src/platform/sdl/src/*.c
 )
 
 # Include directories
 include_directories(
-  ${CMAKE_SOURCE_DIR}/include
   ${CMAKE_SOURCE_DIR}/include/actors
   ${CMAKE_SOURCE_DIR}/include/core
-  ${CMAKE_SOURCE_DIR}/include/event
-  ${CMAKE_SOURCE_DIR}/include/input
   ${CMAKE_SOURCE_DIR}/include/interface
-  ${CMAKE_SOURCE_DIR}/include/render
   ${CMAKE_SOURCE_DIR}/include/sim
   ${CMAKE_SOURCE_DIR}/include/util
+  ${CMAKE_SOURCE_DIR}/src/platform/sdl/include
 )
 
 # Add project executable
@@ -66,14 +64,14 @@ if(WIN32)
 
 elseif(APPLE)
   # Setup debug
-  set(CMAKE_BUILD_TYPE Debug)
-  set(CMAKE_C_FLAGS_DEBUG "-g")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L/opt/homebrew/lib")
-  find_package(PkgConfig REQUIRED)
-  pkg_check_modules(SDL2 REQUIRED sdl2)
-  pkg_check_modules(SDL2_IMAGE REQUIRED sdl2_image)
-  set(SDL2_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
-  set(SDL2_LIBRARIES ${SDL2_LIBRARIES})
-  set(SDL2_IMAGE_LIBRARIES ${SDL2_IMAGE_LIBRARIES})
-  set(SDL2_IMAGE_INCLUDE_DIRS ${SDL2_IMAGE_INCLUDE_DIRS})
+  # set(CMAKE_BUILD_TYPE Debug)
+  # set(CMAKE_C_FLAGS_DEBUG "-g")
+  # set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L/opt/homebrew/lib")
+  # find_package(PkgConfig REQUIRED)
+  # pkg_check_modules(SDL2 REQUIRED sdl2)
+  # pkg_check_modules(SDL2_IMAGE REQUIRED sdl2_image)
+  # set(SDL2_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS})
+  # set(SDL2_LIBRARIES ${SDL2_LIBRARIES})
+  # set(SDL2_IMAGE_LIBRARIES ${SDL2_IMAGE_LIBRARIES})
+  # set(SDL2_IMAGE_INCLUDE_DIRS ${SDL2_IMAGE_INCLUDE_DIRS})
 endif()

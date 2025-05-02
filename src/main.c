@@ -1,5 +1,5 @@
 #include "scene.h"
-#include "window.h"
+#include "window_ctx.h"
 #include "config.h"
 #include <stdio.h>
 #include <SDL_image.h>
@@ -41,12 +41,13 @@ int main(int argc, char *argv[])
   SDL_Event event;
   while (!window_ctx->state.quit)
   {
-    if (SDL_PollEvent(&event) != 0)
-    {
-      handle_window_events(window_ctx, event);
-    }
+    // if (SDL_PollEvent(&event) != 0)
+    // {
+    //   handle_window_events(window_ctx, event);
+    // }
 
-    render_window(window_ctx);
+    window_ctx->render_function();
+    render_present(window_ctx->renderer);
 
     process_player_motion(&scene->player, window_ctx->state.fps,
                           scene->map);

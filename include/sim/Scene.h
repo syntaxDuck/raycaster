@@ -1,7 +1,7 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include "window.h"
+#include "window_ctx.h"
 #include "actor.h"
 #include "map.h"
 #include "player.h"
@@ -30,7 +30,7 @@ typedef struct
   Player player;
   SceneStaticSprites static_sprites;
   SceneDynamicSprites dynamic_sprites;
-  Texture *textures;
+  TextureData *textures;
   WindowCtx *window_ctx;
 } Scene;
 

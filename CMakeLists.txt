@@ -15,7 +15,10 @@ file(GLOB SOURCES
   ${CMAKE_SOURCE_DIR}/src/sim/*.c
   ${CMAKE_SOURCE_DIR}/src/util/*.c
   ${CMAKE_SOURCE_DIR}/src/interface/*.c
-  ${CMAKE_SOURCE_DIR}/src/platform/sdl/src/*.c
+  ${CMAKE_SOURCE_DIR}/src/render/*.c
+  ${CMAKE_SOURCE_DIR}/src/event/*.c
+  ${CMAKE_SOURCE_DIR}/src/input/*.c
+  ${CMAKE_SOURCE_DIR}/src/platform/sdl/*.c
 )
 
 # Include directories
@@ -25,7 +28,9 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/include/interface
   ${CMAKE_SOURCE_DIR}/include/sim
   ${CMAKE_SOURCE_DIR}/include/util
-  ${CMAKE_SOURCE_DIR}/src/platform/sdl/include
+  ${CMAKE_SOURCE_DIR}/include/render
+  ${CMAKE_SOURCE_DIR}/include/event
+  ${CMAKE_SOURCE_DIR}/include/input
 )
 
 # Add project executable

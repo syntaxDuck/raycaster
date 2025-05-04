@@ -1,7 +1,6 @@
 #include "actor.h"
 #include "config.h"
-#include <SDL.h>
-#include <SDL_surface.h>
+#include "input.h"
 #include <stdbool.h>
 
 #ifndef M_PI_2
@@ -12,7 +11,7 @@ void process_actor_motion(Actor *actor, float frame_time, Map map)
 {
   float movement_speed = 5 * map.unit_size * frame_time;
 
-  const Uint8 *state = SDL_GetKeyboardState(NULL);
+  const uint8_t *state = get_keyboard_state();
 
   // Rotation Function
   if (state[SDL_SCANCODE_D] ^ state[SDL_SCANCODE_A])

@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+struct Window;
 typedef struct Window Window;
 
 typedef struct

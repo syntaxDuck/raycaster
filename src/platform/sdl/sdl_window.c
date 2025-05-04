@@ -3,27 +3,21 @@
 #include <SDL.h>
 #include <stdio.h>
 
-struct Window
-{
-  SDL_Window *sdl_window;
-};
-
 Window *create_window(char *title, int width, int height)
 {
-  Window *win = malloc(sizeof(Window));
-  win->sdl_window = SDL_CreateWindow(title,
+  SDL_Window *win = SDL_CreateWindow(title,
                                      SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                      width, height,
                                      SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
-  if (win->sdl_window == NULL)
+  if (win == NULL)
   {
     fprintf(stderr, "Window could not be created! SDL_Error: %s\n",
             SDL_GetError());
     return NULL;
   }
 
-  return win;
+  return (Window *)win;
 }
 
 // static void update_frame_counter(WindowCtx *ctx)
@@ -49,31 +43,13 @@ Window *create_window(char *title, int width, int height)
 //   }
 // }
 
-// void handle_window_events(WindowCtx *ctx, SDL_Event event)
-// {
-//   if (event.type == SDL_QUIT)
-//   {
-//     ctx->state.quit = true;
-//   }
-
-//   if (event.type == SDL_WINDOWEVENT)
-//   {
-//     if (event.window.event == SDL_WINDOWEVENT_RESIZED)
-//     {
-//       SDL_GetWindowSizeInPixels(ctx->window,
-//                                 &ctx->window_config->width,
-//                                 &ctx->window_config->height);
-//     }
-//   }
-// }
-
 void get_window_size_in_pixels(Window *win, int *w, int *h)
 {
-  SDL_GetWindowSizeInPixels(win->sdl_window, w, h);
+  SDL_GetWindowSizeInPixels((SDL_Window *)win, w, h);
 }
 
 void free_window(Window *win)
 {
-  if (win->sdl_window)
-    SDL_DestroyWindow(win->sdl_window);
+  if (win)
+    SDL_DestroyWindow((SDL_Window *)win);
 }

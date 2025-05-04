@@ -2,7 +2,6 @@
 
 WindowCtx *create_window_ctx(WindowConfig *config)
 {
-    // Create the window
     WindowCtx *ctx = malloc(sizeof(WindowCtx));
     ctx->window_config = config;
 

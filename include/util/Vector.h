@@ -1,6 +1,14 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
+#define PI 3.14159265358979323846
+#define PI_2 (PI / 2.0)
+#define PI_3 (PI / 3.0)
+#define PI_4 (PI / 4.0)
+#define PI_6 (PI / 6.0)
+#define PI_8 (PI / 8.0)
+#define DEG_TO_RAD (PI / 180.0)
+
 // Structure representing a 2D vector or point with x and y components,
 // magnitude (mag), and angle (angle) in radians.
 typedef struct

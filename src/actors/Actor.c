@@ -3,10 +3,6 @@
 #include "input.h"
 #include <stdbool.h>
 
-#ifndef M_PI_2
-#define M_PI_2 1.57079632679489661923
-#endif
-
 void process_actor_motion(Actor *actor, float frame_time, Map map)
 {
   float movement_speed = 5 * map.unit_size * frame_time;
@@ -14,9 +10,9 @@ void process_actor_motion(Actor *actor, float frame_time, Map map)
   const uint8_t *state = get_keyboard_state();
 
   // Rotation Function
-  if (state[SDL_SCANCODE_D] ^ state[SDL_SCANCODE_A])
+  if (state[SCANCODE_D] ^ state[SCANCODE_A])
   {
-    if (state[SDL_SCANCODE_A])
+    if (state[SCANCODE_A])
     {
       rotate_vector(&actor->dir, -actor->turn_speed);
     }
@@ -28,9 +24,9 @@ void process_actor_motion(Actor *actor, float frame_time, Map map)
   }
 
   // Velocity Vector Function
-  if (state[SDL_SCANCODE_W] ^ state[SDL_SCANCODE_S])
+  if (state[SCANCODE_W] ^ state[SCANCODE_S])
   {
-    if (state[SDL_SCANCODE_W])
+    if (state[SCANCODE_W])
     {
       Vector new_pos = set_vector(actor->pos.x + actor->dir.x * movement_speed,
                                   actor->pos.y + actor->dir.y * movement_speed);
@@ -56,7 +52,7 @@ void process_actor_motion(Actor *actor, float frame_time, Map map)
   }
 }
 
-Vector get_ray_row_intersectect(Vector origin, Vector ray, Map map)
+Vector get_ray_row_intersect(Vector origin, Vector ray, Map map)
 {
   Vector casted_ray;
   double x, y;
@@ -66,7 +62,7 @@ Vector get_ray_row_intersectect(Vector origin, Vector ray, Map map)
   int row_offset = origin.y - (int)origin.y % map.unit_size;
   while (true)
   {
-    if (ray.angle == 0 || ray.angle == M_PI)
+    if (ray.angle == 0 || ray.angle == PI)
     {
       x = ray.angle == 0 ? 1e30 : -1e30;
       y = 0;
@@ -80,7 +76,7 @@ Vector get_ray_row_intersectect(Vector origin, Vector ray, Map map)
 
     else
     {
-      if (ray.angle > 0 && ray.angle < M_PI)
+      if (ray.angle > 0 && ray.angle < PI)
       {
         x = (origin.y - row_offset) * ray_cot;
         y = row_offset - origin.y;
@@ -135,10 +131,10 @@ Vector get_ray_col_intersect(Vector origin, Vector ray, Map map)
   int col_offset = origin.x - (int)origin.x % map.unit_size;
   while (true)
   {
-    if (ray.angle == M_PI_2 || ray.angle == 3 * M_PI_2)
+    if (ray.angle == PI_2 || ray.angle == 3 * PI_2)
     {
 
-      y = ray.angle == M_PI_2 ? 1e30 : -1e30;
+      y = ray.angle == PI_2 ? 1e30 : -1e30;
       x = 0;
 
       casted_ray.x = origin.x + x;
@@ -151,7 +147,7 @@ Vector get_ray_col_intersect(Vector origin, Vector ray, Map map)
     else
     {
 
-      if (ray.angle < M_PI_2 || ray.angle > 3 * M_PI_2)
+      if (ray.angle < PI_2 || ray.angle > 3 * PI_2)
       {
         x = col_offset - origin.x;
         y = (origin.x - col_offset) * ray_tan;
@@ -205,7 +201,7 @@ void cast_actor_rays(Actor *actor, Map map)
     Vector new_vect = actor->dir;
     rotate_vector(&new_vect, starting_angle + i * increment_rad);
 
-    Vector row_intersect = get_ray_row_intersectect(actor->pos, new_vect, map);
+    Vector row_intersect = get_ray_row_intersect(actor->pos, new_vect, map);
     Vector col_intersect = get_ray_col_intersect(actor->pos, new_vect, map);
     actor->view_cone[i] =
         row_intersect.mag < col_intersect.mag ? row_intersect : col_intersect;

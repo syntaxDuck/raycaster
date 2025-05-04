@@ -1,10 +1,6 @@
 #include "player.h"
 #include "config.h"
 
-#ifndef M_PI_2
-#define M_PI_2 1.57079632679489661923
-#endif
-
 void cast_player_rays(Player *player, Map map)
 {
   WindowConfig *win_config = player->window_ctx->window_config;
@@ -104,7 +100,7 @@ void process_player_motion(Player *player, float fps, Map map)
 {
   process_actor_motion(&player->actor, 1 / fps, map);
   rotate_vector(&player->plane,
-                player->actor.dir.angle - player->plane.angle + M_PI_2);
+                player->actor.dir.angle - player->plane.angle + PI_2);
   cast_player_rays(player, map);
 }
 

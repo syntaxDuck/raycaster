@@ -10,9 +10,9 @@
 
 typedef struct
 {
-  Uint8 **walls;
-  Uint8 **ceil;
-  Uint8 **floor;
+  uint8_t **walls;
+  uint8_t **ceil;
+  uint8_t **floor;
   int unit_size;
   int width;
   int height;

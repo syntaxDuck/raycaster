@@ -58,9 +58,9 @@ void load_map_grid_from_file(const char *filename, Map *map)
   fscanf(file, "%d %d", &map->width, &map->height);
 
   // Allocate memory for the map
-  Uint8 **walls = malloc(map->height * sizeof(Uint8 *));
-  Uint8 **ceil = malloc(map->height * sizeof(Uint8 *));
-  Uint8 **floor = malloc(map->height * sizeof(Uint8 *));
+  uint8_t **walls = malloc(map->height * sizeof(uint8_t *));
+  uint8_t **ceil = malloc(map->height * sizeof(uint8_t *));
+  uint8_t **floor = malloc(map->height * sizeof(uint8_t *));
   if (!walls || !ceil || !floor)
   {
     fprintf(stderr, "Failed to allocate memory for map\n");
@@ -70,7 +70,7 @@ void load_map_grid_from_file(const char *filename, Map *map)
 
   for (int i = 0; i < map->height; i++)
   {
-    walls[i] = malloc(map->width * sizeof(Uint8));
+    walls[i] = malloc(map->width * sizeof(uint8_t));
     if (!walls[i])
     {
       fprintf(stderr, "Failed to allocate memory for walls row\n");
@@ -92,7 +92,7 @@ void load_map_grid_from_file(const char *filename, Map *map)
 
   for (int i = 0; i < map->height; i++)
   {
-    ceil[i] = malloc(map->width * sizeof(Uint8));
+    ceil[i] = malloc(map->width * sizeof(uint8_t));
     if (!ceil[i])
     {
       fprintf(stderr, "Failed to allocate memory for ceil row\n");
@@ -115,7 +115,7 @@ void load_map_grid_from_file(const char *filename, Map *map)
 
   for (int i = 0; i < map->height; i++)
   {
-    floor[i] = malloc(map->width * sizeof(Uint8));
+    floor[i] = malloc(map->width * sizeof(uint8_t));
     if (!floor[i])
     {
       fprintf(stderr, "Failed to allocate memory for floor row\n");

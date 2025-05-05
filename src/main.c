@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 {
   initialize_SDL();
   Config *config = init_config();
-  WindowCtx *window_ctx = create_window_ctx(config->ptr_window_config);
+  WindowCtx *window_ctx = create_window_ctx(config->window_config);
   Scene *scene = create_scene(window_ctx, "assets/maps/map.txt");
   set_current_scene(scene);
   window_ctx->render_function = render_fp_scene;
@@ -48,8 +48,7 @@ int main(int argc, char *argv[])
     window_ctx->render_function();
     render_present(window_ctx->renderer);
 
-    process_player_motion(&scene->player, window_ctx->state.fps,
-                          scene->map);
+    update_player(&scene->player);
   }
 
   free_scene(scene);

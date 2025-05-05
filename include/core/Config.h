@@ -18,8 +18,8 @@
 
 typedef struct
 {
-    WindowConfig *ptr_window_config;
-    PlayerConfig *ptr_player_config;
+    WindowConfig *window_config;
+    PlayerConfig *player_config;
 } Config;
 
 Config *init_config();

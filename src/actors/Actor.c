@@ -3,53 +3,23 @@
 #include "input.h"
 #include <stdbool.h>
 
-void process_actor_motion(Actor *actor, float frame_time, Map map)
+void rotate_actor(Actor *actor, float angle)
 {
-  float movement_speed = 5 * map.unit_size * frame_time;
+  rotate_vector(&actor->dir, angle);
+  actor->velocity.angle = actor->dir.angle;
+}
 
-  const uint8_t *state = get_keyboard_state();
-
-  // Rotation Function
-  if (state[SCANCODE_D] ^ state[SCANCODE_A])
-  {
-    if (state[SCANCODE_A])
-    {
-      rotate_vector(&actor->dir, -actor->turn_speed);
-    }
-    else
-    {
-      rotate_vector(&actor->dir, actor->turn_speed);
-    }
-    actor->velocity.angle = actor->dir.angle;
-  }
-
-  // Velocity Vector Function
-  if (state[SCANCODE_W] ^ state[SCANCODE_S])
-  {
-    if (state[SCANCODE_W])
-    {
-      Vector new_pos = set_vector(actor->pos.x + actor->dir.x * movement_speed,
-                                  actor->pos.y + actor->dir.y * movement_speed);
-      if (map.walls[(int)actor->pos.y / map.unit_size]
-                   [(int)new_pos.x / map.unit_size] == false)
-        actor->pos.x = new_pos.x;
-      if (map.walls[(int)new_pos.y / map.unit_size]
-                   [(int)actor->pos.x / map.unit_size] == false)
-        actor->pos.y = new_pos.y;
-    }
-    else
-    {
-      Vector new_pos = set_vector(actor->pos.x - actor->dir.x * movement_speed,
-                                  actor->pos.y - actor->dir.y * movement_speed);
-      if (map.walls[(int)actor->pos.y / map.unit_size]
-                   [(int)new_pos.x / map.unit_size] == false)
-        actor->pos.x = new_pos.x;
-      if (map.walls[(int)new_pos.y / map.unit_size]
-                   [(int)actor->pos.x / map.unit_size] == false)
-        actor->pos.y = new_pos.y;
-      return;
-    }
-  }
+void move_actor(Actor *actor, int dir, Map map, float frame_time)
+{
+  float movement_speed = actor->max_vel * map.unit_size * frame_time;
+  Vector new_pos = set_vector(actor->pos.x + (actor->dir.x * movement_speed * dir),
+                              actor->pos.y + (actor->dir.y * movement_speed * dir));
+  if (map.walls[(int)actor->pos.y / map.unit_size]
+               [(int)new_pos.x / map.unit_size] == false)
+    actor->pos.x = new_pos.x;
+  if (map.walls[(int)new_pos.y / map.unit_size]
+               [(int)actor->pos.x / map.unit_size] == false)
+    actor->pos.y = new_pos.y;
 }
 
 Vector get_ray_row_intersect(Vector origin, Vector ray, Map map)

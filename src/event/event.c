@@ -1,4 +1,6 @@
 #include "event.h"
+#include "player.h"
+#include "scene.h"
 
 void handle_window_events(Window *win)
 {

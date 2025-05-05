@@ -10,6 +10,13 @@
 
 typedef struct
 {
+  Actor *actors;
+  int count;
+  int list_size;
+} ActorList;
+
+typedef struct
+{
   int num_sprites;
   int *sprite_order;
   double *sprite_dist;
@@ -28,6 +35,7 @@ typedef struct
 {
   Map map;
   Player player;
+  ActorList *actor_list;
   SceneStaticSprites static_sprites;
   SceneDynamicSprites dynamic_sprites;
   TextureData *textures;
@@ -44,7 +52,7 @@ void render_2d_scene();
 void render_fp_scene();
 void renderer_sprites();
 void render_2d_map();
-void render_2d_player(Player player);
+void render_2d_player();
 void render_player_plane(Player player);
 void render_player_view_rays(Player player);
 void render_actor_body(Actor actor);

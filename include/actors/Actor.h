@@ -21,14 +21,9 @@ typedef struct
   Vector *view_cone;
 } Actor;
 
-typedef struct Node
-{
-  struct Node *next;
-  Actor actor;
-} ActorListNode;
-
 void cast_actor_rays(Actor *actor, Map map);
-void process_actor_motion(Actor *actor, float fps, Map map);
+void rotate_actor(Actor *actor, float angle);
+void move_actor(Actor *actor, int dir, Map map, float frame_time);
 
 // DDA algo
 Vector get_ray_row_intersect(Vector origin, Vector ray, Map map);

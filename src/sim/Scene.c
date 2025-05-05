@@ -122,9 +122,9 @@ void render_2d_map(Scene scene)
   }
 }
 
-void render_2d_player(Player player)
+void render_2d_player()
 {
-  render_actor_body(current_scene->player.actor);
+  render_actor_body(*current_scene->player.actor);
 
 #ifdef DEBUG
   render_player_view_rays(player);
@@ -137,13 +137,13 @@ void render_2d_player(Player player)
 void render_player_plane(Player player)
 {
   set_render_draw_color(current_scene->window_ctx->renderer, 0, 0, 0, 255);
-  set_vector_magnitude(&player.actor.dir, 10);
+  set_vector_magnitude(&player.actor->dir, 10);
   set_vector_magnitude(&player.plane, 5);
   render_draw_line(current_scene->window_ctx->renderer,
-                   player.actor.pos.x + player.actor.dir.x - player.plane.x,
-                   player.actor.pos.y + player.actor.dir.y - player.plane.y,
-                   player.actor.pos.x + player.actor.dir.x + player.plane.x,
-                   player.actor.pos.y + player.actor.dir.y + player.plane.y);
+                   player.actor->pos.x + player.actor->dir.x - player.plane.x,
+                   player.actor->pos.y + player.actor->dir.y - player.plane.y,
+                   player.actor->pos.x + player.actor->dir.x + player.plane.x,
+                   player.actor->pos.y + player.actor->dir.y + player.plane.y);
 }
 
 void render_actor_body(Actor actor)
@@ -190,7 +190,7 @@ void render_player_view_rays(Player player)
   {
     Vector ray = player.intersects[i].vect;
     render_draw_line(current_scene->window_ctx->renderer,
-                     player.actor.pos.x, player.actor.pos.y,
+                     player.actor->pos.x, player.actor->pos.y,
                      ray.x * DEFAULT_MAP_UNIT_SIZE, ray.y * DEFAULT_MAP_UNIT_SIZE);
   }
 }
@@ -204,7 +204,7 @@ void render_fp_scene()
 
 void renderer_sprites()
 {
-  Vector player_pos = current_scene->player.actor.pos;
+  Vector player_pos = current_scene->player.actor->pos;
   player_pos.x /= DEFAULT_MAP_UNIT_SIZE;
   player_pos.y /= DEFAULT_MAP_UNIT_SIZE;
 
@@ -241,11 +241,11 @@ void renderer_sprites()
         static_sprites.sprites[static_sprites.sprite_order[i]].pos.x - player_pos.x,
         static_sprites.sprites[static_sprites.sprite_order[i]].pos.y - player_pos.y);
 
-    double inv_det = 1.0 / (current_scene->player.plane.x * current_scene->player.actor.dir.y -
-                            current_scene->player.actor.dir.x * current_scene->player.plane.y);
+    double inv_det = 1.0 / (current_scene->player.plane.x * current_scene->player.actor->dir.y -
+                            current_scene->player.actor->dir.x * current_scene->player.plane.y);
     Vector transform =
-        set_vector(inv_det * (current_scene->player.actor.dir.y * rel_sprite_pos.x -
-                              current_scene->player.actor.dir.x * rel_sprite_pos.y),
+        set_vector(inv_det * (current_scene->player.actor->dir.y * rel_sprite_pos.x -
+                              current_scene->player.actor->dir.x * rel_sprite_pos.y),
                    inv_det * (-current_scene->player.plane.y * rel_sprite_pos.x +
                               current_scene->player.plane.x * rel_sprite_pos.y));
     int sprite_screen_x =
@@ -314,10 +314,10 @@ void render_floor_and_ceil()
   for (int y = h / 2; y < h; ++y)
   {
     // rayDir for leftmost ray (x = 0) and rightmost ray (x = w)
-    float rayDirX0 = current_scene->player.actor.dir.x - current_scene->player.plane.x;
-    float rayDirY0 = current_scene->player.actor.dir.y - current_scene->player.plane.y;
-    float rayDirX1 = current_scene->player.actor.dir.x + current_scene->player.plane.x;
-    float rayDirY1 = current_scene->player.actor.dir.y + current_scene->player.plane.y;
+    float rayDirX0 = current_scene->player.actor->dir.x - current_scene->player.plane.x;
+    float rayDirY0 = current_scene->player.actor->dir.y - current_scene->player.plane.y;
+    float rayDirX1 = current_scene->player.actor->dir.x + current_scene->player.plane.x;
+    float rayDirY1 = current_scene->player.actor->dir.y + current_scene->player.plane.y;
 
     // Current y position compared to the center of the screen (the horizon)
     int p = y - h / 2;
@@ -359,9 +359,9 @@ void render_floor_and_ceil()
     // real world coordinates of the leftmost column. This will be updated as we
     // step to the right.
     float floorX =
-        current_scene->player.actor.pos.x / DEFAULT_MAP_UNIT_SIZE + rowDistance * rayDirX0;
+        current_scene->player.actor->pos.x / DEFAULT_MAP_UNIT_SIZE + rowDistance * rayDirX0;
     float floorY =
-        current_scene->player.actor.pos.y / DEFAULT_MAP_UNIT_SIZE + rowDistance * rayDirY0;
+        current_scene->player.actor->pos.y / DEFAULT_MAP_UNIT_SIZE + rowDistance * rayDirY0;
 
     for (int x = 0; x < w; x++)
     {
